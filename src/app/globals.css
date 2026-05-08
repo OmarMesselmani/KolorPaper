@@ -1,1 +1,121 @@
 @import "tailwindcss";
+
+:root {
+  --primary: #ff6b6b;
+  --secondary: #4ecdc4;
+  --accent: #ffe66d;
+  --background: #f7f9fc;
+  --text: #2d3436;
+  --card-bg: #ffffff;
+  --radius: 20px;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--text);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  margin: 0;
+  direction: rtl;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.header {
+  padding: 1.5rem 0;
+  text-align: center;
+  background: white;
+  box-shadow: var(--shadow);
+  margin-bottom: 2rem;
+  border-bottom: 4px solid var(--primary);
+}
+
+.main-title {
+  color: var(--primary);
+  font-size: 2.5rem;
+  margin: 0;
+}
+
+/* Grid Layout */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem;
+}
+
+/* Card Styling */
+.category-card, .coloring-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+.category-card:hover, .coloring-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.card-image-container, .coloring-image-wrapper {
+  height: 220px;
+  background: linear-gradient(135deg, #f1f2f6 0%, #e2e2e2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 5rem;
+}
+
+.coloring-image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card-content, .coloring-info {
+  padding: 1.5rem;
+}
+
+h3 {
+  margin: 0 0 0.5rem 0;
+  color: var(--text);
+  font-size: 1.25rem;
+}
+
+p {
+  font-size: 0.95rem;
+  color: #636e72;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.3rem 1rem;
+  background: var(--secondary);
+  color: white;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+/* Print Styles */
+@media print {
+  .header, .no-print {
+    display: none !important;
+  }
+  .container {
+    padding: 0;
+    max-width: 100%;
+  }
+}
