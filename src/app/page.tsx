@@ -2,20 +2,25 @@ import { getCategories } from "@/lib/data";
 import CategoryCard from "@/components/CategoryCard";
 
 export default async function Home() {
-  const mainCategories = await getCategories(); // سيجلب الأصناف التي ليس لها parent
+  const mainCategories = await getCategories();
 
   return (
-    <div className="container">
-      <section style={{ marginBottom: '3rem', textAlign: 'center' }}>
-        <h2 style={{ fontSize: '2rem', marginBottom: '1rem' }}>اختر صنفاً لتبدأ التلوين</h2>
-        <p>مجموعة كبيرة من الرسومات الجاهزة للطباعة والتحميل</p>
+    <>
+      <section className="hero">
+        <div className="container">
+          <span className="badge">100% Free 🎨</span>
+          <h2>Coloring World in Your Hands</h2>
+          <p>Explore thousands of ready-to-print coloring pages, from cute animals to your favorite cartoon characters!</p>
+        </div>
       </section>
 
-      <div className="grid">
-        {mainCategories.map((category) => (
-          <CategoryCard key={category.id} category={category} />
-        ))}
+      <div className="container">
+        <div className="grid">
+          {mainCategories.map((category) => (
+            <CategoryCard key={category.id} category={category} />
+          ))}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

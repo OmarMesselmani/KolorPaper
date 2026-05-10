@@ -19,7 +19,7 @@ export default function PrintButton() {
         gap: '0.5rem'
       }}
     >
-      <span>🖨️</span> طباعة الآن
+      <span>🖨️</span> Print Now
     </button>
   );
 }

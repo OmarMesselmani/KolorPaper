@@ -3,24 +3,24 @@ import { Category, ColoringPage } from "@/types";
 export const categories: Category[] = [
   {
     id: "1",
-    title: "حيوانات",
+    title: "Animals",
     slug: "animals",
-    description: "صور تلوين حيوانات رائعة للأطفال",
+    description: "Wonderful animal coloring pages for children",
     imageUrl: "/categories/animals.jpg",
   },
   {
     id: "2",
-    title: "حيوانات المزرعة",
+    title: "Farm Animals",
     slug: "farm-animals",
-    description: "رسومات حيوانات المزرعة اللطيفة",
+    description: "Cute farm animal drawings",
     imageUrl: "/categories/farm.jpg",
     parentSlug: "animals",
   },
   {
     id: "3",
-    title: "فضاء",
+    title: "Space",
     slug: "space",
-    description: "استكشف الكون مع رسومات الفضاء",
+    description: "Explore the universe with space drawings",
     imageUrl: "/categories/space.jpg",
   },
 ];
@@ -28,22 +28,22 @@ export const categories: Category[] = [
 export const coloringPages: ColoringPage[] = [
   {
     id: "101",
-    title: "أسد شجاع",
+    title: "Brave Lion",
     slug: "brave-lion",
     imageUrl: "/coloring-pages/lion.png",
     thumbnailUrl: "/coloring-pages/lion-thumb.png",
     categorySlug: "animals",
     subCategorySlug: "farm-animals",
-    description: "صورة أسد ملك الغابة للتلوين",
+    description: "King of the jungle lion coloring page",
   },
   {
     id: "102",
-    title: "رائد فضاء",
+    title: "Astronaut",
     slug: "astronaut",
     imageUrl: "/coloring-pages/astronaut.png",
     thumbnailUrl: "/coloring-pages/astronaut-thumb.png",
     categorySlug: "space",
-    description: "رائد فضاء يسبح في المجرة",
+    description: "An astronaut floating in the galaxy",
   },
 ];
 

@@ -52,7 +52,7 @@ export default function DownloadPdf({ imageUrl, title }: { imageUrl: string, tit
         opacity: loading ? 0.7 : 1
       }}
     >
-      <span>📥</span> {loading ? 'جاري التحضير...' : 'تحميل PDF'}
+      <span>📥</span> {loading ? 'Preparing...' : 'Download PDF'}
     </button>
   );
 }

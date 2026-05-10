@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "ColoPaper - عالم التلوين للأطفال",
-  description: "أفضل موقع لتحميل وطباعة صور التلوين للأطفال والكبار بجودة عالية",
+  title: "ColoPaper - Coloring World for Kids",
+  description: "The best site for downloading and printing high-quality coloring pages for kids and adults.",
 };
 
 export default function RootLayout({
@@ -12,18 +14,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ar" dir="rtl">
+    <html lang="en" dir="ltr">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
+      </head>
       <body>
-        <header className="header">
-          <div className="container">
-            <h1 className="main-title">🎨 ColoPaper</h1>
-            <p>ارسم، لون، واستمتع!</p>
-          </div>
-        </header>
+        <Header />
         <main>{children}</main>
-        <footer className="container" style={{ textAlign: 'center', padding: '2rem', color: '#636e72' }}>
-          <p>© 2024 ColoPaper - جميع الحقوق محفوظة</p>
-        </footer>
+        <Footer />
       </body>
     </html>
   );

@@ -15,7 +15,7 @@ export default function ColoringCard({ page }: { page: ColoringPage }) {
       </div>
       <div className="coloring-info">
         <h3>{page.title}</h3>
-        <span className="badge">تلوين</span>
+        <span className="badge">Color</span>
       </div>
     </Link>
   );
