@@ -1,6 +1,6 @@
 import { jsPDF } from "jspdf";
 
-export async function generatePdfFromImage(imageUrl: string, title: string): Promise<Buffer> {
+export async function generatePdfFromImage(imageUrl: string, title: string): Promise<Blob> {
   const doc = new jsPDF({
     orientation: "p",
     unit: "mm",
@@ -23,7 +23,7 @@ export async function generatePdfFromImage(imageUrl: string, title: string): Pro
   // إضافة عنوان في أسفل الصفحة
   doc.setFontSize(10);
   doc.setTextColor(150);
-  doc.text(`ColoPaper - ${title}`, pdfWidth / 2, 290, { align: "center" });
+  doc.text(`PaperKolor - ${title}`, pdfWidth / 2, 290, { align: "center" });
 
-  return Buffer.from(doc.output("arraybuffer"));
+  return new Blob([doc.output("arraybuffer")], { type: "application/pdf" });
 }

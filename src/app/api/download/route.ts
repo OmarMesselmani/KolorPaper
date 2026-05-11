@@ -14,9 +14,9 @@ export async function POST(req: NextRequest) {
       ? `${req.nextUrl.origin}${imageUrl}` 
       : imageUrl;
 
-    const pdfBuffer = await generatePdfFromImage(absoluteUrl, title);
+    const pdfBlob = await generatePdfFromImage(absoluteUrl, title);
 
-    return new NextResponse(pdfBuffer, {
+    return new Response(pdfBlob, {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",

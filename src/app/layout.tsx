@@ -4,7 +4,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "ColoPaper - Coloring World for Kids",
+  title: "PaperKolor - Coloring World for Kids",
   description: "The best site for downloading and printing high-quality coloring pages for kids and adults.",
 };
 
