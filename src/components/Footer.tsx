@@ -21,13 +21,6 @@ export default function Footer({ categories = [] }: FooterProps) {
     }
   };
 
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth',
-    });
-  };
-
   // Get first 6 parent categories to display dynamically in the footer, or fall back to static list if none passed
   const popularCategories = categories.length > 0
     ? categories.filter(c => !c.parentSlug).slice(0, 6)
@@ -233,27 +226,10 @@ export default function Footer({ categories = [] }: FooterProps) {
         <div className="h-px bg-gradient-to-r from-transparent via-purple-500/20 to-transparent w-full" />
 
         {/* Footer Bottom Bar */}
-        <div className="py-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-purple-300/50 text-xs text-center sm:text-left m-0 font-medium font-sans">
+        <div className="py-8 flex justify-center items-center">
+          <p className="text-purple-300/50 text-xs text-center m-0 font-medium font-sans">
             &copy; {new Date().getFullYear()} <span className="text-purple-300 font-bold">PaperKolor</span>. All Rights Reserved. Crafted with ❤️ for creative minds.
           </p>
-          
-          {/* Scroll to Top Button */}
-          <button
-            onClick={scrollToTop}
-            className="group p-3 bg-purple-600 hover:bg-orange-500 text-white rounded-full shadow-lg transition-all duration-300 hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 focus:ring-offset-[#0F0728]"
-            aria-label="Scroll to top"
-          >
-            <svg 
-              className="w-5 h-5 group-hover:animate-bounce" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="3" 
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
-            </svg>
-          </button>
         </div>
       </div>
     </footer>
