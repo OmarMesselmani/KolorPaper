@@ -31,7 +31,7 @@ export default function NavMenu({ categories }: { categories: Category[] }) {
     <div className="relative" ref={menuRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="p-2 hover:bg-purple-600/10 rounded-lg transition-colors flex items-center justify-center group"
+        className="p-2 hover:bg-[#0F0728]/10 rounded-lg transition-colors flex items-center justify-center group"
         aria-label="Menu"
       >
         <svg
@@ -43,7 +43,7 @@ export default function NavMenu({ categories }: { categories: Category[] }) {
           strokeWidth="2.5"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className={`text-purple-600 transition-transform ${isOpen ? 'rotate-90' : ''}`}
+          className="text-[#0F0728]"
         >
           <line x1="3" y1="12" x2="21" y2="12" />
           <line x1="3" y1="6" x2="21" y2="6" />
