@@ -5,6 +5,7 @@ import PrintButton from "@/components/PrintButton";
 import DownloadPdf from "@/components/DownloadPdf";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import LikeButton from "@/components/LikeButton";
+import DownloadImage from "@/components/DownloadImage";
 import RelatedCard from "@/components/RelatedCard";
 import { notFound } from "next/navigation";
 
@@ -46,12 +47,12 @@ export default async function DynamicPage({ params }: { params: Promise<{ slug: 
 
             {/* Info Column */}
             <div className="flex-1 min-w-[320px] pt-4">
-              <span className="inline-block py-2 px-5 bg-orange-500 text-white rounded-full font-bold mb-8 shadow-[0_4px_15px_rgba(249,115,22,0.3)]">Coloring Page 🎨</span>
               <h2 className="text-5xl font-black bg-gradient-to-br from-purple-600 to-orange-500 bg-clip-text text-transparent mb-6">{coloringPage.title}</h2>
               <p className="text-lg leading-relaxed text-gray-500 mb-10">{coloringPage.description}</p>
 
               <div className="flex gap-4 flex-wrap print:hidden">
                 <PrintButton />
+                <DownloadImage imageUrl={coloringPage.imageUrl} title={coloringPage.title} />
                 <DownloadPdf imageUrl={coloringPage.imageUrl} title={coloringPage.title} pdfUrl={coloringPage.pdfUrl} />
                 <LikeButton initialLikes={coloringPage.likes} />
               </div>
