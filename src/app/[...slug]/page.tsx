@@ -3,6 +3,7 @@ import CategoryCard from "@/components/CategoryCard";
 import ColoringCard from "@/components/ColoringCard";
 import PrintButton from "@/components/PrintButton";
 import DownloadPdf from "@/components/DownloadPdf";
+import DownloadImageButton from "@/components/DownloadImageButton";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import LikeButton from "@/components/LikeButton";
 import DownloadImage from "@/components/DownloadImage";
@@ -54,6 +55,7 @@ export default async function DynamicPage({ params }: { params: Promise<{ slug: 
                 <PrintButton />
                 <DownloadImage imageUrl={coloringPage.imageUrl} title={coloringPage.title} />
                 <DownloadPdf imageUrl={coloringPage.imageUrl} title={coloringPage.title} pdfUrl={coloringPage.pdfUrl} />
+                <DownloadImageButton imageUrl={coloringPage.imageUrl} title={coloringPage.title} />
                 <LikeButton initialLikes={coloringPage.likes} />
               </div>
             </div>
