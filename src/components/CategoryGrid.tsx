@@ -40,7 +40,7 @@ export default function CategoryGrid({ categories }: CategoryGridProps) {
           <button
             key={tab.key}
             onClick={() => { setActiveTab(tab.key); setVisibleCount(8); }}
-            className={`px-5 py-3 text-sm font-bold border-b-2 transition-all duration-300 cursor-pointer bg-transparent ${
+            className={`px-8 py-4 text-base font-bold border-b-2 transition-all duration-300 cursor-pointer bg-transparent ${
               activeTab === tab.key
                 ? "border-purple-600 text-purple-600"
                 : "border-transparent text-gray-500 hover:text-gray-800"
