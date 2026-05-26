@@ -67,7 +67,7 @@ export default function LanguageSwitcher() {
   return (
     <div className="relative" ref={dropdownRef}>
       <button 
-        className="flex items-center justify-between gap-3 px-4 py-2.5 bg-white border border-purple-600/10 rounded-xl cursor-pointer font-semibold text-gray-800 transition-all duration-300 shadow-sm w-[150px] font-inherit hover:border-purple-600 hover:shadow-[0_10px_15px_-3px_rgba(124,58,237,0.1),0_4px_6px_-2px_rgba(124,58,237,0.05)] hover:-translate-y-[1px]" 
+        className="flex items-center justify-between gap-3 px-4 py-2.5 bg-white dark:bg-gray-900 border border-purple-600/10 dark:border-white/10 rounded-xl cursor-pointer font-semibold text-gray-800 dark:text-gray-100 transition-all duration-300 shadow-sm w-[150px] font-inherit hover:border-purple-600 dark:hover:border-purple-500 hover:shadow-[0_10px_15px_-3px_rgba(124,58,237,0.1),0_4px_6px_-2px_rgba(124,58,237,0.05)] dark:hover:shadow-[0_10px_15px_-3px_rgba(168,85,247,0.15)] hover:-translate-y-[1px]" 
         onClick={() => setIsOpen(!isOpen)}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
@@ -92,11 +92,11 @@ export default function LanguageSwitcher() {
       </button>
 
       {isOpen && (
-        <div className="absolute top-[calc(100%+8px)] right-0 rtl:right-auto rtl:left-0 w-[150px] bg-white/95 backdrop-blur-md rounded-2xl border border-purple-600/10 shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] overflow-hidden z-[1000]" role="listbox">
+        <div className="absolute top-[calc(100%+8px)] right-0 rtl:right-auto rtl:left-0 w-[150px] bg-white/95 dark:bg-gray-900/95 backdrop-blur-md rounded-2xl border border-purple-600/10 dark:border-white/10 shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] overflow-hidden z-[1000]" role="listbox">
           {languages.map((lang) => (
             <button
               key={lang.code}
-              className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-all duration-200 w-full border-none bg-transparent font-inherit text-[0.95rem] text-left rtl:text-right rtl:flex-row-reverse text-gray-800 hover:bg-purple-600/5 hover:text-purple-600 ${selectedLang.code === lang.code ? 'bg-purple-600/10 text-purple-600 font-bold' : ''}`}
+              className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-all duration-200 w-full border-none bg-transparent font-inherit text-[0.95rem] text-left rtl:text-right rtl:flex-row-reverse text-gray-800 dark:text-gray-200 hover:bg-purple-600/5 dark:hover:bg-purple-500/10 hover:text-purple-600 dark:hover:text-purple-400 ${selectedLang.code === lang.code ? 'bg-purple-600/10 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400 font-bold' : ''}`}
               onClick={() => handleSelect(lang)}
               role="option"
               aria-selected={selectedLang.code === lang.code}

@@ -2,7 +2,7 @@ import { Category, ColoringPage } from "@/types";
 
 export const categories: Category[] = [
   // 1) Animals
-  { id: "1", title: "Animals", slug: "animals", description: "Wonderful animal coloring pages" },
+  { id: "1", title: "Animals", slug: "animals", description: "Wonderful animal coloring pages", imageUrl: "/images/animals.png" },
   { id: "1-1", title: "Mammals", slug: "mammals", parentSlug: "animals" },
   { id: "1-2", title: "Birds", slug: "birds", parentSlug: "animals" },
   { id: "1-3", title: "Fish", slug: "fish", parentSlug: "animals" },
@@ -204,6 +204,8 @@ export const coloringPages: ColoringPage[] = [
     categorySlug: "animals",
     subCategorySlug: "farm-animals",
     description: "King of the jungle lion coloring page",
+    difficulty: "medium",
+    ageGroup: "kids",
   },
   {
     id: "102",
@@ -213,6 +215,8 @@ export const coloringPages: ColoringPage[] = [
     thumbnailUrl: "/coloring-pages/astronaut-thumb.png",
     categorySlug: "space",
     description: "An astronaut floating in the galaxy",
+    difficulty: "hard",
+    ageGroup: "adults",
   },
   {
     id: "birds-1",
@@ -226,6 +230,8 @@ export const coloringPages: ColoringPage[] = [
     views: 1450,
     downloads: 920,
     likes: 410,
+    difficulty: "medium",
+    ageGroup: "kids",
   },
   {
     id: "birds-2",
@@ -239,6 +245,8 @@ export const coloringPages: ColoringPage[] = [
     views: 980,
     downloads: 610,
     likes: 290,
+    difficulty: "easy",
+    ageGroup: "preschool",
   },
   {
     id: "birds-3",
@@ -252,6 +260,8 @@ export const coloringPages: ColoringPage[] = [
     views: 1120,
     downloads: 730,
     likes: 350,
+    difficulty: "hard",
+    ageGroup: "adults",
   },
   {
     id: "birds-4",
@@ -265,6 +275,8 @@ export const coloringPages: ColoringPage[] = [
     views: 870,
     downloads: 540,
     likes: 260,
+    difficulty: "easy",
+    ageGroup: "toddler",
   },
 ];
 
@@ -280,27 +292,52 @@ export async function getCategoryBySlug(slug: string) {
   return categories.find((c) => c.slug === slug);
 }
 
-export async function getColoringPages(categorySlug: string) {
-  return coloringPages.filter(
-    (p) => p.categorySlug === categorySlug || p.subCategorySlug === categorySlug
-  );
+export async function getColoringPages(
+  categorySlug: string,
+  filters?: { difficulty?: string; ageGroup?: string }
+) {
+  return coloringPages.filter((p) => {
+    if (p.categorySlug !== categorySlug && p.subCategorySlug !== categorySlug) return false;
+    if (filters?.difficulty && p.difficulty !== filters.difficulty) return false;
+    if (filters?.ageGroup && p.ageGroup !== filters.ageGroup) return false;
+    return true;
+  });
 }
 
 export async function getColoringPageBySlug(slug: string) {
   return coloringPages.find((p) => p.slug === slug);
 }
 
-export async function searchColoringPages(query: string) {
-  const q = query.toLowerCase();
-  const matchedCategories = categories
-    .filter(c => c.title.toLowerCase().includes(q))
-    .map(c => c.slug);
+export async function searchColoringPages(
+  query: string,
+  filters?: { difficulty?: string; ageGroup?: string }
+) {
+  const q = query.toLowerCase().trim();
+  
+  let matchedCategories: string[] = [];
+  if (q) {
+    matchedCategories = categories
+      .filter(c => c.title.toLowerCase().includes(q))
+      .map(c => c.slug);
+  }
 
   return coloringPages.filter(p => {
-    if (p.title.toLowerCase().includes(q)) return true;
-    if (p.description?.toLowerCase().includes(q)) return true;
-    if (matchedCategories.includes(p.categorySlug)) return true;
-    if (p.subCategorySlug && matchedCategories.includes(p.subCategorySlug)) return true;
-    return false;
+    // 1. Text Search Match
+    let textMatch = true;
+    if (q) {
+      textMatch = false;
+      if (p.title.toLowerCase().includes(q)) textMatch = true;
+      else if (p.description?.toLowerCase().includes(q)) textMatch = true;
+      else if (matchedCategories.includes(p.categorySlug)) textMatch = true;
+      else if (p.subCategorySlug && matchedCategories.includes(p.subCategorySlug)) textMatch = true;
+    }
+    
+    if (!textMatch) return false;
+
+    // 2. Filters Match
+    if (filters?.difficulty && p.difficulty !== filters.difficulty) return false;
+    if (filters?.ageGroup && p.ageGroup !== filters.ageGroup) return false;
+
+    return true;
   });
 }

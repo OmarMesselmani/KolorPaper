@@ -105,7 +105,15 @@ export default function Footer({ categories = [] }: FooterProps) {
                   Home Page
                 </Link>
               </li>
-
+              <li>
+                <Link 
+                  href="/blog"
+                  className="group text-purple-200/70 hover:text-orange-400 hover:translate-x-2 transition-all duration-300 flex items-center gap-2 text-sm font-bold no-underline"
+                >
+                  <span className="text-purple-400 group-hover:text-orange-400 transition-colors duration-300 text-xs">✦</span>
+                  Blog
+                </Link>
+              </li>
               <li>
                 <Link 
                   href="/privacy-policy"
