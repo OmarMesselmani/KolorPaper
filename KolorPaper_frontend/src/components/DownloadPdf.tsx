@@ -2,8 +2,13 @@
 
 import { useState } from 'react';
 
-export default function DownloadPdf({ imageUrl, title, pdfUrl }: { imageUrl: string, title: string, pdfUrl?: string }) {
+export default function DownloadPdf({ imageUrl, title, pdfUrl, slug }: { imageUrl: string, title: string, pdfUrl?: string, slug: string }) {
   const [loading, setLoading] = useState(false);
+
+  const trackDownload = () => {
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+    fetch(`${API_URL}/pages/${slug}/download`, { method: 'POST' }).catch(err => console.error("Failed to track download", err));
+  };
 
   const handleDownload = async () => {
     setLoading(true);
@@ -15,6 +20,7 @@ export default function DownloadPdf({ imageUrl, title, pdfUrl }: { imageUrl: str
         document.body.appendChild(a);
         a.click();
         a.remove();
+        trackDownload();
         return;
       }
 
@@ -50,6 +56,7 @@ export default function DownloadPdf({ imageUrl, title, pdfUrl }: { imageUrl: str
 
       // 4. Trigger download directly in browser
       doc.save(`${title}.pdf`);
+      trackDownload();
     } catch (error) {
       console.error('Download failed:', error);
     } finally {

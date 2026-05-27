@@ -169,22 +169,25 @@ export const uploadFile = async (req: Request, res: Response): Promise<any> => {
       return res.status(400).json({ error: "Invalid base64 data format" });
     }
 
-    // Determine target directory
+    // Determine target directory inside backend
     const targetDir = fileType === "pdf" ? "pdf" : "images";
-    const frontendPublicPath = path.resolve(__dirname, `../../../KolorPaper_frontend/public/${targetDir}`);
+    const uploadPath = path.resolve(__dirname, `../../uploads/${targetDir}`);
 
     // Ensure directory exists
-    if (!fs.existsSync(frontendPublicPath)) {
-      fs.mkdirSync(frontendPublicPath, { recursive: true });
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath, { recursive: true });
     }
 
     // Write file to disk
-    const filePath = path.join(frontendPublicPath, fileName);
+    const filePath = path.join(uploadPath, fileName);
     fs.writeFileSync(filePath, base64Image, { encoding: "base64" });
 
-    // Return the relative URL to access the file from frontend
-    const relativeUrl = `/${targetDir}/${fileName}`;
-    return res.json({ url: relativeUrl });
+    // Return the absolute URL to access the file from frontend
+    const protocol = req.protocol || "http";
+    const host = req.get("host") || "localhost:5000";
+    const absoluteUrl = `${protocol}://${host}/uploads/${targetDir}/${fileName}`;
+    
+    return res.json({ url: absoluteUrl });
   } catch (error: any) {
     console.error("Upload error:", error);
     return res.status(500).json({ error: "Failed to upload file: " + error.message });

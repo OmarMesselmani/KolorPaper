@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-export default function DownloadImageButton({ imageUrl, title }: { imageUrl: string, title: string }) {
+export default function DownloadImageButton({ imageUrl, title, slug }: { imageUrl: string, title: string, slug: string }) {
   const [loading, setLoading] = useState(false);
 
   const handleDownload = async () => {
@@ -19,6 +19,11 @@ export default function DownloadImageButton({ imageUrl, title }: { imageUrl: str
       a.click();
       a.remove();
       window.URL.revokeObjectURL(url);
+
+      // Track download
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      fetch(`${API_URL}/pages/${slug}/download`, { method: 'POST' }).catch(err => console.error("Failed to track download", err));
+
     } catch (error) {
       console.error('Download failed:', error);
     } finally {

@@ -1,9 +1,16 @@
 'use client';
 
-export default function PrintButton() {
+export default function PrintButton({ slug }: { slug: string }) {
+  const handlePrint = () => {
+    window.print();
+    // Track print as download
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+    fetch(`${API_URL}/pages/${slug}/download`, { method: 'POST' }).catch(err => console.error("Failed to track print download", err));
+  };
+
   return (
     <button 
-      onClick={() => window.print()} 
+      onClick={handlePrint} 
       className="relative group w-14 h-14 flex items-center justify-center bg-gradient-to-tr from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white border-none rounded-2xl cursor-pointer shadow-[0_4px_20px_rgba(99,102,241,0.25)] hover:shadow-[0_4px_25px_rgba(99,102,241,0.4)] transition-all duration-300 hover:-translate-y-1 active:translate-y-0 active:scale-95" 
       aria-label="Print Page"
     >

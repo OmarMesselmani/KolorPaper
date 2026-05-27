@@ -62,9 +62,9 @@ export default async function DynamicPage({
               <p className="text-lg leading-relaxed text-gray-500 dark:text-gray-400 mb-10">{coloringPage.description}</p>
 
               <div className="flex gap-4 flex-wrap print:hidden">
-                <PrintButton />
-                <DownloadPdf imageUrl={coloringPage.imageUrl} title={coloringPage.title} pdfUrl={coloringPage.pdfUrl} />
-                <DownloadImageButton imageUrl={coloringPage.imageUrl} title={coloringPage.title} />
+                <PrintButton slug={coloringPage.slug} />
+                <DownloadPdf imageUrl={coloringPage.imageUrl} title={coloringPage.title} pdfUrl={coloringPage.pdfUrl} slug={coloringPage.slug} />
+                <DownloadImageButton imageUrl={coloringPage.imageUrl} title={coloringPage.title} slug={coloringPage.slug} />
                 <LikeButton initialLikes={coloringPage.likes} />
               </div>
 

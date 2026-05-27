@@ -27,7 +27,7 @@ export default function ColoringCard({ page }: { page: ColoringPage }) {
               <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
               <circle cx="12" cy="12" r="3" />
             </svg>
-            <span>{page.views?.toLocaleString() || '1.2K'}</span>
+            <span>{page.views !== undefined ? page.views.toLocaleString() : '0'}</span>
           </div>
           
           <div className="flex items-center gap-1.5 group/stat hover:text-orange-500 transition-colors">
@@ -36,14 +36,14 @@ export default function ColoringCard({ page }: { page: ColoringPage }) {
               <polyline points="7 10 12 15 17 10" />
               <line x1="12" y1="15" x2="12" y2="3" />
             </svg>
-            <span>{page.downloads?.toLocaleString() || '850'}</span>
+            <span>{page.downloads !== undefined ? page.downloads.toLocaleString() : '0'}</span>
           </div>
           
           <div className="flex items-center gap-1.5 group/stat hover:text-red-500 transition-colors">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="opacity-70 group-hover/stat:opacity-100 group-hover/stat:scale-110 transition-all">
               <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
             </svg>
-            <span>{page.likes?.toLocaleString() || '340'}</span>
+            <span>{page.likes !== undefined ? page.likes.toLocaleString() : '0'}</span>
           </div>
         </div>
       </div>
