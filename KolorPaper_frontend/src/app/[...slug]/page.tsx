@@ -53,7 +53,20 @@ export default async function DynamicPage({
           <div className="flex gap-8 items-start flex-wrap lg:flex-nowrap mt-8">
             {/* Image Column */}
             <div className="flex-[0.9] max-w-[450px] min-w-[300px] w-full bg-white dark:bg-gray-900 p-6 rounded-3xl shadow-[0_10px_15px_-3px_rgba(124,58,237,0.1),0_4px_6px_-2px_rgba(124,58,237,0.05)] dark:shadow-[0_10px_15px_-3px_rgba(168,85,247,0.1)] border border-black/5 dark:border-white/5">
-              <Image src={coloringPage.imageUrl} alt={coloringPage.title} width={450} height={600} className="w-full h-auto rounded-xl block printable-area" />
+              {/* Screen preview: uses optimized/thumbnail image */}
+              <Image 
+                src={coloringPage.thumbnailUrl || coloringPage.imageUrl} 
+                alt={coloringPage.title} 
+                width={450} 
+                height={600} 
+                className="w-full h-auto rounded-xl block print:hidden" 
+              />
+              {/* Print layout: uses high-resolution original image */}
+              <img 
+                src={coloringPage.imageUrl} 
+                alt={coloringPage.title} 
+                className="hidden print:block w-full h-auto rounded-xl printable-area" 
+              />
             </div>
 
             {/* Info Column */}
@@ -65,7 +78,7 @@ export default async function DynamicPage({
                 <PrintButton slug={coloringPage.slug} />
                 <DownloadPdf imageUrl={coloringPage.imageUrl} title={coloringPage.title} pdfUrl={coloringPage.pdfUrl} slug={coloringPage.slug} />
                 <DownloadImageButton imageUrl={coloringPage.imageUrl} title={coloringPage.title} slug={coloringPage.slug} />
-                <LikeButton initialLikes={coloringPage.likes} />
+                <LikeButton slug={coloringPage.slug} initialLikes={coloringPage.likes} />
               </div>
 
               <PageStats views={coloringPage.views} downloads={coloringPage.downloads} likes={coloringPage.likes} className="mt-6" />

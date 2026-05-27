@@ -1,7 +1,5 @@
 import { Category, ColoringPage } from "@/types";
 
-import { Category, ColoringPage } from "@/types";
-
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 export async function getAllCategories(): Promise<Category[]> {

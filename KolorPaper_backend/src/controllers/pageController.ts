@@ -190,23 +190,62 @@ export const recordLike = async (req: Request, res: Response): Promise<any> => {
   try {
     const slug = req.params.slug as string;
     const { action } = req.body; // "like" (increment) or "unlike" (decrement)
+    const ip = req.ip || "unknown";
+    const userAgent = req.headers["user-agent"] || "unknown";
     
     const page = await prisma.coloringPage.findUnique({ where: { slug } });
     if (!page) {
       return res.status(404).json({ error: "Page not found" });
     }
 
-    const value = action === "unlike" ? -1 : 1;
-
-    // Ensure likes do not go below 0
-    const newLikes = Math.max(0, page.likes + value);
-
-    const updatedPage = await prisma.coloringPage.update({
-      where: { slug },
-      data: { likes: newLikes }
+    // Check if there is already a "like" action for this page from this IP
+    const existingLike = await prisma.pageView.findFirst({
+      where: {
+        pageSlug: slug,
+        action: "like",
+        ip
+      }
     });
 
-    res.json({ likes: updatedPage.likes });
+    if (action === "unlike") {
+      if (existingLike) {
+        // Decrement like count and delete log in transaction
+        const newLikes = Math.max(0, page.likes - 1);
+        const [updatedPage] = await prisma.$transaction([
+          prisma.coloringPage.update({
+            where: { slug },
+            data: { likes: newLikes }
+          }),
+          prisma.pageView.delete({
+            where: { id: existingLike.id }
+          })
+        ]);
+        return res.json({ likes: updatedPage.likes, liked: false });
+      }
+      return res.json({ likes: page.likes, liked: false });
+    } else {
+      // action === "like"
+      if (!existingLike) {
+        // Increment like count and create log in transaction
+        const newLikes = page.likes + 1;
+        const [updatedPage] = await prisma.$transaction([
+          prisma.coloringPage.update({
+            where: { slug },
+            data: { likes: newLikes }
+          }),
+          prisma.pageView.create({
+            data: {
+              pageSlug: slug,
+              action: "like",
+              ip,
+              userAgent
+            }
+          })
+        ]);
+        return res.json({ likes: updatedPage.likes, liked: true });
+      }
+      return res.json({ likes: page.likes, liked: true });
+    }
   } catch (error) {
     console.error("Error toggling like:", error);
     res.status(500).json({ error: "Failed to update like status" });

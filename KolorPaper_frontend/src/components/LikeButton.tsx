@@ -1,22 +1,102 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface LikeButtonProps {
+  slug: string;
   initialLikes?: number;
 }
 
-export default function LikeButton({ initialLikes = 340 }: LikeButtonProps) {
+export default function LikeButton({ slug, initialLikes = 0 }: LikeButtonProps) {
   const [liked, setLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(initialLikes);
 
-  const handleLike = () => {
-    if (liked) {
-      setLiked(false);
-      setLikesCount(prev => prev - 1);
-    } else {
-      setLiked(true);
-      setLikesCount(prev => prev + 1);
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+
+  // Check if liked on mount
+  useEffect(() => {
+    try {
+      const storedLikes = localStorage.getItem("kolorpaper-likes");
+      if (storedLikes) {
+        const likedSlugs = JSON.parse(storedLikes) as string[];
+        if (likedSlugs.includes(slug)) {
+          setLiked(true);
+        }
+      }
+    } catch (e) {
+      console.error("Failed to read likes from localStorage", e);
+    }
+  }, [slug]);
+
+  // Keep likesCount in sync with initialLikes changes
+  useEffect(() => {
+    setLikesCount(initialLikes);
+  }, [initialLikes]);
+
+  const handleLike = async () => {
+    const nextLiked = !liked;
+    setLiked(nextLiked);
+    setLikesCount(prev => nextLiked ? prev + 1 : Math.max(0, prev - 1));
+
+    // Update localStorage
+    try {
+      const storedLikes = localStorage.getItem("kolorpaper-likes");
+      let likedSlugs: string[] = [];
+      if (storedLikes) {
+        likedSlugs = JSON.parse(storedLikes) as string[];
+      }
+
+      if (nextLiked) {
+        if (!likedSlugs.includes(slug)) {
+          likedSlugs.push(slug);
+        }
+      } else {
+        likedSlugs = likedSlugs.filter(s => s !== slug);
+      }
+      localStorage.setItem("kolorpaper-likes", JSON.stringify(likedSlugs));
+    } catch (e) {
+      console.error("Failed to save likes to localStorage", e);
+    }
+
+    // Call backend API
+    try {
+      const res = await fetch(`${API_URL}/pages/${slug}/like`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          action: nextLiked ? "like" : "unlike",
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data && typeof data.likes === 'number') {
+          setLikesCount(data.likes);
+        }
+        if (data && typeof data.liked === 'boolean') {
+          setLiked(data.liked);
+          // Sync with localStorage
+          try {
+            const storedLikes = localStorage.getItem("kolorpaper-likes");
+            let likedSlugs: string[] = [];
+            if (storedLikes) {
+              likedSlugs = JSON.parse(storedLikes) as string[];
+            }
+            if (data.liked) {
+              if (!likedSlugs.includes(slug)) likedSlugs.push(slug);
+            } else {
+              likedSlugs = likedSlugs.filter(s => s !== slug);
+            }
+            localStorage.setItem("kolorpaper-likes", JSON.stringify(likedSlugs));
+          } catch (e) {
+            console.error(e);
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Failed to record like on backend:", error);
     }
   };
 

@@ -39,20 +39,24 @@ export default function DownloadPdf({ imageUrl, title, pdfUrl, slug }: { imageUr
       // 2. Load jsPDF dynamically to optimize initial bundle size
       const { jsPDF } = await import('jspdf');
 
+      // Create a temporary dummy doc to read original image properties
+      const dummyDoc = new jsPDF();
+      const imgProps = dummyDoc.getImageProperties(base64Data);
+      const imgWidth = imgProps.width;
+      const imgHeight = imgProps.height;
+
       const doc = new jsPDF({
-        orientation: 'p',
-        unit: 'mm',
-        format: 'a4',
+        orientation: imgWidth > imgHeight ? 'l' : 'p',
+        unit: 'px',
+        format: [imgWidth, imgHeight]
       });
 
-      // 3. Get image dimensions and add to PDF
-      const imgProps = doc.getImageProperties(base64Data);
-      const pdfWidth = doc.internal.pageSize.getWidth();
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
 
       // Use the fileType from image properties, or fallback to PNG
       const format = imgProps.fileType || 'PNG';
-      doc.addImage(base64Data, format, 0, 0, pdfWidth, pdfHeight);
+      doc.addImage(base64Data, format, 0, 0, pageWidth, pageHeight);
 
       // 4. Trigger download directly in browser
       doc.save(`${title}.pdf`);
