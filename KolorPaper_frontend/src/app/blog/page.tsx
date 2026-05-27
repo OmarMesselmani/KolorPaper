@@ -2,7 +2,7 @@ import { getSortedPostsData } from '@/lib/blog-data';
 import BlogCard from '@/components/BlogCard';
 
 export const metadata = {
-  title: 'Blog | PaperKolor',
+  title: 'Blog | KolorPaper',
   description: 'Useful articles and coloring tips for kids and adults.',
 };
 

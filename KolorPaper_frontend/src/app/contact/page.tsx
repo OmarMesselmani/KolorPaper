@@ -135,8 +135,8 @@ export default function ContactPage() {
             <div className="space-y-4">
               <div>
                 <p className="font-bold text-[#0F0728] dark:text-gray-100 mb-1">Email</p>
-                <a href="mailto:info@paperkolor.com" className="text-purple-600 dark:text-purple-400 hover:text-orange-500 dark:hover:text-orange-400 transition-colors no-underline font-semibold">
-                  info@paperkolor.com
+                <a href="mailto:info@kolorpaper.com" className="text-purple-600 dark:text-purple-400 hover:text-orange-500 dark:hover:text-orange-400 transition-colors no-underline font-semibold">
+                  info@kolorpaper.com
                 </a>
               </div>
               <div>

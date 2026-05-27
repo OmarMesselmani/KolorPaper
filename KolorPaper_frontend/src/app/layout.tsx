@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import BackToTop from "@/components/BackToTop";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { getAllCategories } from "@/lib/data";
+import LayoutWrapper from "@/components/LayoutWrapper";
 
 export const metadata: Metadata = {
   title: "KolorPaper - Coloring World for Kids",
@@ -30,10 +28,9 @@ export default async function RootLayout({
       </head>
       <body className="bg-gray-50 dark:bg-gray-950 text-gray-800 dark:text-gray-100 font-sans antialiased m-0 transition-colors duration-300">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <Header categories={categories} />
-          <main>{children}</main>
-          <Footer categories={categories} />
-          <BackToTop />
+          <LayoutWrapper categories={categories}>
+            {children}
+          </LayoutWrapper>
         </ThemeProvider>
       </body>
     </html>
