@@ -45,18 +45,30 @@ export default function DownloadPdf({ imageUrl, title, pdfUrl, slug }: { imageUr
       const imgWidth = imgProps.width;
       const imgHeight = imgProps.height;
 
+      // Calculate standard physical dimensions in mm based on A4 height (297mm) as reference
+      const refSize = 297; // mm
+      let pdfWidth = 210;
+      let pdfHeight = 297;
+
+      if (imgWidth > imgHeight) {
+        // Landscape image
+        pdfWidth = refSize;
+        pdfHeight = (imgHeight / imgWidth) * refSize;
+      } else {
+        // Portrait or square image
+        pdfHeight = refSize;
+        pdfWidth = (imgWidth / imgHeight) * refSize;
+      }
+
       const doc = new jsPDF({
         orientation: imgWidth > imgHeight ? 'l' : 'p',
-        unit: 'px',
-        format: [imgWidth, imgHeight]
+        unit: 'mm',
+        format: [pdfWidth, pdfHeight]
       });
-
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const pageHeight = doc.internal.pageSize.getHeight();
 
       // Use the fileType from image properties, or fallback to PNG
       const format = imgProps.fileType || 'PNG';
-      doc.addImage(base64Data, format, 0, 0, pageWidth, pageHeight);
+      doc.addImage(base64Data, format, 0, 0, pdfWidth, pdfHeight);
 
       // 4. Trigger download directly in browser
       doc.save(`${title}.pdf`);

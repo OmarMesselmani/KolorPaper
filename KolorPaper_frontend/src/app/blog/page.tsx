@@ -6,8 +6,8 @@ export const metadata = {
   description: 'Useful articles and coloring tips for kids and adults.',
 };
 
-export default function BlogIndex() {
-  const allPosts = getSortedPostsData();
+export default async function BlogIndex() {
+  const allPosts = await getSortedPostsData();
 
   return (
     <div className="max-w-[1400px] mx-auto px-4 sm:px-6 md:px-8 py-8 sm:py-12 md:py-16">

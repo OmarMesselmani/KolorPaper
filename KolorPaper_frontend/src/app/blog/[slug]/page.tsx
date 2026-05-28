@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 
 export async function generateStaticParams() {
-  const posts = getSortedPostsData();
+  const posts = await getSortedPostsData();
   return posts.map((post) => ({
     slug: post.slug,
   }));

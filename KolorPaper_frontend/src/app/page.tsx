@@ -8,7 +8,7 @@ import LatestPosts from "@/components/LatestPosts";
 
 export default async function Home() {
   const mainCategories = await getCategories();
-  const latestPosts = getSortedPostsData();
+  const latestPosts = await getSortedPostsData();
 
   return (
     <>

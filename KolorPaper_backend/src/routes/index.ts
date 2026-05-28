@@ -28,6 +28,13 @@ import {
   markAsRead, 
   deleteMessage 
 } from "../controllers/contactController.js";
+import {
+  getPosts,
+  getPostBySlug,
+  createPost,
+  updatePost,
+  deletePost
+} from "../controllers/postController.js";
 
 const router = Router();
 
@@ -52,6 +59,10 @@ router.get("/stats", getPublicStats);
 
 // Contact Submission
 router.post("/contact", submitMessage);
+
+// Blog Posts
+router.get("/posts", getPosts);
+router.get("/posts/:slug", getPostBySlug);
 
 
 // ==========================================
@@ -79,5 +90,10 @@ router.delete("/admin/pages/:id", authenticateAdmin, deleteColoringPage);
 router.get("/admin/messages", authenticateAdmin, getMessages);
 router.put("/admin/messages/:id/read", authenticateAdmin, markAsRead);
 router.delete("/admin/messages/:id", authenticateAdmin, deleteMessage);
+
+// Protected Blog Posts CRUD
+router.post("/admin/posts", authenticateAdmin, createPost);
+router.put("/admin/posts/:id", authenticateAdmin, updatePost);
+router.delete("/admin/posts/:id", authenticateAdmin, deletePost);
 
 export default router;

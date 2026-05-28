@@ -81,7 +81,7 @@ export default async function DynamicPage({
                 <LikeButton slug={coloringPage.slug} initialLikes={coloringPage.likes} />
               </div>
 
-              <PageStats views={coloringPage.views} downloads={coloringPage.downloads} likes={coloringPage.likes} className="mt-6" />
+              <PageStats slug={coloringPage.slug} views={coloringPage.views} downloads={coloringPage.downloads} likes={coloringPage.likes} className="mt-6" />
 
               {(coloringPage.difficulty || coloringPage.ageGroup) && (
                 <div className="mt-8 pt-6 border-t border-black/5 dark:border-white/5 flex gap-8 print:hidden">

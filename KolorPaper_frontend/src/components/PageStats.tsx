@@ -1,13 +1,42 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+
 interface PageStatsProps {
+  slug?: string;
   views?: number;
   downloads?: number;
   likes?: number;
   className?: string;
 }
 
-export default function PageStats({ views, downloads, likes, className }: PageStatsProps) {
+export default function PageStats({ slug, views, downloads, likes, className }: PageStatsProps) {
+  const [currentViews, setCurrentViews] = useState(views || 0);
+
+  useEffect(() => {
+    if (views !== undefined) {
+      setCurrentViews(views);
+    }
+  }, [views]);
+
+  useEffect(() => {
+    if (!slug) return;
+
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+    fetch(`${API_URL}/pages/${slug}/view`, {
+      method: 'POST',
+    })
+      .then((res) => {
+        if (res.ok) return res.json();
+      })
+      .then((data) => {
+        if (data && typeof data.views === 'number') {
+          setCurrentViews(data.views);
+        }
+      })
+      .catch((err) => console.error("Failed to record view:", err));
+  }, [slug]);
+
   return (
     <div className={`flex flex-wrap gap-4 ${className || ''}`}>
       {/* Views */}
@@ -16,7 +45,7 @@ export default function PageStats({ views, downloads, likes, className }: PageSt
           <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
           <circle cx="12" cy="12" r="3" />
         </svg>
-        <span className="font-bold">{views !== undefined ? views.toLocaleString() : '0'}</span>
+        <span className="font-bold">{currentViews.toLocaleString()}</span>
         <span className="text-sm font-medium opacity-80">Views</span>
       </div>
 
