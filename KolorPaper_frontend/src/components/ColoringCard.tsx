@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useState, useEffect } from "react";
 import { ColoringPage } from "@/types";
 
 function formatCount(n: number): string {
@@ -17,24 +18,189 @@ function formatCount(n: number): string {
 }
 
 export default function ColoringCard({ page }: { page: ColoringPage }) {
+  const [liked, setLiked] = useState(false);
+  const [likesCount, setLikesCount] = useState(page.likes || 0);
+
+  useEffect(() => {
+    try {
+      const storedLikes = localStorage.getItem("kolorpaper-likes");
+      if (storedLikes) {
+        const likedSlugs = JSON.parse(storedLikes) as string[];
+        if (likedSlugs.includes(page.slug)) {
+          setLiked(true);
+        }
+      }
+    } catch (e) {
+      console.error("Failed to read likes from localStorage", e);
+    }
+  }, [page.slug]);
+
+  // Keep likesCount in sync with page.likes changes
+  useEffect(() => {
+    setLikesCount(page.likes || 0);
+  }, [page.likes]);
+
+  const handleLike = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const nextLiked = !liked;
+    setLiked(nextLiked);
+    setLikesCount(prev => nextLiked ? prev + 1 : Math.max(0, prev - 1));
+
+    // Update localStorage
+    try {
+      const storedLikes = localStorage.getItem("kolorpaper-likes");
+      let likedSlugs: string[] = [];
+      if (storedLikes) {
+        likedSlugs = JSON.parse(storedLikes) as string[];
+      }
+
+      if (nextLiked) {
+        if (!likedSlugs.includes(page.slug)) {
+          likedSlugs.push(page.slug);
+        }
+      } else {
+        likedSlugs = likedSlugs.filter(s => s !== page.slug);
+      }
+      localStorage.setItem("kolorpaper-likes", JSON.stringify(likedSlugs));
+    } catch (err) {
+      console.error("Failed to save likes to localStorage", err);
+    }
+
+    // Call backend API
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+    try {
+      const res = await fetch(`${API_URL}/pages/${page.slug}/like`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          action: nextLiked ? "like" : "unlike",
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data && typeof data.likes === 'number') {
+          setLikesCount(data.likes);
+        }
+        if (data && typeof data.liked === 'boolean') {
+          setLiked(data.liked);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to like:", error);
+    }
+  };
+
+  const handlePrint = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Create a hidden iframe to print the full-size image only
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentWindow?.document;
+    if (doc) {
+      doc.write(`
+        <html>
+          <head>
+            <title>Print Coloring Page - ${page.title}</title>
+            <style>
+              @page { size: auto; margin: 0mm; }
+              body { margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: white; }
+              img { max-width: 100%; max-height: 100%; object-fit: contain; }
+            </style>
+          </head>
+          <body>
+            <img src="${page.imageUrl}" onload="window.print(); setTimeout(() => { window.parent.document.body.removeChild(window.frameElement); }, 100);" />
+          </body>
+        </html>
+      `);
+      doc.close();
+    }
+
+    // Track print event as download on backend
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+    fetch(`${API_URL}/pages/${page.slug}/download`, { method: 'POST' })
+      .catch(err => console.error("Failed to track print download", err));
+  };
+
   const isNew = page.createdAt
     ? (Date.now() - new Date(page.createdAt).getTime()) < 14 * 24 * 60 * 60 * 1000
     : false;
 
   return (
     <Link href={page.subCategorySlug ? `/${page.categorySlug}/${page.subCategorySlug}/${page.slug}` : `/${page.categorySlug}/${page.slug}`} className="block bg-white dark:bg-gray-900 rounded-2xl overflow-hidden border border-black/5 dark:border-white/5 shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_15px_-3px_rgba(124,58,237,0.1),0_4px_6px_-2px_rgba(124,58,237,0.05)] hover:border-purple-600/20 dark:hover:border-purple-500/30 group relative">
-      {/* Badge */}
+      {/* Badge (Left) */}
       {isNew && (
         <span className="absolute top-3 left-3 z-10 text-[10px] font-extrabold px-2.5 py-1 rounded-full shadow-md bg-purple-600 text-white">
           New
         </span>
       )}
+
+      {/* Buttons (Right) */}
+      <div className="absolute top-3 right-3 z-10 flex gap-2 print:hidden">
+        {/* Like Button */}
+        <button
+          onClick={handleLike}
+          className="w-9 h-9 rounded-full bg-white dark:bg-gray-950 border border-black/5 dark:border-white/10 flex items-center justify-center shadow-md cursor-pointer transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 group/btn"
+          aria-label="Like coloring page"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill={liked ? "currentColor" : "none"}
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={`transition-all duration-300 ${liked ? 'text-red-500 scale-110' : 'text-gray-400 dark:text-gray-500 group-hover/btn:text-red-500 group-hover/btn:scale-110'}`}
+          >
+            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+          </svg>
+        </button>
+
+        {/* Print Button */}
+        <button
+          onClick={handlePrint}
+          className="w-9 h-9 rounded-full bg-white dark:bg-gray-950 border border-black/5 dark:border-white/10 flex items-center justify-center shadow-md cursor-pointer transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 hover:bg-gradient-to-tr hover:from-violet-600 hover:to-indigo-600 hover:text-white hover:border-transparent text-gray-500 dark:text-gray-400"
+          aria-label="Print coloring page"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            width="16"
+            height="16"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            fill="none"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <polyline points="6 9 6 2 18 2 18 9"></polyline>
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+            <rect x="6" y="14" width="12" height="8"></rect>
+          </svg>
+        </button>
+      </div>
+
       <div className="w-full aspect-[3/4] overflow-hidden bg-gray-50 dark:bg-gray-800 border-b border-black/5 dark:border-white/5">
         <div className="relative w-full h-full">
           <Image
             src={page.thumbnailUrl}
-            alt={page.title}
+            alt={`Free printable ${page.title} coloring page`}
             fill
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
         </div>
@@ -62,10 +228,20 @@ export default function ColoringCard({ page }: { page: ColoringPage }) {
           </div>
           
           <div className="flex items-center gap-1.5 group/stat hover:text-red-500 transition-colors">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="opacity-70 group-hover/stat:opacity-100 group-hover/stat:scale-110 transition-all">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill={liked ? "currentColor" : "none"}
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className={`transition-all duration-300 ${liked ? 'text-red-500 scale-110' : 'opacity-70 group-hover/stat:opacity-100 group-hover/stat:scale-110'}`}
+            >
               <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
             </svg>
-            <span>{page.likes !== undefined ? formatCount(page.likes) : '0'}</span>
+            <span className={liked ? 'text-red-500 font-extrabold' : ''}>{likesCount !== undefined ? formatCount(likesCount) : '0'}</span>
           </div>
         </div>
       </div>

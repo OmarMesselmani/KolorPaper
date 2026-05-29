@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Category } from "@/types";
 
 function formatCount(n: number): string {
@@ -52,9 +53,9 @@ export default function CategoryCard({ category, index = 0 }: { category: Catego
       )}
 
       {/* Image area */}
-      <div className="h-60 bg-gradient-to-tr from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-850 flex items-center justify-center text-8xl transition-transform duration-500 group-hover:scale-105 overflow-hidden">
+      <div className="relative h-60 bg-gradient-to-tr from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-850 flex items-center justify-center text-8xl transition-transform duration-500 group-hover:scale-105 overflow-hidden">
         {category.imageUrl ? (
-          <img src={category.imageUrl} alt={category.title} className="w-full h-full object-cover" />
+          <Image src={category.imageUrl} alt={`${category.title} free printable coloring pages`} fill sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw" className="object-cover" />
         ) : (
           <div className="placeholder-img">🎨</div>
         )}

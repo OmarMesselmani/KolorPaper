@@ -1,4 +1,27 @@
 import Breadcrumbs from "@/components/Breadcrumbs";
+import { Metadata } from "next";
+
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kolorpaper.com';
+
+export const metadata: Metadata = {
+  title: "About Us - KolorPaper",
+  description: "Learn about KolorPaper's mission to provide free, high-quality printable coloring pages that inspire creativity for kids and adults.",
+  alternates: {
+    canonical: `${siteUrl}/about`,
+  },
+  openGraph: {
+    title: 'About Us - KolorPaper',
+    description: 'Learn about KolorPaper\'s mission to provide free, high-quality printable coloring pages that inspire creativity for kids and adults.',
+    url: `${siteUrl}/about`,
+    siteName: 'KolorPaper',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'About Us - KolorPaper',
+    description: 'Learn about KolorPaper\'s mission to provide free, high-quality printable coloring pages that inspire creativity for kids and adults.',
+  },
+};
 
 export default function AboutPage() {
   return (

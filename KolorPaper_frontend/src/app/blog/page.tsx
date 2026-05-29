@@ -1,9 +1,27 @@
 import { getSortedPostsData } from '@/lib/blog-data';
 import BlogCard from '@/components/BlogCard';
+import { Metadata } from 'next';
 
-export const metadata = {
-  title: 'Blog | KolorPaper',
-  description: 'Useful articles and coloring tips for kids and adults.',
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kolorpaper.com';
+
+export const metadata: Metadata = {
+  title: 'Blog & Articles - KolorPaper',
+  description: 'Discover useful tips, guides, and amazing benefits of coloring for kids and adults.',
+  alternates: {
+    canonical: `${siteUrl}/blog`,
+  },
+  openGraph: {
+    title: 'Blog & Articles - KolorPaper',
+    description: 'Discover useful tips, guides, and amazing benefits of coloring for kids and adults.',
+    url: `${siteUrl}/blog`,
+    siteName: 'KolorPaper',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Blog & Articles - KolorPaper',
+    description: 'Discover useful tips, guides, and amazing benefits of coloring for kids and adults.',
+  },
 };
 
 export default async function BlogIndex() {

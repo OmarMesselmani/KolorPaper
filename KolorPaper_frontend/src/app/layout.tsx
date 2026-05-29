@@ -4,11 +4,53 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { getAllCategories } from "@/lib/data";
 import LayoutWrapper from "@/components/LayoutWrapper";
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kolorpaper.com';
+
 export const metadata: Metadata = {
-  title: "KolorPaper - Coloring World for Kids",
-  description: "The best site for downloading and printing high-quality coloring pages for kids and adults.",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "KolorPaper - Free Printable Coloring Pages for Kids & Adults",
+    template: "%s | KolorPaper",
+  },
+  description: "Explore thousands of free printable coloring pages for kids and adults. Download high-quality coloring sheets, print and enjoy!",
   icons: {
     icon: "/favicon.png",
+  },
+  alternates: {
+    canonical: siteUrl,
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: siteUrl,
+    siteName: 'KolorPaper',
+    title: 'KolorPaper - Free Printable Coloring Pages for Kids & Adults',
+    description: 'Explore thousands of free printable coloring pages for kids and adults. Download high-quality coloring sheets, print and enjoy!',
+    images: [
+      {
+        url: `${siteUrl}/images/cover.jpg`,
+        width: 1200,
+        height: 630,
+        alt: 'KolorPaper - Free Printable Coloring Pages',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'KolorPaper - Free Printable Coloring Pages for Kids & Adults',
+    description: 'Explore thousands of free printable coloring pages for kids and adults. Download high-quality coloring sheets, print and enjoy!',
+    images: [`${siteUrl}/images/cover.jpg`],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
 };
 
@@ -25,6 +67,36 @@ export default async function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
+        {/* Organization + WebSite Schema */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify([
+              {
+                "@context": "https://schema.org",
+                "@type": "Organization",
+                "name": "KolorPaper",
+                "url": siteUrl,
+                "logo": `${siteUrl}/logo.png`,
+                "sameAs": []
+              },
+              {
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                "name": "KolorPaper",
+                "url": siteUrl,
+                "potentialAction": {
+                  "@type": "SearchAction",
+                  "target": {
+                    "@type": "EntryPoint",
+                    "urlTemplate": `${siteUrl}/search?q={search_term_string}`
+                  },
+                  "query-input": "required name=search_term_string"
+                }
+              }
+            ])
+          }}
+        />
       </head>
       <body className="bg-gray-50 dark:bg-gray-950 text-gray-800 dark:text-gray-100 font-sans antialiased m-0 transition-colors duration-300">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>

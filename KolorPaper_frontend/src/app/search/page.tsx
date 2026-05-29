@@ -3,7 +3,21 @@ import ColoringCard from "@/components/ColoringCard";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import SearchFilters from "@/components/SearchFilters";
 import { Suspense } from "react";
+import { Metadata } from "next";
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kolorpaper.com';
+
+export const metadata: Metadata = {
+  title: "Search Coloring Pages - KolorPaper",
+  description: "Search through thousands of free printable coloring pages for kids and adults on KolorPaper.",
+  alternates: {
+    canonical: `${siteUrl}/search`,
+  },
+  robots: {
+    index: false,
+    follow: true,
+  },
+};
 export default async function SearchPage({
   searchParams,
 }: {

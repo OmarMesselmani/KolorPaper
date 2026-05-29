@@ -10,6 +10,8 @@ export async function generateStaticParams() {
   }));
 }
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kolorpaper.com';
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const post = await getPostData(slug);
@@ -18,9 +20,35 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     return { title: 'Post Not Found' };
   }
   
+  const url = `${siteUrl}/blog/${slug}`;
+  const title = `${post.title} | KolorPaper Blog`;
+  const description = post.excerpt || `Read ${post.title} on KolorPaper Blog.`;
+
   return {
-    title: `${post.title} | Blog`,
-    description: post.excerpt,
+    title,
+    description,
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      title,
+      description,
+      url,
+      siteName: 'KolorPaper',
+      type: 'article',
+      images: post.coverImage ? [
+        {
+          url: post.coverImage,
+          alt: post.title,
+        },
+      ] : undefined,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: post.coverImage ? [post.coverImage] : undefined,
+    },
   };
 }
 
@@ -33,7 +61,38 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   }
 
   return (
-    <article className="max-w-[800px] mx-auto px-4 sm:px-6 md:px-8 py-8 sm:py-12 md:py-16">
+    <>
+      {/* BlogPosting JSON-LD */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BlogPosting",
+            "headline": post.title,
+            "description": post.excerpt || '',
+            "image": post.coverImage || undefined,
+            "datePublished": post.date || undefined,
+            "author": {
+              "@type": "Organization",
+              "name": "KolorPaper"
+            },
+            "publisher": {
+              "@type": "Organization",
+              "name": "KolorPaper",
+              "logo": {
+                "@type": "ImageObject",
+                "url": `${siteUrl}/logo.png`
+              }
+            },
+            "mainEntityOfPage": {
+              "@type": "WebPage",
+              "@id": `${siteUrl}/blog/${slug}`
+            }
+          })
+        }}
+      />
+      <article className="max-w-[800px] mx-auto px-4 sm:px-6 md:px-8 py-8 sm:py-12 md:py-16">
       {/* Breadcrumb */}
       <nav className="flex text-sm text-gray-500 dark:text-gray-400 mb-8" aria-label="Breadcrumb">
         <ol className="inline-flex items-center space-x-1 space-x-reverse md:space-x-2">
@@ -125,5 +184,6 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         </div>
       </div>
     </article>
+    </>
   );
 }
