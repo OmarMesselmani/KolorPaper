@@ -1,4 +1,5 @@
 import { prisma } from "../db.js";
+import { stripHtml } from "../utils/sanitize.js";
 // POST /api/contact
 export const submitMessage = async (req, res) => {
     try {
@@ -6,15 +7,24 @@ export const submitMessage = async (req, res) => {
         if (!name || !email || !message) {
             return res.status(400).json({ error: "Name, email, and message are required" });
         }
+        const cleanName = stripHtml(name);
+        const cleanMessage = stripHtml(message);
+        if (cleanName.length > 100) {
+            return res.status(400).json({ error: "Name must be 100 characters or less" });
+        }
+        if (cleanMessage.length > 2000) {
+            return res.status(400).json({ error: "Message must be 2000 characters or less" });
+        }
+        const cleanEmail = stripHtml(email);
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
+        if (!emailRegex.test(cleanEmail) || cleanEmail.length > 254) {
             return res.status(400).json({ error: "Please provide a valid email address" });
         }
         const newMessage = await prisma.contactMessage.create({
             data: {
-                name,
-                email,
-                message,
+                name: cleanName,
+                email: cleanEmail,
+                message: cleanMessage,
                 read: false
             }
         });
@@ -33,8 +43,8 @@ export const submitMessage = async (req, res) => {
 // GET /api/admin/messages
 export const getMessages = async (req, res) => {
     try {
-        const page = parseInt(req.query.page || "1");
-        const limit = parseInt(req.query.limit || "20");
+        const page = Math.max(1, parseInt(req.query.page || "1") || 1);
+        const limit = Math.min(50, Math.max(1, parseInt(req.query.limit || "20") || 20));
         const skip = (page - 1) * limit;
         const unreadOnly = req.query.unreadOnly === "true";
         const where = unreadOnly ? { read: false } : {};

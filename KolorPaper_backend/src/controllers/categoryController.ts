@@ -11,16 +11,31 @@ export const getCategories = async (req: Request, res: Response): Promise<void> 
     if (parentSlug === "null" || parentSlug === "") {
       categories = await prisma.category.findMany({
         where: { parentSlug: null },
-        orderBy: { sortOrder: "asc" }
+        orderBy: { sortOrder: "asc" },
+        include: {
+          _count: {
+            select: { pages: true, subPages: true }
+          }
+        }
       });
     } else if (parentSlug) {
       categories = await prisma.category.findMany({
         where: { parentSlug },
-        orderBy: { sortOrder: "asc" }
+        orderBy: { sortOrder: "asc" },
+        include: {
+          _count: {
+            select: { pages: true, subPages: true }
+          }
+        }
       });
     } else {
       categories = await prisma.category.findMany({
-        orderBy: { sortOrder: "asc" }
+        orderBy: { sortOrder: "asc" },
+        include: {
+          _count: {
+            select: { pages: true, subPages: true }
+          }
+        }
       });
     }
 
@@ -39,7 +54,15 @@ export const getCategoryBySlug = async (req: Request, res: Response): Promise<an
       where: { slug },
       include: {
         children: {
-          orderBy: { sortOrder: "asc" }
+          orderBy: { sortOrder: "asc" },
+          include: {
+            _count: {
+              select: { pages: true, subPages: true }
+            }
+          }
+        },
+        _count: {
+          select: { pages: true, subPages: true }
         }
       }
     });

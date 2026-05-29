@@ -1,5 +1,6 @@
 import { getCategoryBySlug, getCategories, getColoringPages, getColoringPageBySlug } from "@/lib/data";
 import Image from "next/image";
+import Tag from "@/components/Tag";
 import CategoryCard from "@/components/CategoryCard";
 import ColoringCard from "@/components/ColoringCard";
 import PrintButton from "@/components/PrintButton";
@@ -12,6 +13,44 @@ import SeeMore from "@/components/SeeMore";
 import PageStats from "@/components/PageStats";
 import FilterDrawer from "@/components/FilterDrawer";
 import { notFound } from "next/navigation";
+import { Metadata } from "next";
+
+export async function generateMetadata({ 
+  params 
+}: { 
+  params: Promise<{ slug: string[] }> 
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const lastSlug = slug[slug.length - 1];
+  
+  const coloringPage = await getColoringPageBySlug(lastSlug);
+  if (coloringPage) {
+    const url = `https://kolorpaper.com/${slug.join('/')}`;
+    return {
+      title: `${coloringPage.title} - Free Printable | KolorPaper`,
+      description: coloringPage.description || `Download and print this free ${coloringPage.title} coloring page for kids.`,
+      alternates: {
+        canonical: url,
+      }
+    };
+  }
+
+  const category = await getCategoryBySlug(lastSlug);
+  if (category) {
+    const url = `https://kolorpaper.com/${slug.join('/')}`;
+    return {
+      title: `${category.title} Coloring Pages - KolorPaper`,
+      description: `Explore our collection of free printable ${category.title} coloring pages for kids and adults.`,
+      alternates: {
+        canonical: url,
+      }
+    };
+  }
+
+  return {
+    title: "Not Found - KolorPaper"
+  };
+}
 
 export default async function DynamicPage({ 
   params,
@@ -45,7 +84,27 @@ export default async function DynamicPage({
 
     return (
       <>
-        <div className="max-w-[1240px] mx-auto px-6 pt-8">
+        {/* Schema.org JSON-LD */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org/",
+              "@type": "ImageObject",
+              "name": `${coloringPage.title} Free Printable Coloring Page`,
+              "description": coloringPage.description || `Free printable ${coloringPage.title} coloring page for kids.`,
+              "contentUrl": coloringPage.imageUrl,
+              "thumbnailUrl": coloringPage.thumbnailUrl || coloringPage.imageUrl,
+              "license": "https://kolorpaper.com/terms-of-use",
+              "acquireLicensePage": `https://kolorpaper.com/${slug.join('/')}`,
+              "creator": {
+                "@type": "Organization",
+                "name": "KolorPaper"
+              }
+            })
+          }}
+        />
+        <div className="max-w-[1240px] mx-auto px-6 pt-8 print:hidden">
           <Breadcrumbs paths={breadcrumbPaths} />
         </div>
 
@@ -56,7 +115,7 @@ export default async function DynamicPage({
               {/* Screen preview: uses optimized/thumbnail image */}
               <Image 
                 src={coloringPage.thumbnailUrl || coloringPage.imageUrl} 
-                alt={coloringPage.title} 
+                alt={`Free printable ${coloringPage.title} coloring page for kids`} 
                 width={450} 
                 height={600} 
                 className="w-full h-auto rounded-xl block print:hidden" 
@@ -64,15 +123,15 @@ export default async function DynamicPage({
               {/* Print layout: uses high-resolution original image */}
               <img 
                 src={coloringPage.imageUrl} 
-                alt={coloringPage.title} 
+                alt={`Free printable ${coloringPage.title} coloring page for kids high resolution`} 
                 className="hidden print:block w-full h-auto rounded-xl printable-area" 
               />
             </div>
 
             {/* Info Column */}
-            <div className="flex-1 min-w-[320px] pt-4">
-              <h2 className="text-4xl font-bold text-[#0F0728] dark:text-gray-100 mb-6">{coloringPage.title}</h2>
-              <p className="text-lg leading-relaxed text-gray-500 dark:text-gray-400 mb-10">{coloringPage.description}</p>
+            <div className="flex-1 min-w-[320px] pt-4 print:hidden">
+              <h2 className="text-2xl md:text-3xl font-bold text-[#0F0728] dark:text-gray-100 mb-4">{coloringPage.title}</h2>
+              <p className="text-sm sm:text-base leading-relaxed text-gray-500 dark:text-gray-400 mb-6">{coloringPage.description}</p>
 
               <div className="flex gap-4 flex-wrap print:hidden">
                 <PrintButton slug={coloringPage.slug} />
@@ -89,24 +148,28 @@ export default async function DynamicPage({
                     <div className="flex items-center gap-3">
                       <div className="flex flex-col">
                         <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
-                          Difficulty: <span className="text-gray-800 dark:text-gray-200 capitalize font-black">{coloringPage.difficulty}</span>
+                          Difficulty: <span className={`capitalize font-black ${
+                            coloringPage.difficulty === 'easy' ? 'text-[#34c759]' : 
+                            coloringPage.difficulty === 'hard' ? 'text-[#ff3b30]' : 
+                            'text-[#ff9500]'
+                          }`}>{coloringPage.difficulty}</span>
                         </span>
                         
                         {/* Custom Difficulty Slider */}
                         <div className="relative w-36 h-7 flex items-center">
                           {/* Track */}
-                          <div className="w-full h-3.5 rounded-full bg-gradient-to-r from-[#ff3b30] via-[#ff9500] via-[#ffcc00] to-[#34c759] border-2 border-white dark:border-gray-800 shadow-[inset_0_2px_4px_rgba(0,0,0,0.15)]" />
+                          <div className="w-full h-3.5 rounded-full bg-gradient-to-r from-[#34c759] via-[#ffcc00] via-[#ff9500] to-[#ff3b30] border-2 border-white dark:border-gray-800 shadow-[inset_0_2px_4px_rgba(0,0,0,0.15)]" />
                           
                           {/* Thumb */}
                           <div 
-                            className="absolute w-6 h-6 rounded-full bg-white flex items-center justify-center shadow-[0_2px_6px_rgba(0,0,0,0.25)] border border-gray-200/50 transition-all duration-700 ease-out"
+                            className="absolute w-5 h-5 rounded-full bg-white flex items-center justify-center shadow-[0_2px_6px_rgba(0,0,0,0.25)] border border-gray-200/50 transition-all duration-700 ease-out"
                             style={{ 
-                              left: coloringPage.difficulty === 'easy' ? '85%' : coloringPage.difficulty === 'hard' ? '15%' : '50%',
+                              left: coloringPage.difficulty === 'easy' ? '15%' : coloringPage.difficulty === 'hard' ? '85%' : '50%',
                               transform: 'translateX(-50%)'
                             }}
                           >
                             <div 
-                              className={`w-4 h-4 rounded-full transition-colors duration-500 ${
+                              className={`w-3 h-3 rounded-full transition-colors duration-500 ${
                                 coloringPage.difficulty === 'easy' ? 'bg-[#34c759]' : coloringPage.difficulty === 'hard' ? 'bg-[#ff3b30]' : 'bg-[#ff9500]'
                               }`}
                             />
@@ -169,16 +232,33 @@ export default async function DynamicPage({
             </div>
 
             {/* Sidebar Column */}
-            {relatedPages.length > 0 && (
-              <div className="w-full lg:w-80 min-w-[280px] bg-white dark:bg-gray-900 p-6 rounded-3xl border border-black/5 dark:border-white/5 shadow-[0_10px_15px_-3px_rgba(124,58,237,0.05)] print:hidden flex flex-col gap-6 flex-shrink-0">
-                <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2 border-b border-black/5 dark:border-white/5 pb-4 m-0">
-                  Related Sheets
-                </h3>
-                <div className="flex flex-col gap-4">
-                  {relatedPages.map(page => (
-                    <RelatedCard key={page.id} page={page} />
-                  ))}
-                </div>
+            {(relatedPages.length > 0 || (coloringPage.tags && coloringPage.tags.length > 0)) && (
+              <div className="w-full lg:w-80 min-w-[280px] print:hidden flex flex-col gap-6 flex-shrink-0">
+                {relatedPages.length > 0 && (
+                  <div className="bg-white dark:bg-gray-900 p-6 rounded-3xl border border-black/5 dark:border-white/5 shadow-[0_10px_15px_-3px_rgba(124,58,237,0.05)] flex flex-col gap-6">
+                    <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2 border-b border-black/5 dark:border-white/5 pb-4 m-0">
+                      Related Sheets
+                    </h3>
+                    <div className="flex flex-col gap-4">
+                      {relatedPages.map(page => (
+                        <RelatedCard key={page.id} page={page} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {coloringPage.tags && coloringPage.tags.length > 0 && (
+                  <div className="bg-white dark:bg-gray-900 p-6 rounded-3xl border border-black/5 dark:border-white/5 shadow-[0_10px_15px_-3px_rgba(124,58,237,0.05)] flex flex-col gap-4">
+                    <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2 border-b border-black/5 dark:border-white/5 pb-4 m-0">
+                      Tags
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {coloringPage.tags.map(tag => (
+                        <Tag key={tag} name={tag} />
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>

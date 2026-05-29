@@ -2,8 +2,14 @@ import Link from "next/link";
 import { Category } from "@/types";
 
 function formatCount(n: number): string {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}k`;
+  if (n >= 1_000_000) {
+    const formatted = (n / 1_000_000).toFixed(1);
+    return `${formatted.endsWith('.0') ? formatted.slice(0, -2) : formatted}M`;
+  }
+  if (n >= 1_000) {
+    const formatted = (n / 1_000).toFixed(1);
+    return `${formatted.endsWith('.0') ? formatted.slice(0, -2) : formatted}K`;
+  }
   return String(n);
 }
 
@@ -20,28 +26,28 @@ function getDefaultPageCount(title: string): number {
 
 export default function CategoryCard({ category, index = 0 }: { category: Category; index?: number }) {
   // Determine badge: first 3 are "New", top downloads get "Popular"
-  const badge: "New" | "Popular" | null =
-    (category.downloads ?? 0) >= 800 ? "Popular" : index < 3 ? "New" : null;
+  const badge: "Popular" | null =
+    (category.downloads ?? 0) >= 800 ? "Popular" : null;
 
   const href = category.parentSlug
     ? `/${category.parentSlug}/${category.slug}`
     : `/${category.slug}`;
 
+  const pageCount = category.parentSlug
+    ? (category._count?.subPages ?? 0)
+    : (category._count?.pages ?? 0);
+
   return (
     <Link
       href={href}
-      className="bg-white dark:bg-gray-900 rounded-2xl overflow-hidden border border-black/5 dark:border-white/5 transition-all duration-400 ease-[cubic-bezier(0.4,0,0.2,1)] shadow-sm flex flex-col hover:-translate-y-2 hover:shadow-[0_10px_15px_-3px_rgba(124,58,237,0.1),0_4px_6px_-2px_rgba(124,58,237,0.05)] dark:hover:shadow-[0_10px_15px_-3px_rgba(168,85,247,0.15)] hover:border-purple-600/20 dark:hover:border-purple-500/30 group relative"
+      className="bg-white dark:bg-gray-950 rounded-2xl overflow-hidden border border-black/5 dark:border-white/5 transition-all duration-400 ease-[cubic-bezier(0.4,0,0.2,1)] shadow-sm flex flex-col hover:-translate-y-2 hover:shadow-[0_10px_15px_-3px_rgba(124,58,237,0.1),0_4px_6px_-2px_rgba(124,58,237,0.05)] dark:hover:shadow-[0_10px_15px_-3px_rgba(168,85,247,0.15)] hover:border-purple-600/20 dark:hover:border-purple-500/30 group relative"
     >
       {/* Badge */}
       {badge && (
         <span
-          className={`absolute top-3 left-3 z-10 text-xs font-extrabold px-2.5 py-1 rounded-full shadow-md ${
-            badge === "Popular"
-              ? "bg-orange-500 text-white"
-              : "bg-purple-600 text-white"
-          }`}
+          className="absolute top-3 left-3 z-10 text-xs font-extrabold px-2.5 py-1 rounded-full shadow-md bg-orange-500 text-white"
         >
-          {badge === "Popular" ? "🔥 Popular" : "New"}
+          🔥 Popular
         </span>
       )}
 
@@ -60,7 +66,7 @@ export default function CategoryCard({ category, index = 0 }: { category: Catego
           {category.title}
         </h3>
         <p className="text-sm font-medium text-purple-600 dark:text-purple-400 text-center mb-3">
-          Explore
+          ({pageCount}) pages
         </p>
 
         {/* Stats row */}

@@ -13,6 +13,8 @@ export interface ColoringPage {
   pdfUrl?: string;
   difficulty?: 'easy' | 'medium' | 'hard';
   ageGroup?: 'kids' | 'adults';
+  tags?: string[];
+  createdAt?: string | Date;
 }
 
 export interface Category {
@@ -25,4 +27,9 @@ export interface Category {
   views?: number;
   downloads?: number;
   likes?: number;
+  createdAt?: string | Date;
+  _count?: {
+    pages: number;
+    subPages: number;
+  };
 }

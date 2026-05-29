@@ -33,7 +33,7 @@ export default async function SeeMore({ currentPage }: { currentPage: ColoringPa
   if (result.length === 0) return null;
 
   return (
-    <div className="max-w-[1240px] mx-auto px-6 pb-16">
+    <div className="max-w-[1240px] mx-auto px-6 pb-16 print:hidden">
       <h2 className="text-3xl font-bold text-[#0F0728] mb-6 flex items-center gap-3 before:content-[''] before:block before:w-1 before:h-7 before:bg-purple-600 before:rounded-sm">
         See More
       </h2>

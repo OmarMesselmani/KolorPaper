@@ -57,6 +57,18 @@ export async function getColoringPages(
   }
 }
 
+export async function getAllColoringPages(): Promise<ColoringPage[]> {
+  try {
+    const res = await fetch(`${API_URL}/pages?limit=10000`, { next: { revalidate: 60 } });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.pages || [];
+  } catch (error) {
+    console.error("Failed to fetch all coloring pages:", error);
+    return [];
+  }
+}
+
 export async function getColoringPageBySlug(slug: string): Promise<ColoringPage | null> {
   try {
     const res = await fetch(`${API_URL}/pages/${slug}`, { next: { revalidate: 60 } });
@@ -85,6 +97,27 @@ export async function searchColoringPages(
     return data.pages || [];
   } catch (error) {
     console.error("Failed to search coloring pages:", error);
+    return [];
+  }
+}
+
+export async function getPagesByTag(
+  tag: string,
+  filters?: { difficulty?: string; ageGroup?: string }
+): Promise<ColoringPage[]> {
+  try {
+    const params = new URLSearchParams();
+    params.append('tag', tag);
+    if (filters?.difficulty) params.append('difficulty', filters.difficulty);
+    if (filters?.ageGroup) params.append('ageGroup', filters.ageGroup);
+    params.append('limit', '100');
+
+    const res = await fetch(`${API_URL}/pages?${params.toString()}`, { next: { revalidate: 60 } });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.pages || [];
+  } catch (error) {
+    console.error("Failed to fetch coloring pages by tag:", error);
     return [];
   }
 }

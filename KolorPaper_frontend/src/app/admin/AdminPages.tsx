@@ -18,6 +18,7 @@ interface Page {
   description: string | null;
   difficulty: string | null;
   ageGroup: string | null;
+  tags?: string[];
   views: number;
   downloads: number;
   likes: number;
@@ -60,6 +61,7 @@ export default function AdminPages({ token }: AdminPagesProps) {
   const [description, setDescription] = useState("");
   const [difficulty, setDifficulty] = useState("medium");
   const [ageGroup, setAgeGroup] = useState("kids");
+  const [tagsInput, setTagsInput] = useState("");
   const [published, setPublished] = useState(true);
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
@@ -200,6 +202,7 @@ export default function AdminPages({ token }: AdminPagesProps) {
     setDescription("");
     setDifficulty("medium");
     setAgeGroup("kids");
+    setTagsInput("");
     setPublished(true);
     setIsEditing(false);
     setEditId("");
@@ -227,6 +230,7 @@ export default function AdminPages({ token }: AdminPagesProps) {
       description: description || null,
       difficulty,
       ageGroup,
+      tags: tagsInput ? tagsInput.split(",").map(t => t.trim()).filter(Boolean) : [],
       published
     };
 
@@ -273,6 +277,7 @@ export default function AdminPages({ token }: AdminPagesProps) {
     setDescription(page.description || "");
     setDifficulty(page.difficulty || "medium");
     setAgeGroup(page.ageGroup || "kids");
+    setTagsInput(page.tags?.join(", ") || "");
     setPublished(page.published);
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -642,6 +647,17 @@ export default function AdminPages({ token }: AdminPagesProps) {
                 placeholder="A short description summarizing this coloring page..."
                 rows={3}
                 className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-950/40 border border-gray-100 dark:border-white/5 rounded-xl text-gray-800 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-sm transition-all resize-none"
+              />
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Tags</label>
+              <input
+                type="text"
+                value={tagsInput}
+                onChange={(e) => setTagsInput(e.target.value)}
+                placeholder="e.g. cute, animals, safari (separated by comma)"
+                className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-950/40 border border-gray-100 dark:border-white/5 rounded-xl text-gray-800 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-sm transition-all"
               />
             </div>
 

@@ -29,7 +29,7 @@ export default async function SearchPage({
         <div className="flex-1 w-full">
           {hasFilters ? (
             <>
-              <h2 className="text-4xl font-extrabold mb-8 text-gray-800 dark:text-gray-100">
+              <h2 className="text-3xl md:text-4xl font-bold text-[#0F0728] dark:text-gray-100 mb-8 flex items-center gap-3 before:content-[''] before:block before:w-1 before:h-8 before:bg-purple-600 before:rounded-sm">
                 {query ? `Search results for "${query}"` : "Filtered Results"}
               </h2>
               {results.length > 0 ? (

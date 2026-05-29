@@ -12,8 +12,14 @@ export default async function StatsBar() {
   }
 
   const formatCount = (n: number) => {
-    if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M+`;
-    if (n >= 1_000) return `${(n / 1_000).toFixed(1)}k+`;
+    if (n >= 1_000_000) {
+      const formatted = (n / 1_000_000).toFixed(1);
+      return `${formatted.endsWith('.0') ? formatted.slice(0, -2) : formatted}M+`;
+    }
+    if (n >= 1_000) {
+      const formatted = (n / 1_000).toFixed(1);
+      return `${formatted.endsWith('.0') ? formatted.slice(0, -2) : formatted}K+`;
+    }
     return String(n);
   };
 

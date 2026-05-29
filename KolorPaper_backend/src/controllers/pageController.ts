@@ -31,6 +31,7 @@ export const getColoringPages = async (req: Request, res: Response): Promise<voi
     const difficulty = req.query.difficulty as string | undefined;
     const ageGroup = req.query.ageGroup as string | undefined;
     const search = req.query.search as string | undefined;
+    const tag = req.query.tag as string | undefined;
     
     // Pagination params
     const page = Math.max(1, parseInt(req.query.page as string || "1") || 1);
@@ -59,6 +60,9 @@ export const getColoringPages = async (req: Request, res: Response): Promise<voi
     }
     if (ageGroup) {
       where.ageGroup = ageGroup;
+    }
+    if (tag) {
+      where.tags = { has: tag };
     }
 
     // 3. Search query (matches title, description, or category slugs)
@@ -306,7 +310,7 @@ export const createColoringPage = async (req: Request, res: Response): Promise<a
   try {
     const { 
       title, slug, imageUrl, thumbnailUrl, pdfUrl, 
-      categorySlug, subCategorySlug, description, difficulty, ageGroup, published 
+      categorySlug, subCategorySlug, description, difficulty, ageGroup, tags, published 
     } = req.body;
 
     if (!title || !slug || !imageUrl || !thumbnailUrl || !categorySlug) {
@@ -325,6 +329,7 @@ export const createColoringPage = async (req: Request, res: Response): Promise<a
     const cleanDescription = description ? stripHtml(description).substring(0, 1000) : null;
     const cleanDifficulty = difficulty ? stripHtml(difficulty).substring(0, 50) : null;
     const cleanAgeGroup = ageGroup ? stripHtml(ageGroup).substring(0, 50) : null;
+    const cleanTags = Array.isArray(tags) ? tags.map((t: string) => stripHtml(t).substring(0, 50)) : [];
 
     if (!cleanTitle || !cleanSlug || !cleanImageUrl || !cleanThumbnailUrl || !cleanCategorySlug) {
       return res.status(400).json({ error: "Invalid inputs after sanitization" });
@@ -362,6 +367,7 @@ export const createColoringPage = async (req: Request, res: Response): Promise<a
         description: cleanDescription,
         difficulty: cleanDifficulty,
         ageGroup: cleanAgeGroup,
+        tags: cleanTags,
         published: published !== undefined ? published : true
       }
     });
@@ -379,7 +385,7 @@ export const updateColoringPage = async (req: Request, res: Response): Promise<a
     const id = req.params.id as string;
     const { 
       title, slug, imageUrl, thumbnailUrl, pdfUrl, 
-      categorySlug, subCategorySlug, description, difficulty, ageGroup, published 
+      categorySlug, subCategorySlug, description, difficulty, ageGroup, tags, published 
     } = req.body;
 
     const existing = await prisma.coloringPage.findUnique({ where: { id } });
@@ -397,6 +403,7 @@ export const updateColoringPage = async (req: Request, res: Response): Promise<a
     const cleanDescription = description !== undefined ? (description ? stripHtml(description).substring(0, 1000) : null) : existing.description;
     const cleanDifficulty = difficulty !== undefined ? (difficulty ? stripHtml(difficulty).substring(0, 50) : null) : existing.difficulty;
     const cleanAgeGroup = ageGroup !== undefined ? (ageGroup ? stripHtml(ageGroup).substring(0, 50) : null) : existing.ageGroup;
+    const cleanTags = tags !== undefined ? (Array.isArray(tags) ? tags.map((t: string) => stripHtml(t).substring(0, 50)) : []) : existing.tags;
 
     if (slug !== undefined && !cleanSlug) {
       return res.status(400).json({ error: "Invalid slug format" });
@@ -439,6 +446,7 @@ export const updateColoringPage = async (req: Request, res: Response): Promise<a
         description: cleanDescription,
         difficulty: cleanDifficulty,
         ageGroup: cleanAgeGroup,
+        tags: cleanTags,
         published: published !== undefined ? published : existing.published
       }
     });
