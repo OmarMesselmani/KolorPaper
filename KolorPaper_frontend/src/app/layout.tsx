@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   },
   description: "Explore thousands of free printable coloring pages for kids and adults. Download high-quality coloring sheets, print and enjoy!",
   icons: {
-    icon: "/favicon.png",
+    icon: "/favicon.svg",
   },
   alternates: {
     canonical: siteUrl,
@@ -77,7 +77,7 @@ export default async function RootLayout({
                 "@type": "Organization",
                 "name": "KolorPaper",
                 "url": siteUrl,
-                "logo": `${siteUrl}/logo.png`,
+                "logo": `${siteUrl}/logo.svg`,
                 "sameAs": []
               },
               {

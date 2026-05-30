@@ -50,7 +50,7 @@ export default function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
 
       <div className="w-full max-w-md bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 md:p-10 shadow-2xl relative z-10">
         <div className="text-center mb-8 flex flex-col items-center gap-3">
-          <img src="/logo.png" alt="KolorPaper" className="h-12 object-contain mx-auto" />
+          <img src="/logo.svg" alt="KolorPaper" className="h-12 object-contain mx-auto" />
           <p className="text-gray-400 text-sm font-semibold tracking-wide uppercase">Control Panel Authentication</p>
         </div>
 

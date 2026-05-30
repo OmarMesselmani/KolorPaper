@@ -35,7 +35,7 @@ export default function Footer({ categories = [] }: FooterProps) {
           {/* Brand Info & Vision Column */}
           <div className="flex flex-col space-y-6">
             <Link href="/" className="inline-block no-underline">
-              <Image src="/logo.png" alt="KolorPaper" width={160} height={32} className="h-8 w-auto object-contain" />
+              <Image src="/logoWhite.svg" alt="KolorPaper" width={220} height={44} className="h-11 w-auto object-contain" />
             </Link>
             <p className="text-purple-200/70 text-sm leading-relaxed max-w-sm">
               Bringing colors to life! Explore KolorPaper's curated universe of high-quality printable coloring pages. Perfect for developing kids' creativity or enjoying a relaxing artistic escape for adults.

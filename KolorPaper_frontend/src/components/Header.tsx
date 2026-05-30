@@ -15,7 +15,7 @@ export default function Header({ categories }: { categories: Category[] }) {
             <div className="flex items-center gap-6 md:gap-8">
               <NavMenu categories={categories} />
               <Link href="/" className="no-underline flex items-center">
-                <Image src="/logo.png" alt="KolorPaper - Free Printable Coloring Pages" width={180} height={32} className="h-8 w-auto object-contain" />
+                <Image src="/logo.svg" alt="KolorPaper - Free Printable Coloring Pages" width={240} height={48} className="h-12 w-auto object-contain" />
               </Link>
             </div>
           </div>

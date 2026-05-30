@@ -108,7 +108,7 @@ export default function AdminPage() {
       <aside className="w-full md:w-64 bg-[#0F0728] text-white flex-shrink-0 flex flex-col border-r border-white/5 relative z-20 h-full overflow-y-auto">
         {/* Sidebar Header Brand */}
         <div className="p-6 border-b border-white/5 flex flex-col items-start gap-1.5">
-          <img src="/logo.png" alt="KolorPaper" className="h-10 object-contain" />
+          <img src="/logo.svg" alt="KolorPaper" className="h-10 object-contain" />
           <span className="text-[10px] text-gray-500 font-extrabold uppercase tracking-wider block mt-1">Management Console</span>
         </div>
 

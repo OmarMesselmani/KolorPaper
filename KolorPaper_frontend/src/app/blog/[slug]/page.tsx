@@ -82,7 +82,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               "name": "KolorPaper",
               "logo": {
                 "@type": "ImageObject",
-                "url": `${siteUrl}/logo.png`
+                "url": `${siteUrl}/logo.svg`
               }
             },
             "mainEntityOfPage": {
