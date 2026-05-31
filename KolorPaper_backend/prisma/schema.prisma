@@ -15,6 +15,7 @@ model Category {
   slug        String   @unique
   description String?
   imageUrl    String?
+  imageAlt    String?
   parentSlug  String?
   sortOrder   Int      @default(0)
   createdAt   DateTime @default(now())
@@ -33,6 +34,7 @@ model ColoringPage {
   title           String
   slug            String   @unique
   imageUrl        String
+  imageAlt        String?
   thumbnailUrl    String
   pdfUrl          String?
   categorySlug    String

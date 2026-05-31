@@ -174,9 +174,7 @@ export default function AdminPage() {
         {/* Sidebar Footer User Profile */}
         <div className="p-4 border-t border-white/5 space-y-3">
           <div className="flex items-center gap-3 px-2 py-1">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-orange-500 flex items-center justify-center font-bold text-sm">
-              {admin?.name?.substring(0, 1) || "A"}
-            </div>
+            <img src="/favicon.svg" alt="Admin" className="w-8 h-8 object-contain" />
             <div className="min-w-0">
               <span className="block text-xs font-extrabold truncate">{admin?.name || "Administrator"}</span>
               <span className="block text-[9px] text-gray-500 truncate">{admin?.email}</span>

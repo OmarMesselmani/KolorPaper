@@ -309,7 +309,7 @@ export const getPublicStats = async (req: Request, res: Response): Promise<any> 
 export const createColoringPage = async (req: Request, res: Response): Promise<any> => {
   try {
     const { 
-      title, slug, imageUrl, thumbnailUrl, pdfUrl, 
+      title, slug, imageUrl, imageAlt, thumbnailUrl, pdfUrl, 
       categorySlug, subCategorySlug, description, difficulty, ageGroup, tags, published 
     } = req.body;
 
@@ -322,6 +322,7 @@ export const createColoringPage = async (req: Request, res: Response): Promise<a
     const cleanTitle = stripHtml(title).substring(0, 100);
     const cleanSlug = sanitizeSlug(slug).substring(0, 100);
     const cleanImageUrl = stripHtml(imageUrl).substring(0, 2048);
+    const cleanImageAlt = imageAlt ? stripHtml(imageAlt).substring(0, 200) : null;
     const cleanThumbnailUrl = stripHtml(thumbnailUrl).substring(0, 2048);
     const cleanPdfUrl = pdfUrl ? stripHtml(pdfUrl).substring(0, 2048) : null;
     const cleanCategorySlug = sanitizeSlug(categorySlug).substring(0, 100);
@@ -360,6 +361,7 @@ export const createColoringPage = async (req: Request, res: Response): Promise<a
         title: cleanTitle,
         slug: cleanSlug,
         imageUrl: cleanImageUrl,
+        imageAlt: cleanImageAlt,
         thumbnailUrl: cleanThumbnailUrl,
         pdfUrl: cleanPdfUrl || null,
         categorySlug: cleanCategorySlug,
@@ -384,7 +386,7 @@ export const updateColoringPage = async (req: Request, res: Response): Promise<a
   try {
     const id = req.params.id as string;
     const { 
-      title, slug, imageUrl, thumbnailUrl, pdfUrl, 
+      title, slug, imageUrl, imageAlt, thumbnailUrl, pdfUrl, 
       categorySlug, subCategorySlug, description, difficulty, ageGroup, tags, published 
     } = req.body;
 
@@ -396,6 +398,7 @@ export const updateColoringPage = async (req: Request, res: Response): Promise<a
     const cleanTitle = title !== undefined ? stripHtml(title).substring(0, 100) : existing.title;
     const cleanSlug = slug !== undefined ? sanitizeSlug(slug).substring(0, 100) : existing.slug;
     const cleanImageUrl = imageUrl !== undefined ? stripHtml(imageUrl).substring(0, 2048) : existing.imageUrl;
+    const cleanImageAlt = imageAlt !== undefined ? (imageAlt ? stripHtml(imageAlt).substring(0, 200) : null) : existing.imageAlt;
     const cleanThumbnailUrl = thumbnailUrl !== undefined ? stripHtml(thumbnailUrl).substring(0, 2048) : existing.thumbnailUrl;
     const cleanPdfUrl = pdfUrl !== undefined ? (pdfUrl ? stripHtml(pdfUrl).substring(0, 2048) : null) : existing.pdfUrl;
     const cleanCategorySlug = categorySlug !== undefined ? sanitizeSlug(categorySlug).substring(0, 100) : existing.categorySlug;
@@ -439,6 +442,7 @@ export const updateColoringPage = async (req: Request, res: Response): Promise<a
         title: cleanTitle,
         slug: cleanSlug,
         imageUrl: cleanImageUrl,
+        imageAlt: cleanImageAlt,
         thumbnailUrl: cleanThumbnailUrl,
         pdfUrl: cleanPdfUrl,
         categorySlug: cleanCategorySlug,

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from "react";
+import DeleteConfirmModal from "@/components/DeleteConfirmModal";
 
 interface AdminPostsProps {
   token: string;
@@ -40,6 +41,8 @@ export default function AdminPosts({ token }: AdminPostsProps) {
   const [published, setPublished] = useState(true);
 
   const [uploading, setUploading] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [postToDelete, setPostToDelete] = useState<string | null>(null);
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
@@ -209,9 +212,17 @@ export default function AdminPosts({ token }: AdminPostsProps) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this blog post?")) return;
+  const initiateDelete = (id: string) => {
+    setPostToDelete(id);
+    setShowDeleteModal(true);
+  };
 
+  const handleDeleteConfirm = async () => {
+    if (!postToDelete) return;
+    const id = postToDelete;
+
+    setShowDeleteModal(false);
+    setPostToDelete(null);
     setError("");
     setSuccess("");
 
@@ -547,7 +558,7 @@ export default function AdminPosts({ token }: AdminPostsProps) {
                         </svg>
                       </button>
                       <button
-                        onClick={() => handleDelete(post.id)}
+                        onClick={() => initiateDelete(post.id)}
                         className="p-2 bg-white/5 hover:bg-red-950/20 hover:text-red-400 border border-white/10 rounded-xl text-gray-400 transition-colors cursor-pointer"
                         title="Delete Article"
                       >
@@ -563,6 +574,16 @@ export default function AdminPosts({ token }: AdminPostsProps) {
           </div>
         </div>
       )}
+      <DeleteConfirmModal
+        isOpen={showDeleteModal}
+        onConfirm={handleDeleteConfirm}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setPostToDelete(null);
+        }}
+        title="تأكيد الحذف"
+        message="هل ترغب في حذف هذا المقال نهائياً؟"
+      />
     </div>
   );
 }

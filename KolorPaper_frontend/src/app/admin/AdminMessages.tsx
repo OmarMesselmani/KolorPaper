@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from "react";
+import DeleteConfirmModal from "@/components/DeleteConfirmModal";
 
 interface AdminMessagesProps {
   token: string;
@@ -28,6 +29,8 @@ export default function AdminMessages({ token }: AdminMessagesProps) {
 
   // Modal View State
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [messageToDelete, setMessageToDelete] = useState<string | null>(null);
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
@@ -97,9 +100,17 @@ export default function AdminMessages({ token }: AdminMessagesProps) {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this message?")) return;
+  const initiateDelete = (id: string) => {
+    setMessageToDelete(id);
+    setShowDeleteModal(true);
+  };
 
+  const handleDeleteConfirm = async () => {
+    if (!messageToDelete) return;
+    const id = messageToDelete;
+
+    setShowDeleteModal(false);
+    setMessageToDelete(null);
     setError("");
     setSuccess("");
 
@@ -221,7 +232,7 @@ export default function AdminMessages({ token }: AdminMessagesProps) {
                         </svg>
                       </button>
                       <button
-                        onClick={() => handleDelete(msg.id)}
+                        onClick={() => initiateDelete(msg.id)}
                         className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-colors"
                         title="Delete message"
                       >
@@ -295,7 +306,7 @@ export default function AdminMessages({ token }: AdminMessagesProps) {
 
             <div className="flex justify-between items-center">
               <button
-                onClick={() => handleDelete(selectedMessage.id)}
+                onClick={() => initiateDelete(selectedMessage.id)}
                 className="px-4 py-2 bg-red-50 hover:bg-red-100 dark:bg-red-950/20 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 font-extrabold text-xs rounded-xl transition-colors flex items-center gap-1"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
@@ -314,6 +325,16 @@ export default function AdminMessages({ token }: AdminMessagesProps) {
           </div>
         </div>
       )}
+      <DeleteConfirmModal
+        isOpen={showDeleteModal}
+        onConfirm={handleDeleteConfirm}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setMessageToDelete(null);
+        }}
+        title="تأكيد الحذف"
+        message="هل ترغب في حذف هذه الرسالة نهائياً؟"
+      />
     </div>
   );
 }

@@ -81,7 +81,7 @@ export const getCategoryBySlug = async (req: Request, res: Response): Promise<an
 // POST /api/admin/categories
 export const createCategory = async (req: Request, res: Response): Promise<any> => {
   try {
-    const { title, slug, description, imageUrl, parentSlug, sortOrder } = req.body;
+    const { title, slug, description, imageUrl, imageAlt, parentSlug, sortOrder } = req.body;
 
     if (!title || !slug) {
       return res.status(400).json({ error: "Title and slug are required" });
@@ -91,6 +91,7 @@ export const createCategory = async (req: Request, res: Response): Promise<any> 
     const cleanSlug = sanitizeSlug(slug).substring(0, 100);
     const cleanDescription = description ? stripHtml(description).substring(0, 500) : null;
     const cleanImageUrl = imageUrl ? stripHtml(imageUrl).substring(0, 2048) : null;
+    const cleanImageAlt = imageAlt ? stripHtml(imageAlt).substring(0, 200) : null;
     const cleanParentSlug = parentSlug ? sanitizeSlug(parentSlug).substring(0, 100) : null;
 
     if (!cleanTitle || !cleanSlug) {
@@ -109,6 +110,7 @@ export const createCategory = async (req: Request, res: Response): Promise<any> 
         slug: cleanSlug,
         description: cleanDescription,
         imageUrl: cleanImageUrl,
+        imageAlt: cleanImageAlt,
         parentSlug: cleanParentSlug || null,
         sortOrder: sortOrder ? parseInt(sortOrder) : 0
       }
@@ -125,7 +127,7 @@ export const createCategory = async (req: Request, res: Response): Promise<any> 
 export const updateCategory = async (req: Request, res: Response): Promise<any> => {
   try {
     const id = req.params.id as string;
-    const { title, slug, description, imageUrl, parentSlug, sortOrder } = req.body;
+    const { title, slug, description, imageUrl, imageAlt, parentSlug, sortOrder } = req.body;
 
     const existing = await prisma.category.findUnique({ where: { id } });
     if (!existing) {
@@ -136,6 +138,7 @@ export const updateCategory = async (req: Request, res: Response): Promise<any> 
     const cleanSlug = slug !== undefined ? sanitizeSlug(slug).substring(0, 100) : existing.slug;
     const cleanDescription = description !== undefined ? (description ? stripHtml(description).substring(0, 500) : null) : existing.description;
     const cleanImageUrl = imageUrl !== undefined ? (imageUrl ? stripHtml(imageUrl).substring(0, 2048) : null) : existing.imageUrl;
+    const cleanImageAlt = imageAlt !== undefined ? (imageAlt ? stripHtml(imageAlt).substring(0, 200) : null) : existing.imageAlt;
     const cleanParentSlug = parentSlug !== undefined ? (parentSlug ? sanitizeSlug(parentSlug).substring(0, 100) : null) : existing.parentSlug;
 
     if (slug !== undefined && !cleanSlug) {
@@ -157,6 +160,7 @@ export const updateCategory = async (req: Request, res: Response): Promise<any> 
         slug: cleanSlug,
         description: cleanDescription,
         imageUrl: cleanImageUrl,
+        imageAlt: cleanImageAlt,
         parentSlug: cleanParentSlug,
         sortOrder: sortOrder !== undefined ? parseInt(sortOrder) : existing.sortOrder
       }

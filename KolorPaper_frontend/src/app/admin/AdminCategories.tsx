@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from "react";
+import DeleteConfirmModal from "@/components/DeleteConfirmModal";
 
 interface AdminCategoriesProps {
   token: string;
@@ -12,6 +13,7 @@ interface Category {
   slug: string;
   description: string | null;
   imageUrl: string | null;
+  imageAlt: string | null;
   parentSlug: string | null;
   sortOrder: number;
 }
@@ -30,8 +32,11 @@ export default function AdminCategories({ token }: AdminCategoriesProps) {
   const [slug, setSlug] = useState("");
   const [description, setDescription] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [imageAlt, setImageAlt] = useState("");
   const [parentSlug, setParentSlug] = useState("");
   const [sortOrder, setSortOrder] = useState(0);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
@@ -120,6 +125,7 @@ export default function AdminCategories({ token }: AdminCategoriesProps) {
     setSlug("");
     setDescription("");
     setImageUrl("");
+    setImageAlt("");
     setParentSlug("");
     setSortOrder(0);
     setIsEditing(false);
@@ -137,6 +143,7 @@ export default function AdminCategories({ token }: AdminCategoriesProps) {
       slug,
       description: description || null,
       imageUrl: imageUrl || null,
+      imageAlt: imageAlt || null,
       parentSlug: parentSlug || null,
       sortOrder: sortOrder || 0
     };
@@ -178,6 +185,7 @@ export default function AdminCategories({ token }: AdminCategoriesProps) {
     setSlug(cat.slug);
     setDescription(cat.description || "");
     setImageUrl(cat.imageUrl || "");
+    setImageAlt(cat.imageAlt || "");
     setParentSlug(cat.parentSlug || "");
     setSortOrder(cat.sortOrder);
     setShowForm(true);
@@ -185,9 +193,17 @@ export default function AdminCategories({ token }: AdminCategoriesProps) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this category?")) return;
+  const initiateDelete = (id: string) => {
+    setCategoryToDelete(id);
+    setShowDeleteModal(true);
+  };
 
+  const handleDeleteConfirm = async () => {
+    if (!categoryToDelete) return;
+    const id = categoryToDelete;
+
+    setShowDeleteModal(false);
+    setCategoryToDelete(null);
     setError("");
     setSuccess("");
 
@@ -390,6 +406,24 @@ export default function AdminCategories({ token }: AdminCategoriesProps) {
             </div>
 
             <div className="md:col-span-2">
+              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+                Image Alt Text
+                <span className="ml-2 text-purple-500 normal-case font-semibold">(SEO)</span>
+              </label>
+              <input
+                type="text"
+                value={imageAlt}
+                onChange={(e) => setImageAlt(e.target.value)}
+                placeholder={`e.g. ${title || 'Category'} coloring pages cover image`}
+                maxLength={200}
+                className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-950/40 border border-gray-100 dark:border-white/5 rounded-xl text-gray-800 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-sm transition-all"
+              />
+              <p className="mt-1.5 text-[10px] text-gray-400 dark:text-gray-500 font-semibold">
+                📷 Describe the image for search engines and screen readers · Max 200 chars
+              </p>
+            </div>
+
+            <div className="md:col-span-2">
               <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Description</label>
               <textarea
                 value={description}
@@ -442,7 +476,7 @@ export default function AdminCategories({ token }: AdminCategoriesProps) {
                         <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.83 18.291a8.9 8.9 0 0 1-3.064 1.983L3 20.782l.497-3.078a8.9 8.9 0 0 1 1.984-3.064L16.863 4.487Zm0 0L19.5 7.125" />
                       </svg>
                     </button>
-                    <button onClick={() => handleDelete(parent.id)} className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-all" title="Delete">
+                    <button onClick={() => initiateDelete(parent.id)} className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-all" title="Delete">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
                         <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                       </svg>
@@ -469,7 +503,7 @@ export default function AdminCategories({ token }: AdminCategoriesProps) {
                               <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.83 18.291a8.9 8.9 0 0 1-3.064 1.983L3 20.782l.497-3.078a8.9 8.9 0 0 1 1.984-3.064L16.863 4.487Zm0 0L19.5 7.125" />
                             </svg>
                           </button>
-                          <button onClick={() => handleDelete(child.id)} className="text-red-500 hover:text-red-400">
+                          <button onClick={() => initiateDelete(child.id)} className="text-red-500 hover:text-red-400">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3 h-3">
                               <path strokeLinecap="round" strokeLinejoin="round" d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                             </svg>
@@ -484,6 +518,16 @@ export default function AdminCategories({ token }: AdminCategoriesProps) {
           );
         })}
       </div>
+      <DeleteConfirmModal
+        isOpen={showDeleteModal}
+        onConfirm={handleDeleteConfirm}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setCategoryToDelete(null);
+        }}
+        title="تأكيد الحذف"
+        message="هل ترغب في حذف هذا القسم نهائياً؟"
+      />
     </div>
   );
 }

@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import sharp from "sharp";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -182,7 +183,8 @@ export const uploadFile = async (req: Request, res: Response): Promise<any> => {
     const buffer = Buffer.from(base64Image, "base64");
 
     // Determine target directory inside backend
-    const targetDir = fileType === "pdf" ? "pdf" : "images";
+    const isImage = fileType !== "pdf";
+    const targetDir = isImage ? "images" : "pdf";
     const uploadPath = path.resolve(__dirname, `../../uploads/${targetDir}`);
 
     // Clean and sanitize filename to prevent path traversal and shell injection
@@ -233,25 +235,56 @@ export const uploadFile = async (req: Request, res: Response): Promise<any> => {
       .replace(/[^a-z0-9-]/g, "-")
       .replace(/-+/g, "-")
       .replace(/^-|-$/g, "");
-    const safeFileName = `${nameWithoutExt}-${Date.now()}-${Math.random().toString(36).substring(2, 8)}${ext}`;
+    const uniqueSuffix = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
+    const safeFileName = `${nameWithoutExt}-${uniqueSuffix}${ext}`;
 
-    // Ensure directory exists
+    // Ensure upload directory exists
     if (!fs.existsSync(uploadPath)) {
       fs.mkdirSync(uploadPath, { recursive: true });
     }
 
-    // Write file to disk
+    // Write original file to disk
     const filePath = path.join(uploadPath, safeFileName);
     fs.writeFileSync(filePath, buffer);
 
-    // Return the absolute URL to access the file from frontend
+    // Build absolute URL for the original file
     const protocol = req.protocol || "http";
     const host = req.get("host") || "localhost:5000";
     const absoluteUrl = `${protocol}://${host}/uploads/${targetDir}/${safeFileName}`;
-    
+
+    // --- Auto-generate WebP Thumbnail for images ---
+    if (isImage) {
+      try {
+        const thumbDir = path.resolve(__dirname, "../../uploads/thumbnails");
+        if (!fs.existsSync(thumbDir)) {
+          fs.mkdirSync(thumbDir, { recursive: true });
+        }
+
+        const thumbFileName = `thumb-${nameWithoutExt}-${uniqueSuffix}.webp`;
+        const thumbPath = path.join(thumbDir, thumbFileName);
+
+        await sharp(buffer)
+          .resize(400, 530, {
+            fit: "inside",          // preserve aspect ratio, no cropping
+            withoutEnlargement: true // don't upscale small images
+          })
+          .webp({ quality: 75 })
+          .toFile(thumbPath);
+
+        const thumbnailUrl = `${protocol}://${host}/uploads/thumbnails/${thumbFileName}`;
+
+        return res.json({ url: absoluteUrl, thumbnailUrl });
+      } catch (sharpErr) {
+        // Thumbnail generation failed — still return the original upload URL
+        console.error("Sharp thumbnail error:", sharpErr);
+        return res.json({ url: absoluteUrl, thumbnailUrl: absoluteUrl });
+      }
+    }
+
     return res.json({ url: absoluteUrl });
   } catch (error: any) {
     console.error("Upload error:", error);
     return res.status(500).json({ error: "Failed to upload file due to an internal error." });
   }
 };
+

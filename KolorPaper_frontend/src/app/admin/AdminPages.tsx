@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from "react";
+import DeleteConfirmModal from "@/components/DeleteConfirmModal";
 
 interface AdminPagesProps {
   token: string;
@@ -11,6 +12,7 @@ interface Page {
   title: string;
   slug: string;
   imageUrl: string;
+  imageAlt: string | null;
   thumbnailUrl: string;
   pdfUrl: string | null;
   categorySlug: string;
@@ -54,8 +56,8 @@ export default function AdminPages({ token }: AdminPagesProps) {
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [imageAlt, setImageAlt] = useState("");
   const [thumbnailUrl, setThumbnailUrl] = useState("");
-  const [pdfUrl, setPdfUrl] = useState("");
   const [categorySlug, setCategorySlug] = useState("");
   const [subCategorySlug, setSubCategorySlug] = useState("");
   const [description, setDescription] = useState("");
@@ -63,11 +65,13 @@ export default function AdminPages({ token }: AdminPagesProps) {
   const [ageGroup, setAgeGroup] = useState("kids");
   const [tagsInput, setTagsInput] = useState("");
   const [published, setPublished] = useState(true);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [pageToDelete, setPageToDelete] = useState<string | null>(null);
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
   const [uploadingField, setUploadingField] = useState<string | null>(null);
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: "image" | "thumbnail" | "pdf") => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: "image" | "thumbnail") => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -87,7 +91,7 @@ export default function AdminPages({ token }: AdminPagesProps) {
           },
           body: JSON.stringify({
             fileName: file.name,
-            fileType: field === "pdf" ? "pdf" : "image",
+            fileType: "image",
             base64Data
           })
         });
@@ -99,13 +103,10 @@ export default function AdminPages({ token }: AdminPagesProps) {
 
         if (field === "image") {
           setImageUrl(data.url);
-          if (!thumbnailUrl) {
-            setThumbnailUrl(data.url);
-          }
+          // Use the auto-generated WebP thumbnail from the backend (sharp), or fall back to original
+          setThumbnailUrl(data.thumbnailUrl || data.url);
         } else if (field === "thumbnail") {
           setThumbnailUrl(data.url);
-        } else if (field === "pdf") {
-          setPdfUrl(data.url);
         }
 
         setSuccess(`File "${file.name}" uploaded successfully!`);
@@ -195,8 +196,8 @@ export default function AdminPages({ token }: AdminPagesProps) {
     setTitle("");
     setSlug("");
     setImageUrl("");
+    setImageAlt("");
     setThumbnailUrl("");
-    setPdfUrl("");
     setCategorySlug("");
     setSubCategorySlug("");
     setDescription("");
@@ -223,8 +224,9 @@ export default function AdminPages({ token }: AdminPagesProps) {
       title,
       slug,
       imageUrl,
+      imageAlt: imageAlt || null,
       thumbnailUrl: thumbnailUrl || imageUrl, // default thumbnail to main image if empty
-      pdfUrl: pdfUrl || null,
+      pdfUrl: null,
       categorySlug,
       subCategorySlug: subCategorySlug || null,
       description: description || null,
@@ -270,8 +272,8 @@ export default function AdminPages({ token }: AdminPagesProps) {
     setTitle(page.title);
     setSlug(page.slug);
     setImageUrl(page.imageUrl);
+    setImageAlt(page.imageAlt || "");
     setThumbnailUrl(page.thumbnailUrl);
-    setPdfUrl(page.pdfUrl || "");
     setCategorySlug(page.categorySlug);
     setSubCategorySlug(page.subCategorySlug || "");
     setDescription(page.description || "");
@@ -283,9 +285,17 @@ export default function AdminPages({ token }: AdminPagesProps) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this coloring page?")) return;
+  const initiateDelete = (id: string) => {
+    setPageToDelete(id);
+    setShowDeleteModal(true);
+  };
 
+  const handleDeleteConfirm = async () => {
+    if (!pageToDelete) return;
+    const id = pageToDelete;
+
+    setShowDeleteModal(false);
+    setPageToDelete(null);
     setError("");
     setSuccess("");
 
@@ -515,36 +525,59 @@ export default function AdminPages({ token }: AdminPagesProps) {
               </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Thumbnail Image (Optional)</label>
+            <div className="md:col-span-2">
+              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+                Image Alt Text
+                <span className="ml-2 text-purple-500 normal-case font-semibold">(SEO)</span>
+              </label>
+              <input
+                type="text"
+                value={imageAlt}
+                onChange={(e) => setImageAlt(e.target.value)}
+                placeholder={`e.g. ${title || 'Coloring page'} printable coloring sheet`}
+                maxLength={200}
+                className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-950/40 border border-gray-100 dark:border-white/5 rounded-xl text-gray-800 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-sm transition-all"
+              />
+              <p className="mt-1.5 text-[10px] text-gray-400 dark:text-gray-500 font-semibold">
+                📷 Describe the image for search engines and screen readers · Max 200 chars
+              </p>
+            </div>
+
+            <div className="md:col-span-2">
+              <div className="flex items-center gap-2 mb-2">
+                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider">Thumbnail Image</label>
+                <span className="text-[10px] bg-purple-50 dark:bg-purple-950/20 text-purple-600 dark:text-purple-400 font-black px-2 py-0.5 rounded-full uppercase tracking-wider">Auto-Generated</span>
+              </div>
               <div className="flex gap-4 items-start">
                 <div className="flex-1">
                   {!thumbnailUrl ? (
-                    <label className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-2xl cursor-pointer transition-all ${uploadingField === "thumbnail" ? "border-purple-500/50 bg-purple-50/10 dark:bg-purple-950/10" : "border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-gray-950/40 hover:bg-gray-100/50 dark:hover:bg-gray-950/60 hover:border-purple-500/40"}`}>
-                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className={`w-8 h-8 mb-2 ${uploadingField === "thumbnail" ? "text-purple-500 animate-bounce" : "text-gray-400 dark:text-gray-500"}`}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 002.112 2.13" />
-                        </svg>
-                        <p className="text-xs font-bold text-gray-500 dark:text-gray-400">
-                          {uploadingField === "thumbnail" ? "Uploading thumbnail..." : "Click to select or upload thumbnail"}
-                        </p>
-                      </div>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => handleFileUpload(e, "thumbnail")}
-                        disabled={uploadingField !== null}
-                        className="hidden"
-                      />
-                    </label>
+                    <div className="flex flex-col items-center justify-center w-full h-20 border-2 border-dashed border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-gray-950/40 rounded-2xl">
+                      <p className="text-xs font-bold text-gray-400 dark:text-gray-500 text-center px-4">
+                        🪄 Will be auto-generated as WebP when you upload the main image
+                      </p>
+                      <label className="mt-2 cursor-pointer text-[10px] text-purple-500 font-black uppercase hover:underline flex items-center gap-1">
+                        Or upload manually
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleFileUpload(e, "thumbnail")}
+                          disabled={uploadingField !== null}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
                   ) : (
                     <div className="flex items-center gap-4 bg-gray-50 dark:bg-gray-950/40 border border-gray-100 dark:border-white/5 rounded-2xl p-4">
-                      <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 flex-shrink-0">
-                        <img src={thumbnailUrl} alt="Preview" className="w-full h-full object-cover" />
+                      <div className="relative w-12 h-16 rounded-xl overflow-hidden border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 flex-shrink-0">
+                        <img src={thumbnailUrl} alt="Thumbnail preview" className="w-full h-full object-contain" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5 mb-1">
-                          <span className="text-[10px] bg-green-50 dark:bg-green-950/20 text-green-600 dark:text-green-400 font-black px-2 py-0.5 rounded-full uppercase tracking-wider">Uploaded</span>
+                        <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+                          {thumbnailUrl.includes("/thumbnails/") ? (
+                            <span className="text-[10px] bg-purple-50 dark:bg-purple-950/20 text-purple-600 dark:text-purple-400 font-black px-2 py-0.5 rounded-full uppercase tracking-wider">⚡ WebP · Auto</span>
+                          ) : (
+                            <span className="text-[10px] bg-green-50 dark:bg-green-950/20 text-green-600 dark:text-green-400 font-black px-2 py-0.5 rounded-full uppercase tracking-wider">Uploaded</span>
+                          )}
                           <span className="text-xs font-bold text-gray-400 dark:text-gray-500 truncate block">{thumbnailUrl.split('/').pop()}</span>
                         </div>
                         <div className="flex gap-2">
@@ -552,7 +585,7 @@ export default function AdminPages({ token }: AdminPagesProps) {
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3.5 h-3.5">
                               <path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 002.112 2.13" />
                             </svg>
-                            Change File
+                            Override
                             <input
                               type="file"
                               accept="image/*"
@@ -576,68 +609,6 @@ export default function AdminPages({ token }: AdminPagesProps) {
               </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">PDF Document (Optional)</label>
-              <div className="flex gap-4 items-start">
-                <div className="flex-1">
-                  {!pdfUrl ? (
-                    <label className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-2xl cursor-pointer transition-all ${uploadingField === "pdf" ? "border-purple-500/50 bg-purple-50/10 dark:bg-purple-950/10" : "border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-gray-950/40 hover:bg-gray-100/50 dark:hover:bg-gray-950/60 hover:border-purple-500/40"}`}>
-                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className={`w-8 h-8 mb-2 ${uploadingField === "pdf" ? "text-purple-500 animate-bounce" : "text-gray-400 dark:text-gray-500"}`}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 002.112 2.13" />
-                        </svg>
-                        <p className="text-xs font-bold text-gray-500 dark:text-gray-400">
-                          {uploadingField === "pdf" ? "Uploading PDF..." : "Click to select or upload PDF"}
-                        </p>
-                      </div>
-                      <input
-                        type="file"
-                        accept="application/pdf"
-                        onChange={(e) => handleFileUpload(e, "pdf")}
-                        disabled={uploadingField !== null}
-                        className="hidden"
-                      />
-                    </label>
-                  ) : (
-                    <div className="flex items-center gap-4 bg-gray-50 dark:bg-gray-950/40 border border-gray-100 dark:border-white/5 rounded-2xl p-4">
-                      <div className="w-16 h-16 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 flex items-center justify-center text-red-500 flex-shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m.75 12l3 3m0 0l3-3m-3 3v-6m-1.5-9H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                        </svg>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1.5 mb-1">
-                          <span className="text-[10px] bg-green-50 dark:bg-green-950/20 text-green-600 dark:text-green-400 font-black px-2 py-0.5 rounded-full uppercase tracking-wider">Uploaded</span>
-                          <span className="text-xs font-bold text-gray-400 dark:text-gray-500 truncate block">{pdfUrl.split('/').pop()}</span>
-                        </div>
-                        <div className="flex gap-2">
-                          <label className="cursor-pointer text-[10px] text-purple-600 dark:text-purple-400 font-black uppercase hover:underline flex items-center gap-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3.5 h-3.5">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 002.112 2.13" />
-                            </svg>
-                            Change File
-                            <input
-                              type="file"
-                              accept="application/pdf"
-                              onChange={(e) => handleFileUpload(e, "pdf")}
-                              disabled={uploadingField !== null}
-                              className="hidden"
-                            />
-                          </label>
-                          <button
-                            type="button"
-                            onClick={() => setPdfUrl("")}
-                            className="text-[10px] text-red-500 font-black uppercase hover:underline"
-                          >
-                            Remove
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
 
             <div className="md:col-span-2">
               <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Description</label>
@@ -794,7 +765,7 @@ export default function AdminPages({ token }: AdminPagesProps) {
                               <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.83 18.291a8.9 8.9 0 0 1-3.064 1.983L3 20.782l.497-3.078a8.9 8.9 0 0 1 1.984-3.064L16.863 4.487Zm0 0L19.5 7.125" />
                             </svg>
                           </button>
-                          <button onClick={() => handleDelete(page.id)} className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-all" title="Delete">
+                          <button onClick={() => initiateDelete(page.id)} className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-all" title="Delete">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
                               <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                             </svg>
@@ -832,6 +803,15 @@ export default function AdminPages({ token }: AdminPagesProps) {
           </div>
         )}
       </div>
+
+      <DeleteConfirmModal
+        isOpen={showDeleteModal}
+        onConfirm={handleDeleteConfirm}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setPageToDelete(null);
+        }}
+      />
     </div>
   );
 }
