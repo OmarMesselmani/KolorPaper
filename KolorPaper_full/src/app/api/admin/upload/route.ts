@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 
-// Ensure this runs on edge runtime
-export const runtime = "edge";
+
 
 const R2_ENDPOINT = process.env.R2_ENDPOINT || "";
 const R2_ACCESS_KEY_ID = process.env.R2_ACCESS_KEY_ID || "";
