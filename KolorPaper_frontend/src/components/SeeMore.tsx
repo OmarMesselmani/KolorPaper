@@ -12,7 +12,7 @@ export default async function SeeMore({ currentPage }: { currentPage: ColoringPa
     return p.id !== currentPage.id;
   });
 
-  candidatePages = candidatePages.sort(() => 0.5 - Math.random());
+  candidatePages = candidatePages.reverse();
 
   const result: ColoringPage[] = [];
   const seenIds = new Set<string>([currentPage.id]);
@@ -35,7 +35,7 @@ export default async function SeeMore({ currentPage }: { currentPage: ColoringPa
       otherPages = otherPages.concat(pages);
     }
     
-    otherPages = otherPages.sort(() => 0.5 - Math.random());
+    otherPages = otherPages.reverse();
     
     for (const p of otherPages) {
       if (result.length >= 4) break;

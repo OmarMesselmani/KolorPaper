@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import DeleteConfirmModal from "@/components/DeleteConfirmModal";
+import { getErrorMessage } from "@/lib/error";
 
 interface AdminMessagesProps {
   token: string;
@@ -54,11 +55,11 @@ export default function AdminMessages({ token }: AdminMessagesProps) {
       if (!res.ok) throw new Error("Failed to load contact messages.");
 
       const data = await res.json();
-      setMessages(data.messages);
-      setTotalPages(data.pagination.totalPages);
-    } catch (err: any) {
+      setMessages(Array.isArray(data.messages) ? data.messages : []);
+      setTotalPages(typeof data.pagination?.totalPages === "number" ? data.pagination.totalPages : 1);
+    } catch (err) {
       console.error(err);
-      setError(err.message || "Failed to load messages.");
+      setError(getErrorMessage(err, "Failed to load messages."));
     } finally {
       setLoading(false);
     }
@@ -129,8 +130,8 @@ export default function AdminMessages({ token }: AdminMessagesProps) {
       setSuccess("Message deleted successfully!");
       setSelectedMessage(null);
       fetchMessages();
-    } catch (err: any) {
-      setError(err.message || "Failed to delete message.");
+    } catch (err) {
+      setError(getErrorMessage(err, "Failed to delete message."));
     }
   };
 

@@ -121,9 +121,9 @@ export default async function DynamicPage({
   if (coloringPage) {
     const targetSlug = coloringPage.subCategorySlug || coloringPage.categorySlug;
     const allPages = await getColoringPages(targetSlug);
-    let relatedPages = allPages
+    const relatedPages = allPages
       .filter(p => p.id !== coloringPage.id)
-      .sort(() => 0.5 - Math.random())
+      .reverse()
       .slice(0, 4);
 
     return (

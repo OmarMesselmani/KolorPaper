@@ -135,10 +135,12 @@ export default function ColoringCard({ page }: { page: ColoringPage }) {
       .catch(err => console.error("Failed to track print download", err));
   };
 
-  const isNew = page.createdAt
-    ? (Date.now() - new Date(page.createdAt).getTime()) < 14 * 24 * 60 * 60 * 1000
-    : false;
-
+  const [isNew, setIsNew] = useState(false);
+  useEffect(() => {
+    if (page.createdAt) {
+      setIsNew((Date.now() - new Date(page.createdAt).getTime()) < 14 * 24 * 60 * 60 * 1000);
+    }
+  }, [page.createdAt]);
   return (
     <Link href={page.subCategorySlug ? `/${page.categorySlug}/${page.subCategorySlug}/${page.slug}` : `/${page.categorySlug}/${page.slug}`} className="block bg-white dark:bg-gray-900 rounded-2xl overflow-hidden border border-black/5 dark:border-white/5 shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_15px_-3px_rgba(124,58,237,0.1),0_4px_6px_-2px_rgba(124,58,237,0.05)] hover:border-purple-600/20 dark:hover:border-purple-500/30 group relative">
       {/* Badge (Left) */}

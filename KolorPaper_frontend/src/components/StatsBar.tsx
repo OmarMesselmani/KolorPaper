@@ -1,14 +1,23 @@
+import { prisma } from "@/lib/db";
+
 export default async function StatsBar() {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
   let statsData = { totalPages: 0, totalCategories: 0, totalDownloads: 0 };
   
   try {
-    const res = await fetch(`${API_URL}/stats`, { next: { revalidate: 60 } });
-    if (res.ok) {
-      statsData = await res.json();
-    }
+    const totalPages = await prisma.coloringPage.count({ where: { published: true } });
+    const totalCategories = await prisma.category.count();
+    const pageMetrics = await prisma.coloringPage.aggregate({
+      where: { published: true },
+      _sum: { downloads: true }
+    });
+    
+    statsData = {
+      totalPages,
+      totalCategories,
+      totalDownloads: pageMetrics._sum.downloads || 0
+    };
   } catch (error) {
-    console.error("Failed to fetch public stats:", error);
+    console.error("Failed to fetch public stats from DB:", error);
   }
 
   const formatCount = (n: number) => {

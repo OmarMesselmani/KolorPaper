@@ -1,8 +1,7 @@
 import { remark } from 'remark';
 import html from 'remark-html';
 import DOMPurify from 'isomorphic-dompurify';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+import { prisma } from '@/lib/db';
 
 export interface BlogPost {
   id?: string;
@@ -20,13 +19,11 @@ export interface BlogPost {
 
 export async function getSortedPostsData(): Promise<BlogPost[]> {
   try {
-    const res = await fetch(`${API_URL}/posts`, { next: { revalidate: 60 } });
-    if (!res.ok) {
-      console.error(`Failed to fetch posts from backend: ${res.statusText}`);
-      return [];
-    }
-    const posts: BlogPost[] = await res.json();
-    return posts;
+    const posts = await prisma.blogPost.findMany({
+      where: { published: true },
+      orderBy: { createdAt: "desc" }
+    });
+    return JSON.parse(JSON.stringify(posts));
   } catch (error) {
     console.error("Failed to fetch sorted posts data:", error);
     return [];
@@ -35,19 +32,17 @@ export async function getSortedPostsData(): Promise<BlogPost[]> {
 
 export async function getPostData(slug: string): Promise<BlogPost | null> {
   try {
-    const res = await fetch(`${API_URL}/posts/${slug}`, { next: { revalidate: 60 } });
-    if (!res.ok) {
-      if (res.status === 404) return null;
-      console.error(`Failed to fetch post from backend: ${res.statusText}`);
-      return null;
-    }
-    const post: BlogPost = await res.json();
+    const post = await prisma.blogPost.findUnique({
+      where: { slug, published: true }
+    });
     
-    if (!post || !post.content) {
+    if (!post) return null;
+    
+    if (!post.content) {
       return {
         ...post,
         contentHtml: '',
-      };
+      } as BlogPost;
     }
 
     const processedContent = await remark()
@@ -61,7 +56,7 @@ export async function getPostData(slug: string): Promise<BlogPost | null> {
     return {
       ...post,
       contentHtml,
-    };
+    } as BlogPost;
   } catch (error) {
     console.error(`Error loading blog post ${slug}:`, error);
     return null;

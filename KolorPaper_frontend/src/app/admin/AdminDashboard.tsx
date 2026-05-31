@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from "react";
+import { getErrorMessage } from "@/lib/error";
 
 interface AdminDashboardProps {
   token: string;
@@ -72,9 +73,9 @@ export default function AdminDashboard({ token, onTabChange }: AdminDashboardPro
       setPopularPages(data.popularPages);
       setRecentMessages(data.recentMessages);
       setTimeline(data.activityTimeline);
-    } catch (err: any) {
+    } catch (err) {
       console.error("Dashboard stats error:", err);
-      setError(err.message || "Failed to load dashboard data.");
+      setError(getErrorMessage(err, "Failed to load dashboard data."));
     } finally {
       setLoading(false);
     }

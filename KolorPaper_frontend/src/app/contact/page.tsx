@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Breadcrumbs from "@/components/Breadcrumbs";
+import { getErrorMessage } from "@/lib/error";
 
 export default function ContactPage() {
   const [name, setName] = useState("");
@@ -11,7 +12,8 @@ export default function ContactPage() {
   const [botError, setBotError] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const honeypotRef = useRef<HTMLInputElement>(null);
-  const loadTime = useRef(Date.now());
+  const loadTime = useRef(0);
+  useEffect(() => { loadTime.current = Date.now(); }, []);
   const [cooldown, setCooldown] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -58,9 +60,9 @@ export default function ContactPage() {
           setSent(false);
           setCooldown(false);
         }, 30000);
-      } catch (err: any) {
+      } catch (err) {
         console.error(err);
-        setSubmitError(err.message || "Failed to send message. Please try again later.");
+        setSubmitError(getErrorMessage(err, "Failed to send message. Please try again later."));
         setCooldown(false);
       }
     }

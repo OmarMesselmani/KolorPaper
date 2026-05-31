@@ -38,7 +38,7 @@ export default function Footer({ categories = [] }: FooterProps) {
               <Image src="/logoWhite.svg" alt="KolorPaper" width={220} height={44} className="h-11 w-auto object-contain" />
             </Link>
             <p className="text-purple-200/70 text-sm leading-relaxed max-w-sm">
-              Bringing colors to life! Explore KolorPaper's curated universe of high-quality printable coloring pages. Perfect for developing kids' creativity or enjoying a relaxing artistic escape for adults.
+              Bringing colors to life! Explore KolorPaper&apos;s curated universe of high-quality printable coloring pages. Perfect for developing kids&apos; creativity or enjoying a relaxing artistic escape for adults.
             </p>
             
             {/* Social Icons */}

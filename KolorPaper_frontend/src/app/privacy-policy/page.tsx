@@ -75,7 +75,7 @@ export default function PrivacyPolicy() {
         </section>
 
         <section>
-          <h2 className="text-2xl font-bold text-[#0F0728] dark:text-gray-100 mb-4">6. Children's Privacy</h2>
+          <h2 className="text-2xl font-bold text-[#0F0728] dark:text-gray-100 mb-4">6. Children&apos;s Privacy</h2>
           <p>KolorPaper does not knowingly collect personal information from children under the age of 13.</p>
           <p className="mt-4">If you believe that a child has provided personal information through our website, please contact us and we will remove the information promptly.</p>
         </section>

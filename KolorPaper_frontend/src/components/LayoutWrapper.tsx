@@ -4,13 +4,14 @@ import { usePathname } from "next/navigation";
 import Header from "./Header";
 import Footer from "./Footer";
 import BackToTop from "./BackToTop";
+import type { Category } from "@/types";
 
 export default function LayoutWrapper({
   children,
   categories,
 }: {
   children: React.ReactNode;
-  categories: any[];
+  categories: Category[];
 }) {
   const pathname = usePathname();
   const isAdmin = pathname?.startsWith("/admin");

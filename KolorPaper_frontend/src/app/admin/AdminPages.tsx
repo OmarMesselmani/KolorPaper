@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import DeleteConfirmModal from "@/components/DeleteConfirmModal";
+import { getErrorMessage } from "@/lib/error";
 
 interface AdminPagesProps {
   token: string;
@@ -110,9 +111,9 @@ export default function AdminPages({ token }: AdminPagesProps) {
         }
 
         setSuccess(`File "${file.name}" uploaded successfully!`);
-      } catch (err: any) {
+      } catch (err) {
         console.error(err);
-        setError(err.message || "Failed to upload file.");
+        setError(getErrorMessage(err, "Failed to upload file."));
       } finally {
         setUploadingField(null);
       }
@@ -157,9 +158,9 @@ export default function AdminPages({ token }: AdminPagesProps) {
       const data = await res.json();
       setPages(data.pages);
       setTotalPages(data.pagination.totalPages);
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
-      setError(err.message || "Failed to load pages.");
+      setError(getErrorMessage(err, "Failed to load pages."));
     } finally {
       setLoading(false);
     }
@@ -261,8 +262,8 @@ export default function AdminPages({ token }: AdminPagesProps) {
       setSuccess(`Coloring page successfully ${isEditing ? "updated" : "created"}!`);
       resetForm();
       fetchPages();
-    } catch (err: any) {
-      setError(err.message || "Failed to save coloring page.");
+    } catch (err) {
+      setError(getErrorMessage(err, "Failed to save coloring page."));
     }
   };
 
@@ -315,8 +316,8 @@ export default function AdminPages({ token }: AdminPagesProps) {
 
       setSuccess("Coloring page deleted successfully!");
       fetchPages();
-    } catch (err: any) {
-      setError(err.message || "Failed to delete page.");
+    } catch (err) {
+      setError(getErrorMessage(err, "Failed to delete page."));
     }
   };
 

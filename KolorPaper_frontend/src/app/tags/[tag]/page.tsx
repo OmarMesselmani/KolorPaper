@@ -41,7 +41,7 @@ export default async function TagPage({
 
         <div className="flex-1 w-full">
           <h2 className="text-3xl md:text-4xl font-bold text-[#0F0728] dark:text-gray-100 mb-8 flex items-center gap-3 before:content-[''] before:block before:w-1 before:h-8 before:bg-purple-600 before:rounded-sm">
-            <span>Search results for tag "<span className="capitalize">{tag}</span>"</span>
+            <span>Search results for tag &quot;<span className="capitalize">{tag}</span>&quot;</span>
           </h2>
           {results.length > 0 ? (
             <div className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-8 pb-16">

@@ -1,9 +1,16 @@
 'use client';
 
 import { useState } from "react";
+import { getErrorMessage } from "@/lib/error";
+
+interface AdminUser {
+  id: string;
+  email: string;
+  name: string;
+}
 
 interface AdminLoginProps {
-  onLoginSuccess: (token: string, admin: any) => void;
+  onLoginSuccess: (token: string, admin: AdminUser) => void;
 }
 
 export default function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
@@ -34,9 +41,9 @@ export default function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
       }
 
       onLoginSuccess(data.token, data.admin);
-    } catch (err: any) {
+    } catch (err) {
       console.error("Login error:", err);
-      setError(err.message || "Failed to connect to the backend server.");
+      setError(getErrorMessage(err, "Failed to connect to the backend server."));
     } finally {
       setLoading(false);
     }

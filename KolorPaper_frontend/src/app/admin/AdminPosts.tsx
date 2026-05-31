@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import DeleteConfirmModal from "@/components/DeleteConfirmModal";
+import { getErrorMessage } from "@/lib/error";
 
 interface AdminPostsProps {
   token: string;
@@ -57,9 +58,9 @@ export default function AdminPosts({ token }: AdminPostsProps) {
       if (!res.ok) throw new Error("Failed to load blog posts.");
       const data = await res.json();
       setPosts(data);
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
-      setError(err.message || "Something went wrong.");
+      setError(getErrorMessage(err, "Something went wrong."));
     } finally {
       setLoading(false);
     }
@@ -114,9 +115,9 @@ export default function AdminPosts({ token }: AdminPostsProps) {
 
         setCoverImage(data.url);
         setSuccess(`Cover image "${file.name}" uploaded successfully!`);
-      } catch (err: any) {
+      } catch (err) {
         console.error(err);
-        setError(err.message || "Failed to upload file.");
+        setError(getErrorMessage(err, "Failed to upload file."));
       } finally {
         setUploading(false);
       }
@@ -189,8 +190,8 @@ export default function AdminPosts({ token }: AdminPostsProps) {
       setSuccess(`Blog post successfully ${isEditing ? "updated" : "created"}!`);
       resetForm();
       fetchPosts();
-    } catch (err: any) {
-      setError(err.message || "Failed to submit post.");
+    } catch (err) {
+      setError(getErrorMessage(err, "Failed to submit post."));
     }
   };
 
@@ -242,8 +243,8 @@ export default function AdminPosts({ token }: AdminPostsProps) {
 
       setSuccess("Blog post deleted successfully.");
       fetchPosts();
-    } catch (err: any) {
-      setError(err.message || "Failed to delete post.");
+    } catch (err) {
+      setError(getErrorMessage(err, "Failed to delete post."));
     }
   };
 
@@ -477,7 +478,7 @@ export default function AdminPosts({ token }: AdminPostsProps) {
         </div>
       ) : posts.length === 0 ? (
         <div className="text-center py-20 bg-[#0F0728] border border-white/5 rounded-3xl">
-          <p className="text-gray-400 text-sm">No blog posts found. Click "Add New Post" to write your first article!</p>
+          <p className="text-gray-400 text-sm">No blog posts found. Click &quot;Add New Post&quot; to write your first article!</p>
         </div>
       ) : (
         /* Blog Posts Table / Card List */

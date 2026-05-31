@@ -87,7 +87,7 @@ export default function TermsOfUse() {
 
         <section>
           <h2 className="text-2xl font-bold text-[#0F0728] dark:text-gray-100 mb-4">8. Governing Law</h2>
-          <p>Any claim relating to KolorPaper shall be governed by the laws of the website owner's jurisdiction without regard to conflict of law provisions.</p>
+          <p>Any claim relating to KolorPaper shall be governed by the laws of the website owner&apos;s jurisdiction without regard to conflict of law provisions.</p>
         </section>
 
         <section>

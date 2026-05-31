@@ -3,6 +3,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
@@ -15,6 +16,7 @@ model Category {
   slug        String   @unique
   description String?
   imageUrl    String?
+  imageAlt    String?
   parentSlug  String?
   sortOrder   Int      @default(0)
   createdAt   DateTime @default(now())
@@ -33,6 +35,7 @@ model ColoringPage {
   title           String
   slug            String   @unique
   imageUrl        String
+  imageAlt        String?
   thumbnailUrl    String
   pdfUrl          String?
   categorySlug    String
@@ -86,4 +89,21 @@ model PageView {
 
   @@index([pageSlug])
   @@index([createdAt])
+}
+
+model BlogPost {
+  id         String   @id @default(cuid())
+  title      String
+  slug       String   @unique
+  date       String   // e.g. "2024-05-20"
+  author     String   @default("KolorPaper Team")
+  category   String
+  excerpt    String
+  coverImage String   // Absolute URL to cover image
+  content    String   // Markdown content
+  published  Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([published])
 }

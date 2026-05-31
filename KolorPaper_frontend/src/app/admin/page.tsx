@@ -8,9 +8,15 @@ import AdminPages from "./AdminPages";
 import AdminPosts from "./AdminPosts";
 import AdminMessages from "./AdminMessages";
 
+interface AdminUser {
+  id: string;
+  email: string;
+  name: string;
+}
+
 export default function AdminPage() {
   const [token, setToken] = useState<string | null>(null);
-  const [admin, setAdmin] = useState<any>(null);
+  const [admin, setAdmin] = useState<AdminUser | null>(null);
   const [activeTab, setActiveTab] = useState("dashboard"); // dashboard, categories, pages, posts, messages
   const [initializing, setInitializing] = useState(true);
 
@@ -22,7 +28,7 @@ export default function AdminPage() {
     if (storedToken && storedAdmin) {
       // Validate JWT token expiry before using it
       try {
-        const payload = JSON.parse(atob(storedToken.split(".")[1]));
+        const payload = JSON.parse(atob(storedToken.split(".")[1])) as { exp?: number };
         if (payload.exp && payload.exp * 1000 < Date.now()) {
           // Token expired — clear and force re-login
           localStorage.removeItem("kolorpaper_admin_token");
@@ -40,7 +46,7 @@ export default function AdminPage() {
 
       setToken(storedToken);
       try {
-        setAdmin(JSON.parse(storedAdmin));
+        setAdmin(JSON.parse(storedAdmin) as AdminUser);
       } catch {
         // Corrupted admin data — clear
         localStorage.removeItem("kolorpaper_admin_user");
@@ -49,7 +55,7 @@ export default function AdminPage() {
     setInitializing(false);
   }, []);
 
-  const handleLoginSuccess = (jwtToken: string, adminUser: any) => {
+  const handleLoginSuccess = (jwtToken: string, adminUser: AdminUser) => {
     localStorage.setItem("kolorpaper_admin_token", jwtToken);
     localStorage.setItem("kolorpaper_admin_user", JSON.stringify(adminUser));
     setToken(jwtToken);

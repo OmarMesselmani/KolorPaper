@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import DeleteConfirmModal from "@/components/DeleteConfirmModal";
+import { getErrorMessage } from "@/lib/error";
 
 interface AdminCategoriesProps {
   token: string;
@@ -47,9 +48,9 @@ export default function AdminCategories({ token }: AdminCategoriesProps) {
       if (!res.ok) throw new Error("Failed to load categories.");
       const data = await res.json();
       setCategories(data);
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
-      setError(err.message || "Something went wrong.");
+      setError(getErrorMessage(err, "Something went wrong."));
     } finally {
       setLoading(false);
     }
@@ -107,9 +108,9 @@ export default function AdminCategories({ token }: AdminCategoriesProps) {
 
         setImageUrl(data.url);
         setSuccess(`File "${file.name}" uploaded successfully!`);
-      } catch (err: any) {
+      } catch (err) {
         console.error(err);
-        setError(err.message || "Failed to upload file.");
+        setError(getErrorMessage(err, "Failed to upload file."));
       } finally {
         setUploading(false);
       }
@@ -173,8 +174,8 @@ export default function AdminCategories({ token }: AdminCategoriesProps) {
       setSuccess(`Category successfully ${isEditing ? "updated" : "created"}!`);
       resetForm();
       fetchCategories();
-    } catch (err: any) {
-      setError(err.message || "Failed to submit category.");
+    } catch (err) {
+      setError(getErrorMessage(err, "Failed to submit category."));
     }
   };
 
@@ -223,8 +224,8 @@ export default function AdminCategories({ token }: AdminCategoriesProps) {
 
       setSuccess("Category deleted successfully!");
       fetchCategories();
-    } catch (err: any) {
-      setError(err.message || "Failed to delete category.");
+    } catch (err) {
+      setError(getErrorMessage(err, "Failed to delete category."));
     }
   };
 
