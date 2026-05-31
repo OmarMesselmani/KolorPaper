@@ -3,14 +3,53 @@ import { prisma } from "@/lib/db";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
+import { Redis } from "@upstash/redis";
+import { Ratelimit } from "@upstash/ratelimit";
 
 const JWT_SECRET = process.env.JWT_SECRET;
+
+let ratelimit: Ratelimit | null = null;
+
+if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+  const redis = new Redis({
+    url: process.env.UPSTASH_REDIS_REST_URL,
+    token: process.env.UPSTASH_REDIS_REST_TOKEN,
+  });
+
+  // Allow 5 login attempts per 24 hours per IP
+  ratelimit = new Ratelimit({
+    redis: redis,
+    limiter: Ratelimit.slidingWindow(5, "24 h"),
+    analytics: true,
+  });
+}
+
 
 export async function POST(req: NextRequest) {
   try {
     if (!JWT_SECRET) {
       console.error("JWT_SECRET environment variable is not defined");
       return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
+    }
+
+    if (ratelimit) {
+      // Get the IP address of the client
+      const ip = req.headers.get("x-forwarded-for") ?? "127.0.0.1";
+      const { success, limit, reset, remaining } = await ratelimit.limit(`ratelimit_login_${ip}`);
+
+      if (!success) {
+        return NextResponse.json(
+          { error: "Too many login attempts. Please try again in 24 hours." },
+          { 
+            status: 429,
+            headers: {
+              "X-RateLimit-Limit": limit.toString(),
+              "X-RateLimit-Remaining": remaining.toString(),
+              "X-RateLimit-Reset": reset.toString(),
+            }
+          }
+        );
+      }
     }
 
     const { email, password } = await req.json();
@@ -24,11 +63,15 @@ export async function POST(req: NextRequest) {
     });
 
     if (!admin) {
+      // Artificial delay (Throttling) to slow down brute-force
+      await new Promise(resolve => setTimeout(resolve, 1500));
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
     const isMatch = await bcrypt.compare(password, admin.passwordHash);
     if (!isMatch) {
+      // Artificial delay (Throttling) to slow down brute-force
+      await new Promise(resolve => setTimeout(resolve, 1500));
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 

@@ -1,9 +1,47 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { stripHtml } from "@/lib/sanitize";
+import { Redis } from "@upstash/redis";
+import { Ratelimit } from "@upstash/ratelimit";
+
+let ratelimit: Ratelimit | null = null;
+
+if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+  const redis = new Redis({
+    url: process.env.UPSTASH_REDIS_REST_URL,
+    token: process.env.UPSTASH_REDIS_REST_TOKEN,
+  });
+
+  // Allow 2 contact messages per 1 hour per IP
+  ratelimit = new Ratelimit({
+    redis: redis,
+    limiter: Ratelimit.slidingWindow(2, "1 h"),
+    analytics: true,
+  });
+}
 
 export async function POST(req: NextRequest) {
   try {
+    if (ratelimit) {
+      // Get the IP address of the client
+      const ip = req.headers.get("x-forwarded-for") ?? "127.0.0.1";
+      const { success, limit, reset, remaining } = await ratelimit.limit(`ratelimit_contact_${ip}`);
+
+      if (!success) {
+        return NextResponse.json(
+          { error: "You have reached the maximum number of messages. Please try again in an hour." },
+          { 
+            status: 429,
+            headers: {
+              "X-RateLimit-Limit": limit.toString(),
+              "X-RateLimit-Remaining": remaining.toString(),
+              "X-RateLimit-Reset": reset.toString(),
+            }
+          }
+        );
+      }
+    }
+
     const { name, email, message } = await req.json();
 
     if (!name || !email || !message) {
