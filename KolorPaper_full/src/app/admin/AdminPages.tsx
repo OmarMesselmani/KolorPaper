@@ -84,6 +84,28 @@ export default function AdminPages({ token }: AdminPagesProps) {
         setSuccess("");
         
         const base64Data = reader.result as string;
+        
+        // Client-side thumbnail generation
+        let thumbBase64Data = undefined;
+        if (field === "image" && file.type.startsWith("image/")) {
+          const img = new Image();
+          img.src = base64Data;
+          await new Promise((resolve) => { img.onload = resolve; });
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+          const MAX_WIDTH = 400;
+          let width = img.width;
+          let height = img.height;
+          if (width > MAX_WIDTH) {
+            height = Math.round((height * MAX_WIDTH) / width);
+            width = MAX_WIDTH;
+          }
+          canvas.width = width;
+          canvas.height = height;
+          ctx?.drawImage(img, 0, 0, width, height);
+          thumbBase64Data = canvas.toDataURL("image/webp", 0.75);
+        }
+
         const res = await fetch(`${API_URL}/admin/upload`, {
           method: "POST",
           headers: {
@@ -92,8 +114,9 @@ export default function AdminPages({ token }: AdminPagesProps) {
           },
           body: JSON.stringify({
             fileName: file.name,
-            fileType: "image",
-            base64Data
+            fileType: field === "image" ? "image" : "thumbnail",
+            base64Data,
+            thumbBase64Data
           })
         });
 

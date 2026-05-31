@@ -1,11 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
-import path from "path";
-import fs from "fs";
-import sharp from "sharp";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+
+// Ensure this runs on edge runtime
+export const runtime = "edge";
+
+const R2_ENDPOINT = process.env.R2_ENDPOINT || "";
+const R2_ACCESS_KEY_ID = process.env.R2_ACCESS_KEY_ID || "";
+const R2_SECRET_ACCESS_KEY = process.env.R2_SECRET_ACCESS_KEY || "";
+const R2_BUCKET_NAME = process.env.R2_BUCKET_NAME || "";
+const R2_PUBLIC_URL = process.env.R2_PUBLIC_URL || ""; // e.g., https://pub-xxxxxxxx.r2.dev
+
+const s3Client = new S3Client({
+  region: "auto",
+  endpoint: R2_ENDPOINT,
+  credentials: {
+    accessKeyId: R2_ACCESS_KEY_ID,
+    secretAccessKey: R2_SECRET_ACCESS_KEY,
+  },
+});
 
 export async function POST(req: NextRequest) {
   try {
-    const { fileName, fileType, base64Data } = await req.json();
+    if (!R2_ENDPOINT || !R2_BUCKET_NAME) {
+      return NextResponse.json({ error: "R2 Storage is not configured" }, { status: 500 });
+    }
+
+    const { fileName, fileType, base64Data, thumbBase64Data } = await req.json();
 
     if (!fileName || !base64Data) {
       return NextResponse.json({ error: "fileName and base64Data are required" }, { status: 400 });
@@ -16,14 +36,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid base64 data format" }, { status: 400 });
     }
 
-    const buffer = Buffer.from(base64Image, "base64");
+    // Decoding base64 to Uint8Array for Edge compatibility
+    const binaryString = atob(base64Image);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+    }
+    const buffer = bytes;
 
     const isImage = fileType !== "pdf";
     const targetDir = isImage ? "images" : "pdf";
-    const uploadPath = path.join(process.cwd(), `public/uploads/${targetDir}`);
 
-    const cleanFileName = path.basename(fileName);
-    const ext = path.extname(cleanFileName).toLowerCase();
+    // Basic filename parsing for edge (no path module)
+    const cleanFileName = fileName.split('/').pop()?.split('\\').pop() || "upload";
+    const ext = cleanFileName.includes('.') ? `.${cleanFileName.split('.').pop()?.toLowerCase()}` : "";
 
     const allowedImageExtensions = [".jpg", ".jpeg", ".png", ".webp", ".gif"];
     const allowedPdfExtensions = [".pdf"];
@@ -38,59 +64,68 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: `File size exceeds the limit of ${maxSize / (1024 * 1024)}MB` }, { status: 400 });
     }
 
-    // Very basic magic bytes validation (simplification for Next.js app)
-    const magic = buffer.subarray(0, 4).toString("hex").toUpperCase();
-    let isValidMagic = false;
-    if (ext === ".png" && magic === "89504E47") isValidMagic = true;
-    else if ((ext === ".jpg" || ext === ".jpeg") && magic.startsWith("FFD8FF")) isValidMagic = true;
-    else if (ext === ".gif" && magic.startsWith("474946")) isValidMagic = true;
-    else if (ext === ".pdf" && magic === "25504446") isValidMagic = true;
-    else if (ext === ".webp" && magic.startsWith("52494646")) isValidMagic = true;
-
-    if (!isValidMagic) {
-      return NextResponse.json({ error: "File content does not match the file extension." }, { status: 400 });
-    }
-
-    const nameWithoutExt = path.basename(cleanFileName, ext)
+    const nameWithoutExt = cleanFileName.replace(ext, "")
       .toLowerCase()
       .replace(/[^a-z0-9-]/g, "-")
       .replace(/-+/g, "-")
       .replace(/^-|-$/g, "");
     const uniqueSuffix = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
     const safeFileName = `${nameWithoutExt}-${uniqueSuffix}${ext}`;
+    
+    const s3Key = `uploads/${targetDir}/${safeFileName}`;
 
-    if (!fs.existsSync(uploadPath)) {
-      fs.mkdirSync(uploadPath, { recursive: true });
-    }
+    let contentType = "application/octet-stream";
+    if (ext === ".pdf") contentType = "application/pdf";
+    else if (ext === ".jpg" || ext === ".jpeg") contentType = "image/jpeg";
+    else if (ext === ".png") contentType = "image/png";
+    else if (ext === ".webp") contentType = "image/webp";
+    else if (ext === ".gif") contentType = "image/gif";
 
-    const filePath = path.join(uploadPath, safeFileName);
-    fs.writeFileSync(filePath, buffer);
+    await s3Client.send(new PutObjectCommand({
+      Bucket: R2_BUCKET_NAME,
+      Key: s3Key,
+      Body: buffer,
+      ContentType: contentType,
+    }));
 
-    const protocol = req.headers.get("x-forwarded-proto") || "http";
-    const host = req.headers.get("host") || "localhost:3000";
-    // NOTE: Serving from /uploads because it's inside public/
-    const absoluteUrl = `${protocol}://${host}/uploads/${targetDir}/${safeFileName}`;
+    // Generate public URL based on the R2 Public URL endpoint
+    const absoluteUrl = `${R2_PUBLIC_URL.replace(/\/$/, '')}/${s3Key}`;
 
     if (isImage) {
-      try {
-        const thumbDir = path.join(process.cwd(), "public/uploads/thumbnails");
-        if (!fs.existsSync(thumbDir)) fs.mkdirSync(thumbDir, { recursive: true });
+      let thumbnailUrl = absoluteUrl;
 
-        const thumbFileName = `thumb-${nameWithoutExt}-${uniqueSuffix}.webp`;
-        const thumbPath = path.join(thumbDir, thumbFileName);
-
-        await sharp(buffer)
-          .resize(400, 530, { fit: "inside", withoutEnlargement: true })
-          .webp({ quality: 75 })
-          .toFile(thumbPath);
-
-        const thumbnailUrl = `${protocol}://${host}/uploads/thumbnails/${thumbFileName}`;
-
-        return NextResponse.json({ url: absoluteUrl, thumbnailUrl });
-      } catch (sharpErr) {
-        console.error("Sharp thumbnail error:", sharpErr);
-        return NextResponse.json({ url: absoluteUrl, thumbnailUrl: absoluteUrl });
+      // If a pre-compressed thumbnail was sent from the client
+      if (thumbBase64Data) {
+        const thumbBase64Image = thumbBase64Data.split(";base64,").pop();
+        if (thumbBase64Image) {
+          const tBinaryString = atob(thumbBase64Image);
+          const tBytes = new Uint8Array(tBinaryString.length);
+          for (let i = 0; i < tBinaryString.length; i++) {
+              tBytes[i] = tBinaryString.charCodeAt(i);
+          }
+          const tBuffer = tBytes;
+          
+          const tS3Key = `uploads/thumbnails/thumb-${safeFileName}`;
+          
+          await s3Client.send(new PutObjectCommand({
+            Bucket: R2_BUCKET_NAME,
+            Key: tS3Key,
+            Body: tBuffer,
+            ContentType: contentType, // Usually same as original or webp
+          }));
+          
+          thumbnailUrl = `${R2_PUBLIC_URL.replace(/\/$/, '')}/${tS3Key}`;
+        }
+      } else {
+        // Fallback: Cloudflare Image Resizing URL if no thumb sent
+        const protocol = req.headers.get("x-forwarded-proto") || "https";
+        const host = req.headers.get("host") || "";
+        if (host) {
+          thumbnailUrl = `${protocol}://${host}/cdn-cgi/image/width=400,quality=75/${s3Key}`;
+        }
       }
+
+      return NextResponse.json({ url: absoluteUrl, thumbnailUrl });
     }
 
     return NextResponse.json({ url: absoluteUrl });
@@ -99,3 +134,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Failed to upload file due to an internal error." }, { status: 500 });
   }
 }
+

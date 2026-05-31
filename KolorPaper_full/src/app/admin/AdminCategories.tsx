@@ -88,6 +88,28 @@ export default function AdminCategories({ token }: AdminCategoriesProps) {
         setSuccess("");
         
         const base64Data = reader.result as string;
+        
+        // Client-side thumbnail generation
+        let thumbBase64Data = undefined;
+        if (file.type.startsWith("image/")) {
+          const img = new Image();
+          img.src = base64Data;
+          await new Promise((resolve) => { img.onload = resolve; });
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+          const MAX_WIDTH = 400;
+          let width = img.width;
+          let height = img.height;
+          if (width > MAX_WIDTH) {
+            height = Math.round((height * MAX_WIDTH) / width);
+            width = MAX_WIDTH;
+          }
+          canvas.width = width;
+          canvas.height = height;
+          ctx?.drawImage(img, 0, 0, width, height);
+          thumbBase64Data = canvas.toDataURL("image/webp", 0.75);
+        }
+
         const res = await fetch(`${API_URL}/admin/upload`, {
           method: "POST",
           headers: {
@@ -97,7 +119,8 @@ export default function AdminCategories({ token }: AdminCategoriesProps) {
           body: JSON.stringify({
             fileName: file.name,
             fileType: "image",
-            base64Data
+            base64Data,
+            thumbBase64Data
           })
         });
 
