@@ -1,6 +1,6 @@
 import { Category, ColoringPage } from "@/types";
 import { prisma } from "@/lib/db";
-import type { Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 
 // Remove API_URL as we now fetch directly from the database in Server Components
 
