@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import type { Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 
 // Allowed sortBy columns and order directions to prevent ORM injection
 const ALLOWED_SORT_COLUMNS = ["createdAt", "views", "downloads", "likes", "title"];
