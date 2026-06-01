@@ -4,8 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --webpack",
-    "build": "next build --webpack",
-    "cloudflare:build": "opennextjs-cloudflare build",
+    "build": "next build --webpack && opennextjs-cloudflare build --skipNextBuild",
     "build:worker": "node scripts/build-worker-no-env-files.mjs",
     "start": "next start",
     "lint": "eslint",
