@@ -100,7 +100,7 @@ export default async function RootLayout({
         />
       </head>
       <body className="bg-gray-50 dark:bg-gray-950 text-gray-800 dark:text-gray-100 font-sans antialiased m-0 transition-colors duration-300">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
           <LayoutWrapper categories={categories}>
             {children}
           </LayoutWrapper>
