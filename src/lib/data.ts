@@ -140,11 +140,15 @@ export async function searchColoringPages(
 
     if (query) {
       const searchLower = query.toLowerCase().trim();
-      const matchedCategories = await prisma.category.findMany({
-        where: { title: { contains: searchLower } },
-        select: { slug: true }
-      });
-      const categorySlugs = matchedCategories.map((c) => c.slug);
+      const matchedCategories: Array<{ slug: string }> =
+        await prisma.category.findMany({
+          where: { title: { contains: searchLower } },
+          select: { slug: true }
+        });
+
+      const categorySlugs: string[] = matchedCategories.map(
+        (c: { slug: string }) => c.slug
+      );
 
       where.AND = [
         {
