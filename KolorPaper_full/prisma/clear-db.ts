@@ -1,4 +1,4 @@
-import { prisma } from '../../src/lib/db';
+import { prisma } from '../src/lib/db';
 async function main() {
   console.log('Clearing database...');
 
@@ -13,7 +13,6 @@ async function main() {
 main()
   .catch((e) => {
     console.error(e);
-    // @ts-ignore
     process.exit(1);
   })
   .finally(async () => {

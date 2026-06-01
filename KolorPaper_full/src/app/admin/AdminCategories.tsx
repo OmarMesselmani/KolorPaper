@@ -39,7 +39,7 @@ export default function AdminCategories({ token }: AdminCategoriesProps) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
 
   const fetchCategories = async () => {
     try {

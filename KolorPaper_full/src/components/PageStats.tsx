@@ -34,7 +34,7 @@ export default function PageStats({ slug, views, downloads, likes, className }: 
   useEffect(() => {
     if (!slug) return;
 
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
     fetch(`${API_URL}/pages/${slug}/view`, {
       method: 'POST',
     })

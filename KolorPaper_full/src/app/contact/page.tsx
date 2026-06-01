@@ -31,7 +31,7 @@ export default function ContactPage() {
       return;
     }
 
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
 
     if (name.trim() && email.trim() && message.trim()) {
       setCooldown(true);

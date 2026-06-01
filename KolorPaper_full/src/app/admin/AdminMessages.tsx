@@ -33,7 +33,7 @@ export default function AdminMessages({ token }: AdminMessagesProps) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [messageToDelete, setMessageToDelete] = useState<string | null>(null);
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
 
   const fetchMessages = async () => {
     try {

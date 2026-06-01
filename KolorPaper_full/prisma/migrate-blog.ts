@@ -1,4 +1,4 @@
-import { prisma } from "../src/db.js";
+import { prisma } from '../src/lib/db';
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";

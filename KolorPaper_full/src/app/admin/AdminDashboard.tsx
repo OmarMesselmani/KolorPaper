@@ -51,7 +51,7 @@ export default function AdminDashboard({ token, onTabChange }: AdminDashboardPro
   const [recentMessages, setRecentMessages] = useState<RecentMessage[]>([]);
   const [timeline, setTimeline] = useState<ActivityDay[]>([]);
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
 
   const fetchStats = async () => {
     try {

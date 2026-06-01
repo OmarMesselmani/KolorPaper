@@ -1,4 +1,4 @@
-import { prisma } from "../src/db.js";
+import { prisma } from '../src/lib/db';
 import bcrypt from "bcryptjs";
 
 const categories = [
@@ -340,10 +340,13 @@ async function main() {
   }
 
   console.log("Seeding admin user...");
-  const adminEmail = "admin@kolorpaper.com";
-  // WARNING: This seed file is strictly for development and testing environments.
-  // DO NOT use this password in production. Change it immediately after setup.
-  const passwordHash = await bcrypt.hash("KP-SecureAdmin-2026!#", 10);
+  const adminEmail = process.env.ADMIN_EMAIL || "admin@kolorpaper.com";
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  if (!adminPassword && process.env.NODE_ENV === "production") {
+    throw new Error("ADMIN_PASSWORD must be set before seeding a production admin user.");
+  }
+
+  const passwordHash = await bcrypt.hash(adminPassword || "KP-DevAdmin-ChangeMe!#", 10);
   await prisma.adminUser.create({
     data: {
       email: adminEmail,

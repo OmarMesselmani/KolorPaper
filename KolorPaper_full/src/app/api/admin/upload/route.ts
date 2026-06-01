@@ -18,6 +18,38 @@ const s3Client = new S3Client({
   },
 });
 
+function verifyMagicBytes(buffer: Uint8Array): string | null {
+  if (buffer.length < 12) return null;
+
+  // JPEG: FF D8 FF
+  if (buffer[0] === 0xFF && buffer[1] === 0xD8 && buffer[2] === 0xFF) {
+    return 'image/jpeg';
+  }
+
+  // PNG: 89 50 4E 47 0D 0A 1A 0A
+  if (buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4E && buffer[3] === 0x47) {
+    return 'image/png';
+  }
+
+  // GIF: GIF8 (47 49 46 38)
+  if (buffer[0] === 0x47 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x38) {
+    return 'image/gif';
+  }
+
+  // WEBP: RIFF....WEBP
+  if (buffer[0] === 0x52 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x46 &&
+      buffer[8] === 0x57 && buffer[9] === 0x45 && buffer[10] === 0x42 && buffer[11] === 0x50) {
+    return 'image/webp';
+  }
+
+  // PDF: %PDF (25 50 44 46)
+  if (buffer[0] === 0x25 && buffer[1] === 0x50 && buffer[2] === 0x44 && buffer[3] === 0x46) {
+    return 'application/pdf';
+  }
+
+  return null;
+}
+
 export async function POST(req: NextRequest) {
   try {
     if (!R2_ENDPOINT || !R2_BUCKET_NAME) {
@@ -56,6 +88,20 @@ export async function POST(req: NextRequest) {
 
     if (!allowed.includes(ext)) {
       return NextResponse.json({ error: `Invalid file extension. Allowed: ${allowed.join(", ")}` }, { status: 400 });
+    }
+
+    // Verify magic bytes (actual file content)
+    const detectedMimeType = verifyMagicBytes(buffer);
+    if (!detectedMimeType) {
+      return NextResponse.json({ error: "Invalid or corrupted file content. Magic bytes verification failed." }, { status: 400 });
+    }
+
+    // Ensure the detected content matches the expected fileType category
+    if (fileType === "pdf" && detectedMimeType !== "application/pdf") {
+      return NextResponse.json({ error: "File content does not match a valid PDF format." }, { status: 400 });
+    }
+    if (fileType !== "pdf" && !detectedMimeType.startsWith("image/")) {
+      return NextResponse.json({ error: "File content does not match a valid image format." }, { status: 400 });
     }
 
     const maxSize = fileType === "pdf" ? 10 * 1024 * 1024 : 5 * 1024 * 1024;
@@ -103,6 +149,11 @@ export async function POST(req: NextRequest) {
               tBytes[i] = tBinaryString.charCodeAt(i);
           }
           const tBuffer = tBytes;
+
+          const tDetectedMimeType = verifyMagicBytes(tBuffer);
+          if (!tDetectedMimeType || !tDetectedMimeType.startsWith("image/")) {
+            return NextResponse.json({ error: "Invalid thumbnail content." }, { status: 400 });
+          }
           
           const tS3Key = `uploads/thumbnails/thumb-${safeFileName}`;
           

@@ -21,53 +21,42 @@ export default function AdminPage() {
   const [initializing, setInitializing] = useState(true);
 
   useEffect(() => {
-    // Check for stored token on client side load
-    const storedToken = localStorage.getItem("kolorpaper_admin_token");
-    const storedAdmin = localStorage.getItem("kolorpaper_admin_user");
-    
-    if (storedToken && storedAdmin) {
-      // Validate JWT token expiry before using it
+    const restoreSession = async () => {
       try {
-        const payload = JSON.parse(atob(storedToken.split(".")[1])) as { exp?: number };
-        if (payload.exp && payload.exp * 1000 < Date.now()) {
-          // Token expired — clear and force re-login
-          localStorage.removeItem("kolorpaper_admin_token");
-          localStorage.removeItem("kolorpaper_admin_user");
-          setInitializing(false);
+        const res = await fetch("/api/admin/session", { cache: "no-store" });
+        if (!res.ok) {
+          setToken(null);
+          setAdmin(null);
           return;
         }
-      } catch {
-        // Malformed token — clear and force re-login
-        localStorage.removeItem("kolorpaper_admin_token");
-        localStorage.removeItem("kolorpaper_admin_user");
-        setInitializing(false);
-        return;
-      }
 
-      setToken(storedToken);
-      try {
-        setAdmin(JSON.parse(storedAdmin) as AdminUser);
+        const data = await res.json();
+        setToken("cookie-session");
+        setAdmin(data.admin);
       } catch {
-        // Corrupted admin data — clear
-        localStorage.removeItem("kolorpaper_admin_user");
+        setToken(null);
+        setAdmin(null);
+      } finally {
+        setInitializing(false);
       }
-    }
-    setInitializing(false);
+    };
+
+    restoreSession();
   }, []);
 
-  const handleLoginSuccess = (jwtToken: string, adminUser: AdminUser) => {
-    localStorage.setItem("kolorpaper_admin_token", jwtToken);
-    localStorage.setItem("kolorpaper_admin_user", JSON.stringify(adminUser));
-    setToken(jwtToken);
+  const handleLoginSuccess = (adminUser: AdminUser) => {
+    setToken("cookie-session");
     setAdmin(adminUser);
     setActiveTab("dashboard");
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("kolorpaper_admin_token");
-    localStorage.removeItem("kolorpaper_admin_user");
-    setToken(null);
-    setAdmin(null);
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/admin/logout", { method: "POST" });
+    } finally {
+      setToken(null);
+      setAdmin(null);
+    }
   };
 
   if (initializing) {

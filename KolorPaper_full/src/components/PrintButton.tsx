@@ -42,7 +42,7 @@ export default function PrintButton({ slug, imageUrl, title }: PrintButtonProps)
     }
 
     // Track print as download
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
     fetch(`${API_URL}/pages/${slug}/download`, { method: 'POST' }).catch(err => console.error("Failed to track print download", err));
   };
 

@@ -69,7 +69,7 @@ export default function ColoringCard({ page }: { page: ColoringPage }) {
     }
 
     // Call backend API
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
     try {
       const res = await fetch(`${API_URL}/pages/${page.slug}/like`, {
         method: "POST",
@@ -130,7 +130,7 @@ export default function ColoringCard({ page }: { page: ColoringPage }) {
     }
 
     // Track print event as download on backend
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
     fetch(`${API_URL}/pages/${page.slug}/download`, { method: 'POST' })
       .catch(err => console.error("Failed to track print download", err));
   };

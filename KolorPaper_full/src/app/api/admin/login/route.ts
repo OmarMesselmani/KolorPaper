@@ -86,11 +86,11 @@ export async function POST(req: NextRequest) {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
+      path: "/",
       maxAge: 60 * 60 * 24 // 24 hours
     });
 
     return NextResponse.json({
-      token, // Still returning token for frontend state if needed
       admin: {
         id: admin.id,
         email: admin.email,
@@ -99,6 +99,6 @@ export async function POST(req: NextRequest) {
     });
   } catch (error) {
     console.error("Admin login error:", error);
-    return NextResponse.json({ error: "Internal server error: " + (error instanceof Error ? error.message : String(error)) }, { status: 500 });
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

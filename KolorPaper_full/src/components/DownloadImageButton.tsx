@@ -21,7 +21,7 @@ export default function DownloadImageButton({ imageUrl, title, slug }: { imageUr
       window.URL.revokeObjectURL(url);
 
       // Track download
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
       fetch(`${API_URL}/pages/${slug}/download`, { method: 'POST' }).catch(err => console.error("Failed to track download", err));
 
     } catch (error) {

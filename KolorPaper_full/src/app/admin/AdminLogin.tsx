@@ -10,7 +10,7 @@ interface AdminUser {
 }
 
 interface AdminLoginProps {
-  onLoginSuccess: (token: string, admin: AdminUser) => void;
+  onLoginSuccess: (admin: AdminUser) => void;
 }
 
 export default function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
@@ -20,7 +20,7 @@ export default function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,7 +40,7 @@ export default function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
         throw new Error(data.error || "Login failed. Please check your credentials.");
       }
 
-      onLoginSuccess(data.token, data.admin);
+      onLoginSuccess(data.admin);
     } catch (err) {
       console.error("Login error:", err);
       setError(getErrorMessage(err, "Failed to connect to the backend server."));

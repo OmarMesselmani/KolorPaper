@@ -11,7 +11,7 @@ export default function LikeButton({ slug, initialLikes = 0 }: LikeButtonProps) 
   const [liked, setLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(initialLikes);
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
 
   // Check if liked on mount
   useEffect(() => {

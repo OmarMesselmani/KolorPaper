@@ -10,8 +10,9 @@ export async function middleware(request: NextRequest) {
   // The /admin page renders the login form itself. Protect admin APIs here.
   const isAdminApi = request.nextUrl.pathname.startsWith('/api/admin');
   const isLoginRoute = pathname === '/api/admin/login';
+  const isLogoutRoute = pathname === '/api/admin/logout';
 
-  if (isAdminApi && !isLoginRoute) {
+  if (isAdminApi && !isLoginRoute && !isLogoutRoute) {
     const token = request.cookies.get('admin_token')?.value || request.headers.get('Authorization')?.replace('Bearer ', '');
 
     if (!token) {
@@ -25,7 +26,7 @@ export async function middleware(request: NextRequest) {
       const secret = new TextEncoder().encode(JWT_SECRET);
       await jwtVerify(token, secret);
       return NextResponse.next();
-    } catch (error) {
+    } catch {
       return NextResponse.json({ error: 'Unauthorized: Invalid token' }, { status: 401 });
     }
   }
