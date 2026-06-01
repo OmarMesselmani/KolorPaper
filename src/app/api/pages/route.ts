@@ -8,6 +8,7 @@ const ALLOWED_ORDER = ["asc", "desc"];
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
+
     const categorySlug = searchParams.get("categorySlug");
     const difficulty = searchParams.get("difficulty");
     const ageGroup = searchParams.get("ageGroup");
@@ -16,18 +17,29 @@ export async function GET(req: NextRequest) {
 
     // Pagination params
     const page = Math.max(1, parseInt(searchParams.get("page") || "1") || 1);
-    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "20") || 20));
+    const limit = Math.min(
+      100,
+      Math.max(1, parseInt(searchParams.get("limit") || "20") || 20)
+    );
     const skip = (page - 1) * limit;
 
-    // Sorting params — whitelisted to prevent ORM injection
+    // Sorting params
     const rawSortBy = searchParams.get("sortBy") || "createdAt";
     const rawOrder = searchParams.get("order") || "desc";
-    const sortBy = ALLOWED_SORT_COLUMNS.includes(rawSortBy) ? rawSortBy : "createdAt";
-    const order = (ALLOWED_ORDER.includes(rawOrder.toLowerCase()) ? rawOrder.toLowerCase() : "desc") as "asc" | "desc";
+
+    const sortBy = ALLOWED_SORT_COLUMNS.includes(rawSortBy)
+      ? rawSortBy
+      : "createdAt";
+
+    const order = (
+      ALLOWED_ORDER.includes(rawOrder.toLowerCase())
+        ? rawOrder.toLowerCase()
+        : "desc"
+    ) as "asc" | "desc";
 
     const where: any = { published: true };
 
-    // 1. Category filter (can be parent or subcategory)
+    // Category filter
     if (categorySlug) {
       where.OR = [
         { categorySlug },
@@ -35,31 +47,38 @@ export async function GET(req: NextRequest) {
       ];
     }
 
-    // 2. Attribute filters
+    // Attribute filters
     if (difficulty) {
       where.difficulty = difficulty;
     }
+
     if (ageGroup) {
       where.ageGroup = ageGroup;
     }
+
     if (tag) {
       where.tags = { has: tag };
     }
 
-    // 3. Search query (matches title, description, or category slugs)
+    // Search query
     if (search) {
       const searchLower = search.toLowerCase().trim();
 
-      // Find category slugs matching the search term
-      const matchedCategories = await prisma.category.findMany({
-        where: {
-          title: {
-            contains: searchLower
+      const matchedCategories: Array<{ slug: string }> =
+        await prisma.category.findMany({
+          where: {
+            title: {
+              contains: searchLower
+            }
+          },
+          select: {
+            slug: true
           }
-        },
-        select: { slug: true }
-      });
-      const categorySlugs = matchedCategories.map(c => c.slug);
+        });
+
+      const categorySlugs: string[] = matchedCategories.map(
+        (c: { slug: string }) => c.slug
+      );
 
       where.AND = [
         {
@@ -67,7 +86,9 @@ export async function GET(req: NextRequest) {
             { title: { contains: search } },
             { description: { contains: search } },
             { categorySlug: { in: categorySlugs } },
-            ...(categorySlugs.length > 0 ? [{ subCategorySlug: { in: categorySlugs } }] : [])
+            ...(categorySlugs.length > 0
+              ? [{ subCategorySlug: { in: categorySlugs } }]
+              : [])
           ]
         }
       ];
@@ -80,8 +101,18 @@ export async function GET(req: NextRequest) {
         skip,
         take: limit,
         include: {
-          category: { select: { title: true, slug: true } },
-          subCategory: { select: { title: true, slug: true } }
+          category: {
+            select: {
+              title: true,
+              slug: true
+            }
+          },
+          subCategory: {
+            select: {
+              title: true,
+              slug: true
+            }
+          }
         }
       }),
       prisma.coloringPage.count({ where })
@@ -98,6 +129,10 @@ export async function GET(req: NextRequest) {
     });
   } catch (error) {
     console.error("Error fetching coloring pages:", error);
-    return NextResponse.json({ error: "Failed to fetch coloring pages" }, { status: 500 });
+
+    return NextResponse.json(
+      { error: "Failed to fetch coloring pages" },
+      { status: 500 }
+    );
   }
 }
