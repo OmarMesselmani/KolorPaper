@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { Prisma } from "@prisma/client";
 
 // Allowed sortBy columns and order directions to prevent ORM injection
 const ALLOWED_SORT_COLUMNS = ["createdAt", "views", "downloads", "likes", "title"];
@@ -23,10 +22,10 @@ export async function GET(req: NextRequest) {
     // Sorting params — whitelisted to prevent ORM injection
     const rawSortBy = searchParams.get("sortBy") || "createdAt";
     const rawOrder = searchParams.get("order") || "desc";
-    const sortBy = (ALLOWED_SORT_COLUMNS.includes(rawSortBy) ? rawSortBy : "createdAt") as keyof Prisma.ColoringPageOrderByWithRelationInput;
-    const order = (ALLOWED_ORDER.includes(rawOrder.toLowerCase()) ? rawOrder.toLowerCase() : "desc") as Prisma.SortOrder;
+    const sortBy = ALLOWED_SORT_COLUMNS.includes(rawSortBy) ? rawSortBy : "createdAt";
+    const order = (ALLOWED_ORDER.includes(rawOrder.toLowerCase()) ? rawOrder.toLowerCase() : "desc") as "asc" | "desc";
 
-    const where: Prisma.ColoringPageWhereInput = { published: true };
+    const where: any = { published: true };
 
     // 1. Category filter (can be parent or subcategory)
     if (categorySlug) {
@@ -77,7 +76,7 @@ export async function GET(req: NextRequest) {
     const [pages, total] = await Promise.all([
       prisma.coloringPage.findMany({
         where,
-        orderBy: { [sortBy]: order },
+        orderBy: { [sortBy]: order } as any,
         skip,
         take: limit,
         include: {

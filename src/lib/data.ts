@@ -1,6 +1,5 @@
 import { Category, ColoringPage } from "@/types";
 import { prisma } from "@/lib/db";
-import { Prisma } from "@prisma/client";
 
 // Remove API_URL as we now fetch directly from the database in Server Components
 
@@ -70,7 +69,7 @@ export async function getColoringPages(
   filters?: { difficulty?: string; ageGroup?: string }
 ): Promise<ColoringPage[]> {
   try {
-    const where: Prisma.ColoringPageWhereInput = { published: true };
+    const where: any = { published: true };
     if (categorySlug) {
       where.OR = [
         { categorySlug },
@@ -135,7 +134,7 @@ export async function searchColoringPages(
   filters?: { difficulty?: string; ageGroup?: string }
 ): Promise<ColoringPage[]> {
   try {
-    const where: Prisma.ColoringPageWhereInput = { published: true };
+    const where: any = { published: true };
     if (filters?.difficulty) where.difficulty = filters.difficulty;
     if (filters?.ageGroup) where.ageGroup = filters.ageGroup;
 
@@ -180,7 +179,7 @@ export async function getPagesByTag(
   filters?: { difficulty?: string; ageGroup?: string }
 ): Promise<ColoringPage[]> {
   try {
-    const where: Prisma.ColoringPageWhereInput = { published: true, tags: { has: tag } };
+    const where: any = { published: true, tags: { has: tag } };
     if (filters?.difficulty) where.difficulty = filters.difficulty;
     if (filters?.ageGroup) where.ageGroup = filters.ageGroup;
 
