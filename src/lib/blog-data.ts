@@ -1,6 +1,6 @@
 import { remark } from 'remark';
 import html from 'remark-html';
-import DOMPurify from 'isomorphic-dompurify';
+import sanitizeHtml from 'sanitize-html';
 import { prisma } from '@/lib/db';
 
 export interface BlogPost {
@@ -51,7 +51,7 @@ export async function getPostData(slug: string): Promise<BlogPost | null> {
     const rawContentHtml = processedContent.toString();
     
     // Sanitize the parsed HTML to prevent stored XSS
-    const contentHtml = DOMPurify.sanitize(rawContentHtml);
+    const contentHtml = sanitizeHtml(rawContentHtml);
 
     return {
       ...post,
