@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { AwsClient } from "aws4fetch";
 
 function verifyMagicBytes(buffer: Uint8Array): string | null {
   if (buffer.length < 12) return null;
@@ -41,17 +41,15 @@ export async function POST(req: NextRequest) {
     const R2_BUCKET_NAME = process.env.R2_BUCKET_NAME || "";
     const R2_PUBLIC_URL = process.env.R2_PUBLIC_URL || "";
 
-    if (!R2_ENDPOINT || !R2_BUCKET_NAME) {
-      return NextResponse.json({ error: "R2 Storage is not configured" }, { status: 500 });
+    if (!R2_ENDPOINT || !R2_BUCKET_NAME || !R2_ACCESS_KEY_ID || !R2_SECRET_ACCESS_KEY) {
+      return NextResponse.json({ error: "R2 Storage is not configured properly" }, { status: 500 });
     }
 
-    const s3Client = new S3Client({
+    const aws = new AwsClient({
+      accessKeyId: R2_ACCESS_KEY_ID,
+      secretAccessKey: R2_SECRET_ACCESS_KEY,
+      service: "s3",
       region: "auto",
-      endpoint: R2_ENDPOINT,
-      credentials: {
-        accessKeyId: R2_ACCESS_KEY_ID,
-        secretAccessKey: R2_SECRET_ACCESS_KEY,
-      },
     });
 
     const { fileName, fileType, base64Data, thumbBase64Data } = await req.json();
@@ -124,12 +122,24 @@ export async function POST(req: NextRequest) {
     else if (ext === ".webp") contentType = "image/webp";
     else if (ext === ".gif") contentType = "image/gif";
 
-    await s3Client.send(new PutObjectCommand({
-      Bucket: R2_BUCKET_NAME,
-      Key: s3Key,
-      Body: buffer,
-      ContentType: contentType,
-    }));
+    // Format the URL as: https://<endpoint>/<bucket>/<key>
+    const baseUrl = R2_ENDPOINT.replace(/\/$/, "");
+    const uploadUrl = `${baseUrl}/${R2_BUCKET_NAME}/${s3Key}`;
+
+    const res = await aws.fetch(uploadUrl, {
+      method: "PUT",
+      headers: {
+        "Content-Type": contentType,
+        "Content-Length": buffer.length.toString(),
+      },
+      body: buffer,
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error("R2 upload failed:", res.status, errText);
+      throw new Error("Failed to upload to R2");
+    }
 
     // Generate public URL based on the R2 Public URL endpoint
     const absoluteUrl = `${R2_PUBLIC_URL.replace(/\/$/, '')}/${s3Key}`;
@@ -154,15 +164,22 @@ export async function POST(req: NextRequest) {
           }
           
           const tS3Key = `uploads/thumbnails/thumb-${safeFileName}`;
+          const tUploadUrl = `${baseUrl}/${R2_BUCKET_NAME}/${tS3Key}`;
           
-          await s3Client.send(new PutObjectCommand({
-            Bucket: R2_BUCKET_NAME,
-            Key: tS3Key,
-            Body: tBuffer,
-            ContentType: contentType, // Usually same as original or webp
-          }));
-          
-          thumbnailUrl = `${R2_PUBLIC_URL.replace(/\/$/, '')}/${tS3Key}`;
+          const tRes = await aws.fetch(tUploadUrl, {
+            method: "PUT",
+            headers: {
+              "Content-Type": contentType, // Usually same as original or webp
+              "Content-Length": tBuffer.length.toString(),
+            },
+            body: tBuffer,
+          });
+
+          if (tRes.ok) {
+            thumbnailUrl = `${R2_PUBLIC_URL.replace(/\/$/, '')}/${tS3Key}`;
+          } else {
+            console.error("Thumbnail upload failed:", await tRes.text());
+          }
         }
       } else {
         // Fallback: Cloudflare Image Resizing URL if no thumb sent
