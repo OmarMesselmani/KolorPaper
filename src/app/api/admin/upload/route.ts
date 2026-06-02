@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AwsClient } from "aws4fetch";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 function verifyMagicBytes(buffer: Uint8Array): string | null {
   if (buffer.length < 12) return null;
@@ -35,11 +36,18 @@ function verifyMagicBytes(buffer: Uint8Array): string | null {
 
 export async function POST(req: NextRequest) {
   try {
-    const R2_ENDPOINT = process.env.R2_ENDPOINT || "";
-    const R2_ACCESS_KEY_ID = process.env.R2_ACCESS_KEY_ID || "";
-    const R2_SECRET_ACCESS_KEY = process.env.R2_SECRET_ACCESS_KEY || "";
-    const R2_BUCKET_NAME = process.env.R2_BUCKET_NAME || "";
-    const R2_PUBLIC_URL = process.env.R2_PUBLIC_URL || "";
+    let cfEnv: any = {};
+    try {
+      cfEnv = getCloudflareContext()?.env || {};
+    } catch (e) {
+      // In local development or if context is missing, fallback to process.env
+    }
+
+    const R2_ENDPOINT = cfEnv.R2_ENDPOINT || process.env.R2_ENDPOINT || "";
+    const R2_ACCESS_KEY_ID = cfEnv.R2_ACCESS_KEY_ID || process.env.R2_ACCESS_KEY_ID || "";
+    const R2_SECRET_ACCESS_KEY = cfEnv.R2_SECRET_ACCESS_KEY || process.env.R2_SECRET_ACCESS_KEY || "";
+    const R2_BUCKET_NAME = cfEnv.R2_BUCKET_NAME || process.env.R2_BUCKET_NAME || "";
+    const R2_PUBLIC_URL = cfEnv.R2_PUBLIC_URL || process.env.R2_PUBLIC_URL || "";
 
     if (!R2_ENDPOINT || !R2_BUCKET_NAME || !R2_ACCESS_KEY_ID || !R2_SECRET_ACCESS_KEY) {
       return NextResponse.json({ error: "R2 Storage is not configured properly" }, { status: 500 });
