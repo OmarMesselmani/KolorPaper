@@ -4,24 +4,24 @@ import { stripHtml } from "@/lib/sanitize";
 import { Redis } from "@upstash/redis";
 import { Ratelimit } from "@upstash/ratelimit";
 
-let ratelimit: Ratelimit | null = null;
-
-if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
-  const redis = new Redis({
-    url: process.env.UPSTASH_REDIS_REST_URL,
-    token: process.env.UPSTASH_REDIS_REST_TOKEN,
-  });
-
-  // Allow 2 contact messages per 1 hour per IP
-  ratelimit = new Ratelimit({
-    redis: redis,
-    limiter: Ratelimit.slidingWindow(2, "1 h"),
-    analytics: true,
-  });
-}
+// Redis initialization moved inside the request handler for Cloudflare compatibility
 
 export async function POST(req: NextRequest) {
   try {
+    let ratelimit: Ratelimit | null = null;
+    if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+      const redis = new Redis({
+        url: process.env.UPSTASH_REDIS_REST_URL,
+        token: process.env.UPSTASH_REDIS_REST_TOKEN,
+      });
+
+      ratelimit = new Ratelimit({
+        redis: redis,
+        limiter: Ratelimit.slidingWindow(2, "1 h"),
+        analytics: true,
+      });
+    }
+
     if (ratelimit) {
       // Get the IP address of the client
       const ip = req.headers.get("x-forwarded-for") ?? "127.0.0.1";

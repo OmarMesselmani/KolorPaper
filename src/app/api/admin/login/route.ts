@@ -6,30 +6,28 @@ import { cookies } from "next/headers";
 import { Redis } from "@upstash/redis";
 import { Ratelimit } from "@upstash/ratelimit";
 
-const JWT_SECRET = process.env.JWT_SECRET;
-
-let ratelimit: Ratelimit | null = null;
-
-if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
-  const redis = new Redis({
-    url: process.env.UPSTASH_REDIS_REST_URL,
-    token: process.env.UPSTASH_REDIS_REST_TOKEN,
-  });
-
-  // Allow 5 login attempts per 24 hours per IP
-  ratelimit = new Ratelimit({
-    redis: redis,
-    limiter: Ratelimit.slidingWindow(5, "24 h"),
-    analytics: true,
-  });
-}
-
+// Configurations moved inside handler for Edge compatibility
 
 export async function POST(req: NextRequest) {
   try {
+    const JWT_SECRET = process.env.JWT_SECRET;
     if (!JWT_SECRET) {
       console.error("JWT_SECRET environment variable is not defined");
       return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
+    }
+
+    let ratelimit: Ratelimit | null = null;
+    if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+      const redis = new Redis({
+        url: process.env.UPSTASH_REDIS_REST_URL,
+        token: process.env.UPSTASH_REDIS_REST_TOKEN,
+      });
+
+      ratelimit = new Ratelimit({
+        redis: redis,
+        limiter: Ratelimit.slidingWindow(5, "24 h"),
+        analytics: true,
+      });
     }
 
     if (ratelimit) {

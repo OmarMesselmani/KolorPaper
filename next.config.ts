@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
-  serverExternalPackages: ["@prisma/client", "@prisma/client/edge", "bcryptjs"],
+  serverExternalPackages: ["@prisma/client", "@prisma/client/edge"],
   images: {
     unoptimized: true,
     remotePatterns: [
