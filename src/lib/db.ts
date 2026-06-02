@@ -1,5 +1,7 @@
 import { PrismaNeonHttp } from "@prisma/adapter-neon";
 
+import { PrismaClient } from "@prisma/client";
+
 const globalForPrisma = globalThis as unknown as {
   prisma: any | undefined;
 };
@@ -19,15 +21,7 @@ function getPrismaClient() {
   }
 
   const adapter = new PrismaNeonHttp(connectionString, {});
-  let PrismaClientClass: any;
-
-  if (process.env.IS_CLOUDFLARE === "true") {
-    PrismaClientClass = require("@prisma/client/edge").PrismaClient;
-  } else {
-    PrismaClientClass = require("@prisma/client").PrismaClient;
-  }
-
-  const client = new PrismaClientClass({ adapter });
+  const client = new PrismaClient({ adapter });
 
   cachedPrisma = client;
   if (process.env.NODE_ENV !== "production") {
