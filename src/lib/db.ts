@@ -1,4 +1,4 @@
-import { PrismaNeonHttp } from "@prisma/adapter-neon";
+import { PrismaNeonHTTP } from "@prisma/adapter-neon";
 
 import { PrismaClient } from "@prisma/client";
 
@@ -20,7 +20,7 @@ function getPrismaClient() {
     throw new Error("DATABASE_URL is not configured in environment variables");
   }
 
-  const adapter = new PrismaNeonHttp(connectionString, {});
+  const adapter = new PrismaNeonHTTP(connectionString, {});
   const client = new PrismaClient({ adapter });
 
   cachedPrisma = client;
