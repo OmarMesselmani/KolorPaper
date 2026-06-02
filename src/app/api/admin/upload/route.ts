@@ -50,7 +50,18 @@ export async function POST(req: NextRequest) {
     const R2_PUBLIC_URL = cfEnv.R2_PUBLIC_URL || process.env.R2_PUBLIC_URL || "";
 
     if (!R2_ENDPOINT || !R2_BUCKET_NAME || !R2_ACCESS_KEY_ID || !R2_SECRET_ACCESS_KEY) {
-      return NextResponse.json({ error: "R2 Storage is not configured properly" }, { status: 500 });
+      return NextResponse.json({ 
+        error: "R2 Storage is not configured properly",
+        debug: {
+          has_endpoint: !!R2_ENDPOINT,
+          has_bucket: !!R2_BUCKET_NAME,
+          has_access_key: !!R2_ACCESS_KEY_ID,
+          has_secret_key: !!R2_SECRET_ACCESS_KEY,
+          has_public_url: !!R2_PUBLIC_URL,
+          cfEnvKeys: Object.keys(cfEnv).filter(k => k.startsWith('R2_') || k.includes('SECRET') || k.includes('URL')),
+          processEnvKeys: Object.keys(process.env).filter(k => k.startsWith('R2_'))
+        }
+      }, { status: 500 });
     }
 
     const aws = new AwsClient({
