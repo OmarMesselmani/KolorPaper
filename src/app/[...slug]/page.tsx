@@ -300,7 +300,7 @@ export default async function DynamicPage({
             </div>
           )}
 
-          {pages.length > 0 && (
+          {pages.length > 0 && subCategories.length === 0 && (
             <div className="mb-16">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-3 before:content-[''] before:block before:w-1 before:h-6 before:bg-purple-600 before:rounded-sm">Coloring Pages</h2>
