@@ -23,6 +23,20 @@ export default function AdminMessages({ token }: AdminMessagesProps) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => setSuccess(""), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [success]);
+
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(""), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
+
   // Pagination & Filtering
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);

@@ -27,6 +27,20 @@ export default function AdminPosts({ token }: AdminPostsProps) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => setSuccess(""), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [success]);
+
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(""), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
+
   // Form State
   const [showForm, setShowForm] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
