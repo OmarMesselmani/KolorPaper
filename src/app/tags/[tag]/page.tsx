@@ -1,5 +1,6 @@
 import { getPagesByTag } from "@/lib/data";
 import ColoringCard from "@/components/ColoringCard";
+import PaginatedGrid from "@/components/PaginatedGrid";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import FilterDrawer from "@/components/FilterDrawer";
 import { Suspense } from "react";
@@ -44,11 +45,7 @@ export default async function TagPage({
           </div>
           
           {results.length > 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 pb-16">
-              {results.map(page => (
-                <ColoringCard key={page.id} page={page} />
-              ))}
-            </div>
+            <PaginatedGrid pages={results} />
           ) : (
             <div className="text-center p-16 bg-white dark:bg-gray-900 rounded-2xl text-gray-500 dark:text-gray-400 border-2 border-dashed border-black/5 dark:border-white/5">
               <p className="text-lg font-bold mb-2">No results found.</p>
