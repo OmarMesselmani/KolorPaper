@@ -8,7 +8,7 @@ export default function DownloadImageButton({ imageUrl, title, slug }: { imageUr
   const handleDownload = async () => {
     setLoading(true);
     try {
-      const response = await fetch(imageUrl);
+      const response = await fetch(imageUrl, { cache: 'reload' });
       const blob = await response.blob();
       const ext = blob.type === 'image/png' ? 'png' : 'jpg';
       const url = window.URL.createObjectURL(blob);
