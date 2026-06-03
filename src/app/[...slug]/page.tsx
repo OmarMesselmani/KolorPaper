@@ -279,31 +279,15 @@ export default async function DynamicPage({
     const subCategories = await getCategories(category.slug);
     const pages = await getColoringPages(category.slug, { difficulty, ageGroup });
 
-    const allTags = new Set<string>();
-    pages.forEach(page => {
-      if (page.tags && Array.isArray(page.tags)) {
-        page.tags.forEach(tag => allTags.add(tag));
-      }
-    });
-    const uniqueTags = Array.from(allTags).sort();
-
     return (
       <>
         <div className="max-w-[1240px] mx-auto px-6 pt-8">
           <Breadcrumbs paths={breadcrumbPaths} />
           <h1 className="text-4xl font-extrabold mt-8 mb-3 text-gray-800 dark:text-gray-100">{category.title}</h1>
           {category.description && (
-            <p className="text-sm sm:text-base leading-relaxed text-gray-500 dark:text-gray-400 mb-6 max-w-3xl">
+            <p className="text-sm sm:text-base leading-relaxed text-gray-500 dark:text-gray-400 mb-8 max-w-3xl">
               {category.description}
             </p>
-          )}
-          
-          {uniqueTags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-8">
-              {uniqueTags.map(tag => (
-                <Tag key={tag} name={tag} />
-              ))}
-            </div>
           )}
         </div>
 
