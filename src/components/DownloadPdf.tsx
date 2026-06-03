@@ -71,7 +71,7 @@ export default function DownloadPdf({ imageUrl, title, pdfUrl, slug }: { imageUr
       doc.addImage(base64Data, format, 0, 0, pdfWidth, pdfHeight);
 
       // 4. Trigger download directly in browser
-      doc.save(`${title}.pdf`);
+      doc.save(`KolorPaper - ${title}.pdf`);
       trackDownload();
     } catch (error) {
       console.error('Download failed:', error);

@@ -14,7 +14,7 @@ export default function DownloadImageButton({ imageUrl, title, slug }: { imageUr
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${title}.${ext}`;
+      a.download = `KolorPaper - ${title}.${ext}`;
       document.body.appendChild(a);
       a.click();
       a.remove();
