@@ -120,7 +120,8 @@ export default async function DynamicPage({
 
   const coloringPage = await getColoringPageBySlug(lastSlug);
   if (coloringPage) {
-    const allRelated = (await getColoringPages(coloringPage.categorySlug))
+    const targetSlug = coloringPage.subCategorySlug || coloringPage.categorySlug;
+    const allRelated = (await getColoringPages(targetSlug))
       .filter(p => p.id !== coloringPage.id);
 
     // Shuffle array randomly
