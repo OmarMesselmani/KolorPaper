@@ -24,8 +24,8 @@ export default function DownloadPdf({ imageUrl, title, pdfUrl, slug }: { imageUr
         return;
       }
 
-      // 1. Fetch the image to get a blob (using cache: 'reload' to bypass stale CORS cache)
-      const response = await fetch(imageUrl, { cache: 'reload' });
+      // 1. Fetch the image to get a blob (using '?v=1' to bypass stale CORS cache once, but allow subsequent browser caching)
+      const response = await fetch(imageUrl + '?v=1');
       const blob = await response.blob();
 
       // Convert the blob to a base64 Data URL
