@@ -1,7 +1,7 @@
 import { getPagesByTag } from "@/lib/data";
 import ColoringCard from "@/components/ColoringCard";
 import Breadcrumbs from "@/components/Breadcrumbs";
-import SearchFilters from "@/components/SearchFilters";
+import FilterDrawer from "@/components/FilterDrawer";
 import { Suspense } from "react";
 import { Metadata } from "next";
 
@@ -34,17 +34,17 @@ export default async function TagPage({
         <Breadcrumbs paths={[{ title: `Tag: ${tag}`, href: `/tags/${encodedTag}` }]} />
       </div>
 
-      <div className="max-w-[1240px] mx-auto px-6 pb-16 flex gap-8 items-start flex-col lg:flex-row mt-8">
-        <Suspense fallback={<div className="w-full lg:w-64 h-96 bg-gray-100 dark:bg-gray-900 animate-pulse rounded-3xl flex-shrink-0"></div>}>
-          <SearchFilters />
-        </Suspense>
-
-        <div className="flex-1 w-full">
-          <h2 className="text-3xl md:text-4xl font-bold text-[#0F0728] dark:text-gray-100 mb-8 flex items-center gap-3 before:content-[''] before:block before:w-1 before:h-8 before:bg-purple-600 before:rounded-sm">
-            <span>Search results for tag &quot;<span className="capitalize">{tag}</span>&quot;</span>
-          </h2>
+      <div className="max-w-[1240px] mx-auto px-6 pb-16 mt-8">
+        <div className="w-full">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-3xl md:text-4xl font-bold text-[#0F0728] dark:text-gray-100 flex items-center gap-3 before:content-[''] before:block before:w-1 before:h-8 before:bg-purple-600 before:rounded-sm m-0">
+              <span>Search results for tag &quot;<span className="capitalize">{tag}</span>&quot;</span>
+            </h2>
+            <FilterDrawer />
+          </div>
+          
           {results.length > 0 ? (
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))] gap-8 pb-16">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 pb-16">
               {results.map(page => (
                 <ColoringCard key={page.id} page={page} />
               ))}
