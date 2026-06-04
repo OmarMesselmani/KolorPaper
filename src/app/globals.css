@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 @theme {
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif, 'Tajawal';
@@ -61,4 +62,60 @@
     display: block !important;
   }
 }
+
+/* Custom prose styles to make text slightly smaller, closer together, and bullets purple */
+.prose {
+  --tw-prose-bullets: var(--color-purple-600, #9333ea);
+  --tw-prose-counters: var(--color-purple-600, #9333ea);
+}
+
+.dark .prose {
+  --tw-prose-bullets: var(--color-purple-400, #c084fc);
+  --tw-prose-counters: var(--color-purple-400, #c084fc);
+}
+
+.prose p,
+.prose li,
+.prose ol,
+.prose ul {
+  font-size: 0.975rem !important; /* slightly smaller body text */
+  line-height: 1.625 !important;  /* closer line spacing */
+}
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  margin-top: 1.25rem !important;
+  margin-bottom: 1.25rem !important;
+}
+
+/* Reference section styling */
+.references-separator {
+  margin-top: 2.5rem !important;
+  margin-bottom: 2rem !important;
+  border: 0 !important;
+  border-top: 1px solid var(--color-purple-200, #e9d5ff) !important;
+}
+
+.dark .references-separator {
+  border-top: 1px solid var(--color-purple-800, #581c87) !important;
+}
+
+.post-references p,
+.post-references li {
+  font-size: 0.85rem !important; /* Smaller size */
+  line-height: 1.5 !important;
+  color: var(--color-gray-500, #6b7280) !important; /* Muted color */
+  margin-bottom: 0.5rem !important;
+}
+
+.dark .post-references p,
+.dark .post-references li {
+  color: var(--color-gray-400, #9ca3af) !important; /* Lighter muted color in dark mode */
+}
+
+
 
