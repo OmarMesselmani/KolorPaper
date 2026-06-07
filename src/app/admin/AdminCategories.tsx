@@ -27,14 +27,14 @@ export default function AdminCategories({ token }: AdminCategoriesProps) {
 
   useEffect(() => {
     if (success) {
-      const timer = setTimeout(() => setSuccess(""), 5000);
+      const timer = setTimeout(() => setSuccess(""), 4000);
       return () => clearTimeout(timer);
     }
   }, [success]);
 
   useEffect(() => {
     if (error) {
-      const timer = setTimeout(() => setError(""), 5000);
+      const timer = setTimeout(() => setError(""), 4000);
       return () => clearTimeout(timer);
     }
   }, [error]);
@@ -310,7 +310,7 @@ export default function AdminCategories({ token }: AdminCategoriesProps) {
 
       {/* Alerts */}
       {error && (
-        <div className="p-4 bg-red-950/40 border border-red-500/30 text-red-300 rounded-2xl text-sm font-semibold flex items-center gap-3">
+        <div className="fixed top-6 left-1/2 z-[9999] w-full max-w-md p-4 bg-red-950/90 border border-red-500/30 text-red-300 rounded-2xl text-sm font-semibold flex items-center gap-3 shadow-2xl backdrop-blur-md animate-toast">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-red-400 flex-shrink-0">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
           </svg>
@@ -319,7 +319,7 @@ export default function AdminCategories({ token }: AdminCategoriesProps) {
       )}
 
       {success && (
-        <div className="p-4 bg-green-950/40 border border-green-500/30 text-green-300 rounded-2xl text-sm font-semibold flex items-center gap-3">
+        <div className="fixed top-6 left-1/2 z-[9999] w-full max-w-md p-4 bg-green-950/90 border border-green-500/30 text-green-300 rounded-2xl text-sm font-semibold flex items-center gap-3 shadow-2xl backdrop-blur-md animate-toast">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-green-400 flex-shrink-0">
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
           </svg>

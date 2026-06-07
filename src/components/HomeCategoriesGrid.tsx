@@ -24,11 +24,14 @@ export default function HomeCategoriesGrid({ categories }: HomeCategoriesGridPro
 
   useEffect(() => {
     const handleResize = () => {
-      const currentStep = window.innerWidth >= 2560 ? 15 : 12;
+      // 1536px is Tailwind's 2xl breakpoint, typical for large monitors (24", 27"+)
+      const is2Xl = window.innerWidth >= 1536;
+      const currentStep = is2Xl ? 15 : 12;
       setStep(currentStep);
       setVisibleCount(prev => {
-        // Only override if the user hasn't loaded more items yet
-        if (prev <= 15) return currentStep;
+        // Automatically adjust the initial visible count so the grid is perfectly full
+        if (prev === 12 && is2Xl) return 15;
+        if (prev === 15 && !is2Xl) return 12;
         return prev;
       });
     };
@@ -74,7 +77,7 @@ export default function HomeCategoriesGrid({ categories }: HomeCategoriesGridPro
         ))}
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 min-[2560px]:grid-cols-5 gap-4 sm:gap-8 pb-8">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-8 pb-8">
         {visible.map((category) => (
           <CategoryCard key={category.id} category={category} />
         ))}
