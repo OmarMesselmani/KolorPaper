@@ -56,7 +56,7 @@ export default function HomePagesGrid({ pages }: HomePagesGridProps) {
 
   return (
     <div className="max-w-[1240px] mx-auto px-6">
-      <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0F0728] dark:text-gray-100 text-center mb-8">
+      <h2 className="text-3xl sm:text-4xl font-extrabold bg-gradient-to-br from-purple-600 to-orange-500 bg-clip-text text-transparent text-center mb-8">
         Coloring Pages
       </h2>
       <div className="flex items-center justify-center gap-1 mb-8 border-b border-black/5 dark:border-white/5">
