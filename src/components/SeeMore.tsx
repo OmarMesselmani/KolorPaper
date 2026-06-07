@@ -1,26 +1,23 @@
 import { ColoringPage } from "@/types";
-import { getAllCategories, getColoringPages } from "@/lib/data";
+import { getAllCategories, getColoringPages, shuffleArray } from "@/lib/data";
 import ColoringCard from "./ColoringCard";
 
 export default async function SeeMore({ currentPage }: { currentPage: ColoringPage }) {
   const sameCategoryPages = await getColoringPages(currentPage.categorySlug);
 
-  let candidatePages = sameCategoryPages.filter(p => {
+  const candidatePages = sameCategoryPages.filter(p => {
     if (currentPage.subCategorySlug) {
       return p.subCategorySlug !== currentPage.subCategorySlug;
     }
     return p.id !== currentPage.id;
   });
 
-  for (let i = candidatePages.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [candidatePages[i], candidatePages[j]] = [candidatePages[j], candidatePages[i]];
-  }
+  const shuffledCandidates = shuffleArray(candidatePages);
 
   const result: ColoringPage[] = [];
   const seenIds = new Set<string>([currentPage.id]);
 
-  for (const p of candidatePages) {
+  for (const p of shuffledCandidates) {
     if (result.length >= 4) break;
     if (!seenIds.has(p.id)) {
       seenIds.add(p.id);
@@ -38,12 +35,9 @@ export default async function SeeMore({ currentPage }: { currentPage: ColoringPa
       otherPages = otherPages.concat(pages);
     }
     
-    for (let i = otherPages.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [otherPages[i], otherPages[j]] = [otherPages[j], otherPages[i]];
-    }
+    const shuffledOther = shuffleArray(otherPages);
     
-    for (const p of otherPages) {
+    for (const p of shuffledOther) {
       if (result.length >= 4) break;
       if (!seenIds.has(p.id)) {
         seenIds.add(p.id);
@@ -56,7 +50,7 @@ export default async function SeeMore({ currentPage }: { currentPage: ColoringPa
 
   return (
     <div className="max-w-[1240px] mx-auto px-6 pb-16 print:hidden">
-      <h2 className="text-3xl font-bold text-[#0F0728] mb-6 flex items-center gap-3 before:content-[''] before:block before:w-1 before:h-7 before:bg-purple-600 before:rounded-sm">
+      <h2 className="text-3xl font-bold text-[#0F0728] dark:text-gray-100 mb-6 flex items-center gap-3 before:content-[''] before:block before:w-1 before:h-7 before:bg-purple-600 before:rounded-sm">
         See More
       </h2>
       <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-6">

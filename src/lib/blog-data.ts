@@ -30,6 +30,11 @@ export async function getSortedPostsData(): Promise<BlogPost[]> {
   }
 }
 
+export async function getRandomPostsData(): Promise<BlogPost[]> {
+  const posts = await getSortedPostsData();
+  return [...posts].sort(() => Math.random() - 0.5);
+}
+
 export async function getPostData(slug: string): Promise<BlogPost | null> {
   try {
     const post = await prisma.blogPost.findUnique({

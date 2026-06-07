@@ -36,19 +36,27 @@
 }
 
 @media print {
-  @page {
-    margin: 0;
+  /* Remove all shadows, filters, backgrounds and borders globally when printing */
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+    filter: none !important;
   }
-  
-  html, body {
+
+  /* Apply strict image printing only on pages with .printable-area */
+  html:has(.printable-area), body:has(.printable-area) {
     height: 100%;
     margin: 0 !important;
     padding: 0 !important;
     background: #fff !important;
   }
 
-  body * {
+  body:has(.printable-area) * {
     visibility: hidden;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    filter: none !important;
   }
 
   .printable-area {
@@ -60,6 +68,11 @@
     height: 100% !important;
     object-fit: contain !important;
     display: block !important;
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    filter: none !important;
   }
 }
 

@@ -35,7 +35,7 @@ export default async function StatsBar() {
   const stats = [
     { value: formatCount(statsData.totalPages), label: "Coloring Pages" },
     { value: formatCount(statsData.totalCategories), label: "Categories" },
-    { value: "100%",   label: "Free Forever" },
+    { value: "100%",   label: "Free" },
     { value: formatCount(statsData.totalDownloads), label: "Downloads" },
   ];
 

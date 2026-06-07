@@ -31,7 +31,7 @@ export default function RelatedCard({ page }: RelatedCardProps) {
         />
       </div>
       <div className="flex flex-col justify-center gap-1.5 min-w-0">
-        <h4 className="font-bold text-sm text-gray-800 m-0 group-hover:text-purple-600 transition-colors truncate">
+        <h4 className="font-bold text-sm text-gray-800 dark:text-gray-200 m-0 group-hover:text-purple-600 transition-colors truncate">
           {page.title}
         </h4>
         <span className="text-[10px] font-bold text-orange-500 uppercase tracking-wider">
