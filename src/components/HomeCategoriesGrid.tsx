@@ -56,6 +56,9 @@ export default function HomeCategoriesGrid({ categories }: HomeCategoriesGridPro
 
   return (
     <div className="max-w-[1240px] mx-auto px-6 mt-16">
+      <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0F0728] dark:text-gray-100 text-center mb-8">
+        Coloring Categories
+      </h2>
       <div className="flex items-center justify-center gap-1 mb-8 border-b border-black/5 dark:border-white/5">
         {tabs.map((tab) => (
           <button
