@@ -198,9 +198,11 @@ export default async function DynamicPage({
                     <div className="flex items-center gap-3">
                       <div className="flex flex-col">
                         <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
-                          Difficulty: <span className={`capitalize font-black ${coloringPage.difficulty === 'easy' ? 'text-[#34c759]' :
-                              coloringPage.difficulty === 'hard' ? 'text-[#ff3b30]' :
-                                'text-[#ff9500]'
+                          Difficulty: <span className={`capitalize font-black ${coloringPage.difficulty === 'very easy' ? 'text-[#34c759]' :
+                              coloringPage.difficulty === 'easy' ? 'text-[#8bc34a]' :
+                              coloringPage.difficulty === 'hard' ? 'text-[#ff9500]' :
+                              coloringPage.difficulty === 'very hard' ? 'text-[#ff3b30]' :
+                                'text-[#ffcc00]'
                             }`}>{coloringPage.difficulty}</span>
                         </span>
 
@@ -213,12 +215,12 @@ export default async function DynamicPage({
                           <div
                             className="absolute w-5 h-5 rounded-full bg-white flex items-center justify-center shadow-[0_2px_6px_rgba(0,0,0,0.25)] border border-gray-200/50 transition-all duration-700 ease-out"
                             style={{
-                              left: coloringPage.difficulty === 'easy' ? '15%' : coloringPage.difficulty === 'hard' ? '85%' : '50%',
+                              left: coloringPage.difficulty === 'very easy' ? '10%' : coloringPage.difficulty === 'easy' ? '30%' : coloringPage.difficulty === 'hard' ? '70%' : coloringPage.difficulty === 'very hard' ? '90%' : '50%',
                               transform: 'translateX(-50%)'
                             }}
                           >
                             <div
-                              className={`w-3 h-3 rounded-full transition-colors duration-500 ${coloringPage.difficulty === 'easy' ? 'bg-[#34c759]' : coloringPage.difficulty === 'hard' ? 'bg-[#ff3b30]' : 'bg-[#ff9500]'
+                              className={`w-3 h-3 rounded-full transition-colors duration-500 ${coloringPage.difficulty === 'very easy' ? 'bg-[#34c759]' : coloringPage.difficulty === 'easy' ? 'bg-[#8bc34a]' : coloringPage.difficulty === 'hard' ? 'bg-[#ff9500]' : coloringPage.difficulty === 'very hard' ? 'bg-[#ff3b30]' : 'bg-[#ffcc00]'
                                 }`}
                             />
                           </div>

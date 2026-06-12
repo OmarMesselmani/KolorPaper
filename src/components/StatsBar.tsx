@@ -1,19 +1,18 @@
 import { prisma } from "@/lib/db";
 
 export default async function StatsBar() {
-  let statsData = { totalPages: 0, totalCategories: 0, totalDownloads: 0 };
+  let statsData = { totalPages: 0, totalViews: 0, totalDownloads: 0 };
   
   try {
     const totalPages = await prisma.coloringPage.count({ where: { published: true } });
-    const totalCategories = await prisma.category.count();
     const pageMetrics = await prisma.coloringPage.aggregate({
       where: { published: true },
-      _sum: { downloads: true }
+      _sum: { downloads: true, views: true }
     });
     
     statsData = {
       totalPages,
-      totalCategories,
+      totalViews: pageMetrics._sum.views || 0,
       totalDownloads: pageMetrics._sum.downloads || 0
     };
   } catch (error) {
@@ -23,18 +22,20 @@ export default async function StatsBar() {
   const formatCount = (n: number) => {
     if (n >= 1_000_000) {
       const formatted = (n / 1_000_000).toFixed(1);
-      return `${formatted.endsWith('.0') ? formatted.slice(0, -2) : formatted}M+`;
+      return `${formatted.endsWith('.0') ? formatted.slice(0, -2) : formatted}M`;
     }
     if (n >= 1_000) {
       const formatted = (n / 1_000).toFixed(1);
-      return `${formatted.endsWith('.0') ? formatted.slice(0, -2) : formatted}K+`;
+      const isDecimal = formatted.includes('.') && !formatted.endsWith('.0');
+      const val = formatted.endsWith('.0') ? formatted.slice(0, -2) : formatted;
+      return `${val}${isDecimal ? 'k' : 'K'}`;
     }
     return String(n);
   };
 
   const stats = [
     { value: formatCount(statsData.totalPages), label: "Coloring Pages" },
-    { value: formatCount(statsData.totalCategories), label: "Categories" },
+    { value: formatCount(statsData.totalViews), label: "Views" },
     { value: "100%",   label: "Free" },
     { value: formatCount(statsData.totalDownloads), label: "Downloads" },
   ];

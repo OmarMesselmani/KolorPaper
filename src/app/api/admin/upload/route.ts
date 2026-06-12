@@ -182,13 +182,15 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Invalid thumbnail content." }, { status: 400 });
           }
           
-          const tS3Key = `uploads/thumbnails/thumb-${safeFileName}`;
+          const thumbExt = tDetectedMimeType === "image/webp" ? ".webp" : (tDetectedMimeType === "image/jpeg" ? ".jpg" : (tDetectedMimeType === "image/png" ? ".png" : ext));
+          const thumbFileName = safeFileName.includes('.') ? safeFileName.substring(0, safeFileName.lastIndexOf('.')) + thumbExt : safeFileName + thumbExt;
+          const tS3Key = `uploads/thumbnails/thumb-${thumbFileName}`;
           const tUploadUrl = `${baseUrl}/${R2_BUCKET_NAME}/${tS3Key}`;
           
           const tRes = await aws.fetch(tUploadUrl, {
             method: "PUT",
             headers: {
-              "Content-Type": contentType, // Usually same as original or webp
+              "Content-Type": tDetectedMimeType || contentType,
               "Content-Length": tBuffer.length.toString(),
             },
             body: tBuffer,

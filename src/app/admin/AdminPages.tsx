@@ -76,7 +76,7 @@ export default function AdminPages({ token }: AdminPagesProps) {
   const [categorySlug, setCategorySlug] = useState("");
   const [subCategorySlug, setSubCategorySlug] = useState("");
   const [description, setDescription] = useState("");
-  const [difficulty, setDifficulty] = useState("medium");
+  const [difficulty, setDifficulty] = useState("easy");
   const [ageGroup, setAgeGroup] = useState("kids");
   const [tagsInput, setTagsInput] = useState("");
   const [published, setPublished] = useState(true);
@@ -239,7 +239,7 @@ export default function AdminPages({ token }: AdminPagesProps) {
     setCategorySlug("");
     setSubCategorySlug("");
     setDescription("");
-    setDifficulty("medium");
+    setDifficulty("easy");
     setAgeGroup("kids");
     setTagsInput("");
     setPublished(true);
@@ -483,9 +483,11 @@ export default function AdminPages({ token }: AdminPagesProps) {
                 onChange={(e) => setDifficulty(e.target.value)}
                 className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-950/40 border border-gray-100 dark:border-white/5 rounded-xl text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-sm transition-all appearance-none"
               >
+                <option value="very easy">Very Easy</option>
                 <option value="easy">Easy</option>
                 <option value="medium">Medium</option>
                 <option value="hard">Hard</option>
+                <option value="very hard">Very Hard</option>
               </select>
             </div>
 
@@ -734,9 +736,11 @@ export default function AdminPages({ token }: AdminPagesProps) {
               className="px-3 py-2.5 bg-gray-50 dark:bg-gray-950/40 border border-gray-100 dark:border-white/5 rounded-xl text-gray-600 dark:text-gray-300 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all appearance-none"
             >
               <option value="">Difficulty</option>
+              <option value="very easy">Very Easy</option>
               <option value="easy">Easy</option>
               <option value="medium">Medium</option>
               <option value="hard">Hard</option>
+              <option value="very hard">Very Hard</option>
             </select>
 
             <select

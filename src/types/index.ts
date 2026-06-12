@@ -11,7 +11,7 @@ export interface ColoringPage {
   downloads?: number;
   likes?: number;
   pdfUrl?: string;
-  difficulty?: 'easy' | 'medium' | 'hard';
+  difficulty?: 'very easy' | 'easy' | 'medium' | 'hard' | 'very hard';
   ageGroup?: 'kids' | 'adults';
   tags?: string[];
   createdAt?: string | Date;

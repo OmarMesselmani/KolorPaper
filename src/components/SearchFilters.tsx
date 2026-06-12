@@ -36,7 +36,7 @@ export default function SearchFilters({ className }: { className?: string }) {
       <div className="mb-8">
         <h4 className="font-semibold text-gray-800 dark:text-gray-200 mb-4">Difficulty</h4>
         <div className="flex flex-col gap-3">
-          {['easy', 'medium', 'hard'].map(level => (
+          {['very easy', 'easy', 'medium', 'hard', 'very hard'].map(level => (
             <label key={level} className="flex items-center gap-3 cursor-pointer group">
               <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${currentDifficulty === level ? 'bg-purple-600 border-purple-600' : 'border-gray-300 dark:border-gray-700 group-hover:border-purple-600 dark:group-hover:border-purple-400'}`}>
                 {currentDifficulty === level && (

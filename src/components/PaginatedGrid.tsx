@@ -25,7 +25,7 @@ export default function PaginatedGrid({ pages }: { pages: ColoringPage[] }) {
       {hasMore && (
         <LoadMore 
           onClick={loadMore} 
-          label="See More" 
+          label="See More..." 
         />
       )}
       {!hasMore && <div className="pb-16"></div>}
