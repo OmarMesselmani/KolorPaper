@@ -43,6 +43,7 @@ model ColoringPage {
   description     String?
   difficulty      String? // easy, medium, hard
   ageGroup        String? // toddler, preschool, kids, adults
+  style           String   @default("Cartoon") // Cartoon, Anime, Kawaii, etc.
   tags            String[] @default([])
   views           Int      @default(0)
   downloads       Int      @default(0)

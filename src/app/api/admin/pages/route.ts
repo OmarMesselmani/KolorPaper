@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
   try {
     const { 
       title, slug, imageUrl, imageAlt, thumbnailUrl, pdfUrl, 
-      categorySlug, subCategorySlug, description, difficulty, ageGroup, tags, published 
+      categorySlug, subCategorySlug, description, difficulty, ageGroup, style, tags, published 
     } = await req.json();
 
     if (!title || !slug || !imageUrl || !thumbnailUrl || !categorySlug) {
@@ -24,6 +24,7 @@ export async function POST(req: NextRequest) {
     const cleanDescription = description ? stripHtml(description).substring(0, 1000) : null;
     const cleanDifficulty = difficulty ? stripHtml(difficulty).substring(0, 50) : null;
     const cleanAgeGroup = ageGroup ? stripHtml(ageGroup).substring(0, 50) : null;
+    const cleanStyle = style ? stripHtml(style).substring(0, 50) : "Cartoon";
     const cleanTags = Array.isArray(tags) ? tags.map((t: string) => stripHtml(t).substring(0, 50)) : [];
 
     if (!cleanTitle || !cleanSlug || !cleanImageUrl || !cleanThumbnailUrl || !cleanCategorySlug) {
@@ -60,6 +61,7 @@ export async function POST(req: NextRequest) {
         description: cleanDescription,
         difficulty: cleanDifficulty,
         ageGroup: cleanAgeGroup,
+        style: cleanStyle,
         tags: cleanTags,
         published: published !== undefined ? published : true
       }

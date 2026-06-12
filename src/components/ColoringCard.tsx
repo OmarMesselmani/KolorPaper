@@ -143,60 +143,7 @@ export default function ColoringCard({ page }: { page: ColoringPage }) {
   }, [page.createdAt]);
   return (
     <Link href={page.subCategorySlug ? `/${page.categorySlug}/${page.subCategorySlug}/${page.slug}` : `/${page.categorySlug}/${page.slug}`} className="block bg-white dark:bg-gray-900 rounded-2xl overflow-hidden border border-black/5 dark:border-white/5 shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_15px_-3px_rgba(124,58,237,0.1),0_4px_6px_-2px_rgba(124,58,237,0.05)] hover:border-purple-600/20 dark:hover:border-purple-500/30 group relative">
-      {/* Badge (Left) */}
-      {isNew && (
-        <span className="absolute top-3 left-3 z-10 text-[10px] font-extrabold px-2.5 py-1 rounded-full shadow-md bg-purple-600 text-white">
-          New
-        </span>
-      )}
-
-      {/* Buttons (Right) */}
-      <div className="absolute top-3 right-3 z-10 flex gap-2 print:hidden">
-        {/* Like Button */}
-        <button
-          onClick={handleLike}
-          className="w-9 h-9 rounded-full bg-white dark:bg-gray-950 border border-black/5 dark:border-white/10 flex items-center justify-center shadow-md cursor-pointer transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 group/btn"
-          aria-label="Like coloring page"
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill={liked ? "currentColor" : "none"}
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className={`transition-all duration-300 ${liked ? 'text-red-500 scale-110' : 'text-gray-400 dark:text-gray-500 group-hover/btn:text-red-500 group-hover/btn:scale-110'}`}
-          >
-            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
-          </svg>
-        </button>
-
-        {/* Print Button */}
-        <button
-          onClick={handlePrint}
-          className="w-9 h-9 rounded-full bg-white dark:bg-gray-950 border border-black/5 dark:border-white/10 flex items-center justify-center shadow-md cursor-pointer transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 hover:bg-gradient-to-tr hover:from-violet-600 hover:to-indigo-600 hover:text-white hover:border-transparent text-gray-500 dark:text-gray-400"
-          aria-label="Print coloring page"
-        >
-          <svg
-            viewBox="0 0 24 24"
-            width="16"
-            height="16"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            fill="none"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <polyline points="6 9 6 2 18 2 18 9"></polyline>
-            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-            <rect x="6" y="14" width="12" height="8"></rect>
-          </svg>
-        </button>
-      </div>
-
-      <div className="w-full aspect-[3/4] overflow-hidden bg-gray-50 dark:bg-gray-800 border-b border-black/5 dark:border-white/5">
+      <div className="w-full aspect-[3/4] overflow-hidden bg-gray-50 dark:bg-gray-800 border-b border-black/5 dark:border-white/5 relative">
         <div className="relative w-full h-full">
           <Image
             src={page.thumbnailUrl}
@@ -205,6 +152,59 @@ export default function ColoringCard({ page }: { page: ColoringPage }) {
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
+        </div>
+
+        {/* Badge (Right) */}
+        {isNew && (
+          <span className="absolute top-3 right-3 z-10 text-[10px] font-extrabold px-2.5 py-1 rounded-full shadow-md bg-orange-500 text-white">
+            New
+          </span>
+        )}
+
+        {/* Buttons (Left) */}
+        <div className="absolute bottom-3 left-3 z-10 flex gap-2 print:hidden">
+          {/* Like Button */}
+          <button
+            onClick={handleLike}
+            className="w-9 h-9 rounded-full bg-white dark:bg-gray-950 border border-black/5 dark:border-white/10 flex items-center justify-center shadow-md cursor-pointer transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 group/btn"
+            aria-label="Like coloring page"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill={liked ? "currentColor" : "none"}
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className={`transition-all duration-300 ${liked ? 'text-red-500 scale-110' : 'text-gray-400 dark:text-gray-500 group-hover/btn:text-red-500 group-hover/btn:scale-110'}`}
+            >
+              <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+            </svg>
+          </button>
+
+          {/* Print Button */}
+          <button
+            onClick={handlePrint}
+            className="w-9 h-9 rounded-full bg-white dark:bg-gray-950 border border-black/5 dark:border-white/10 flex items-center justify-center shadow-md cursor-pointer transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 hover:bg-gradient-to-tr hover:from-violet-600 hover:to-indigo-600 hover:text-white hover:border-transparent text-gray-500 dark:text-gray-400"
+            aria-label="Print coloring page"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="16"
+              height="16"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              fill="none"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="6 9 6 2 18 2 18 9"></polyline>
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+              <rect x="6" y="14" width="12" height="8"></rect>
+            </svg>
+          </button>
         </div>
       </div>
       <div className="p-5 bg-white dark:bg-gray-900 flex flex-col gap-3">

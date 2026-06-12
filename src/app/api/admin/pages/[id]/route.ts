@@ -7,7 +7,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     const { id } = await params;
     const { 
       title, slug, imageUrl, imageAlt, thumbnailUrl, pdfUrl, 
-      categorySlug, subCategorySlug, description, difficulty, ageGroup, tags, published 
+      categorySlug, subCategorySlug, description, difficulty, ageGroup, style, tags, published 
     } = await req.json();
 
     const existing = await prisma.coloringPage.findUnique({ where: { id } });
@@ -26,6 +26,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     const cleanDescription = description !== undefined ? (description ? stripHtml(description).substring(0, 1000) : null) : existing.description;
     const cleanDifficulty = difficulty !== undefined ? (difficulty ? stripHtml(difficulty).substring(0, 50) : null) : existing.difficulty;
     const cleanAgeGroup = ageGroup !== undefined ? (ageGroup ? stripHtml(ageGroup).substring(0, 50) : null) : existing.ageGroup;
+    const cleanStyle = style !== undefined ? (style ? stripHtml(style).substring(0, 50) : "Cartoon") : existing.style;
     const cleanTags = tags !== undefined ? (Array.isArray(tags) ? tags.map((t: string) => stripHtml(t).substring(0, 50)) : []) : existing.tags;
 
     if (slug !== undefined && !cleanSlug) {
@@ -67,6 +68,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         description: cleanDescription,
         difficulty: cleanDifficulty,
         ageGroup: cleanAgeGroup,
+        style: cleanStyle,
         tags: cleanTags,
         published: published !== undefined ? published : existing.published
       }

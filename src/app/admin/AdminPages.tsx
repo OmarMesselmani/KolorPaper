@@ -21,6 +21,7 @@ interface Page {
   description: string | null;
   difficulty: string | null;
   ageGroup: string | null;
+  style: string | null;
   tags?: string[];
   views: number;
   downloads: number;
@@ -78,6 +79,7 @@ export default function AdminPages({ token }: AdminPagesProps) {
   const [description, setDescription] = useState("");
   const [difficulty, setDifficulty] = useState("easy");
   const [ageGroup, setAgeGroup] = useState("kids");
+  const [style, setStyle] = useState("Cartoon");
   const [tagsInput, setTagsInput] = useState("");
   const [published, setPublished] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -241,6 +243,7 @@ export default function AdminPages({ token }: AdminPagesProps) {
     setDescription("");
     setDifficulty("easy");
     setAgeGroup("kids");
+    setStyle("Cartoon");
     setTagsInput("");
     setPublished(true);
     setIsEditing(false);
@@ -270,6 +273,7 @@ export default function AdminPages({ token }: AdminPagesProps) {
       description: description || null,
       difficulty,
       ageGroup,
+      style,
       tags: tagsInput ? tagsInput.split(",").map(t => t.trim()).filter(Boolean) : [],
       published
     };
@@ -317,6 +321,7 @@ export default function AdminPages({ token }: AdminPagesProps) {
     setDescription(page.description || "");
     setDifficulty(page.difficulty || "medium");
     setAgeGroup(page.ageGroup || "kids");
+    setStyle(page.style || "Cartoon");
     setTagsInput(page.tags?.join(", ") || "");
     setPublished(page.published);
     setShowForm(true);
@@ -503,8 +508,29 @@ export default function AdminPages({ token }: AdminPagesProps) {
               </select>
             </div>
 
-             <div className="md:col-span-2">
-              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Image (Main JPG/PNG)</label>
+            <div>
+              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Style</label>
+              <select
+                value={style}
+                onChange={(e) => setStyle(e.target.value)}
+                className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-950/40 border border-gray-100 dark:border-white/5 rounded-xl text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-sm transition-all appearance-none"
+              >
+                <option value="Cartoon">Cartoon</option>
+                <option value="Anime">Anime</option>
+                <option value="Kawaii">Kawaii</option>
+                <option value="Chibi">Chibi</option>
+                <option value="Realistic">Realistic</option>
+                <option value="Cute">Cute</option>
+                <option value="Mandala">Mandala</option>
+                <option value="Pixel Art">Pixel Art</option>
+                <option value="Comic Style">Comic Style</option>
+                <option value="Fantasy">Fantasy</option>
+              </select>
+            </div>
+
+            <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="md:col-span-1">
+                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Image (Main JPG/PNG)</label>
               <div className="flex gap-4 items-start">
                 <div className="flex-1">
                   {!imageUrl ? (
@@ -565,25 +591,7 @@ export default function AdminPages({ token }: AdminPagesProps) {
               </div>
             </div>
 
-            <div className="md:col-span-2">
-              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
-                Image Alt Text
-                <span className="ml-2 text-purple-500 normal-case font-semibold">(SEO)</span>
-              </label>
-              <input
-                type="text"
-                value={imageAlt}
-                onChange={(e) => setImageAlt(e.target.value)}
-                placeholder={`e.g. ${title || 'Coloring page'} printable coloring sheet`}
-                maxLength={200}
-                className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-950/40 border border-gray-100 dark:border-white/5 rounded-xl text-gray-800 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-sm transition-all"
-              />
-              <p className="mt-1.5 text-[10px] text-gray-400 dark:text-gray-500 font-semibold">
-                📷 Describe the image for search engines and screen readers · Max 200 chars
-              </p>
-            </div>
-
-            <div className="md:col-span-2">
+            <div className="md:col-span-1">
               <div className="flex items-center gap-2 mb-2">
                 <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider">Thumbnail Image</label>
                 <span className="text-[10px] bg-purple-50 dark:bg-purple-950/20 text-purple-600 dark:text-purple-400 font-black px-2 py-0.5 rounded-full uppercase tracking-wider">Auto-Generated</span>
@@ -591,7 +599,7 @@ export default function AdminPages({ token }: AdminPagesProps) {
               <div className="flex gap-4 items-start">
                 <div className="flex-1">
                   {!thumbnailUrl ? (
-                    <div className="flex flex-col items-center justify-center w-full h-20 border-2 border-dashed border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-gray-950/40 rounded-2xl">
+                    <div className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-gray-950/40 rounded-2xl">
                       <p className="text-xs font-bold text-gray-400 dark:text-gray-500 text-center px-4">
                         🪄 Will be auto-generated as WebP when you upload the main image
                       </p>
@@ -647,6 +655,25 @@ export default function AdminPages({ token }: AdminPagesProps) {
                   )}
                 </div>
               </div>
+            </div>
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+                Image Alt Text
+                <span className="ml-2 text-purple-500 normal-case font-semibold">(SEO)</span>
+              </label>
+              <input
+                type="text"
+                value={imageAlt}
+                onChange={(e) => setImageAlt(e.target.value)}
+                placeholder={`e.g. ${title || 'Coloring page'} printable coloring sheet`}
+                maxLength={200}
+                className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-950/40 border border-gray-100 dark:border-white/5 rounded-xl text-gray-800 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-sm transition-all"
+              />
+              <p className="mt-1.5 text-[10px] text-gray-400 dark:text-gray-500 font-semibold">
+                📷 Describe the image for search engines and screen readers · Max 200 chars
+              </p>
             </div>
 
 

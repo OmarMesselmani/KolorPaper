@@ -82,3 +82,64 @@ export function PageSkeleton() {
     </div>
   );
 }
+
+export function CategorySkeleton() {
+  return (
+    <div className="max-w-[1240px] mx-auto px-6 pt-8 animate-pulse">
+      {/* Breadcrumbs */}
+      <div className="h-4 sm:h-5 bg-gray-200 dark:bg-gray-800 w-1/4 rounded-md mb-8"></div>
+      
+      {/* Title */}
+      <div className="h-10 bg-gray-200 dark:bg-gray-800 w-1/3 rounded-md mb-4 mt-8"></div>
+      
+      {/* Description */}
+      <div className="h-4 bg-gray-200 dark:bg-gray-800 w-3/4 max-w-2xl rounded-md mb-2"></div>
+      <div className="h-4 bg-gray-200 dark:bg-gray-800 w-1/2 max-w-2xl rounded-md mb-12"></div>
+
+      {/* Subheader */}
+      <div className="h-8 bg-gray-200 dark:bg-gray-800 w-48 rounded-md mb-6"></div>
+
+      {/* Grid of Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 pb-16">
+        {[...Array(8)].map((_, i) => (
+          <CardSkeleton key={i} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export function HomeSkeleton() {
+  return (
+    <div className="animate-pulse">
+      {/* StatsBar Skeleton */}
+      <div className="w-full max-w-[1240px] mx-auto px-6 mb-14">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="flex flex-col items-center justify-center gap-2 py-6 px-4 rounded-2xl bg-white dark:bg-gray-900 border border-black/5 dark:border-white/5 h-28">
+              <div className="h-7 w-16 bg-gray-200 dark:bg-gray-800 rounded-md"></div>
+              <div className="h-4 w-24 bg-gray-200 dark:bg-gray-800 rounded-md"></div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Pages Section Skeleton */}
+      <div className="max-w-[1240px] mx-auto px-6 mb-16">
+        <div className="h-10 w-64 bg-gray-200 dark:bg-gray-800 rounded-md mx-auto mb-6"></div>
+        {/* Tabs Skeleton */}
+        <div className="flex justify-center gap-4 mb-8 border-b border-black/5 dark:border-white/5 pb-4">
+          <div className="h-5 w-24 bg-gray-200 dark:bg-gray-800 rounded-md"></div>
+          <div className="h-5 w-32 bg-gray-200 dark:bg-gray-800 rounded-md"></div>
+          <div className="h-5 w-24 bg-gray-200 dark:bg-gray-800 rounded-md"></div>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-8">
+          {[...Array(10)].map((_, i) => (
+            <CardSkeleton key={i} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+

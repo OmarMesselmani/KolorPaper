@@ -13,6 +13,7 @@ export interface ColoringPage {
   pdfUrl?: string;
   difficulty?: 'very easy' | 'easy' | 'medium' | 'hard' | 'very hard';
   ageGroup?: 'kids' | 'adults';
+  style?: string;
   tags?: string[];
   createdAt?: string | Date;
 }
