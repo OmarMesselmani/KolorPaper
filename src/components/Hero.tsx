@@ -12,6 +12,7 @@ const Hero = () => {
           sizes="100vw"
           className="object-cover object-center"
           priority
+          fetchPriority="high"
         />
         {/* Layer above the image and behind the text with a gradient from #f9fafb to transparent covering the bottom half */}
         <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-[#f9fafb] via-[#f9fafb]/80 to-transparent dark:from-gray-950 dark:via-gray-950/80 pointer-events-none" />

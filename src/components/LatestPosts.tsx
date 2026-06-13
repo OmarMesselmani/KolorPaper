@@ -79,7 +79,7 @@ export default function LatestPosts({ posts }: LatestPostsProps) {
                 {post.excerpt}
               </p>
               <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
-                <span className="text-xs text-gray-400 dark:text-gray-500 font-medium">
+                <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
                   {post.date}
                 </span>
                 <span className="text-xs font-bold text-purple-600 dark:text-purple-400 group-hover:translate-x-1 transition-transform flex items-center gap-1">

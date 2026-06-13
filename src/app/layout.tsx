@@ -3,7 +3,15 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { cachedGetAllCategories } from "@/lib/data";
 import LayoutWrapper from "@/components/LayoutWrapper";
+import { Tajawal } from "next/font/google";
 import Script from "next/script";
+
+const tajawal = Tajawal({
+  subsets: ["arabic", "latin"],
+  weight: ["400", "500", "700", "800", "900"],
+  display: "swap",
+  variable: "--font-tajawal",
+});
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kolorpaper.com';
 
@@ -65,9 +73,6 @@ export default async function RootLayout({
   return (
     <html lang="en" dir="ltr" suppressHydrationWarning>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
         {/* Organization + WebSite Schema */}
         <script
           type="application/ld+json"
@@ -99,7 +104,7 @@ export default async function RootLayout({
           }}
         />
       </head>
-      <body className="bg-gray-50 dark:bg-gray-950 text-gray-800 dark:text-gray-100 font-sans antialiased m-0 transition-colors duration-300">
+      <body className={`bg-gray-50 dark:bg-gray-950 text-gray-800 dark:text-gray-100 font-sans antialiased m-0 transition-colors duration-300 ${tajawal.variable}`}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
           <LayoutWrapper categories={categories}>
             {children}
@@ -110,9 +115,9 @@ export default async function RootLayout({
           <>
             <Script
               src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`}
-              strategy="afterInteractive"
+              strategy="lazyOnload"
             />
-            <Script id="google-analytics" strategy="afterInteractive">
+            <Script id="google-analytics" strategy="lazyOnload">
               {`
                 window.dataLayer = window.dataLayer || [];
                 function gtag(){dataLayer.push(arguments);}
