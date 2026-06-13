@@ -55,20 +55,22 @@ export default function CategoryCard({ category, index = 0 }: { category: Catego
         {category.imageUrl ? (
           <>
             {/* Mobile: Full width and height responsive image without cropping */}
-            <img
-              src={category.imageUrl}
-              alt={`${category.title} free printable coloring pages`}
-              width={600}
-              height={600}
-              className="w-full h-auto block sm:hidden"
-            />
+            <div className="block sm:hidden relative w-full aspect-square">
+              <Image
+                src={category.imageUrl}
+                alt={`${category.title} free printable coloring pages`}
+                fill
+                sizes="(max-width: 640px) 100vw"
+                className="object-contain"
+              />
+            </div>
             {/* Desktop: Optimized fixed-height image */}
             <div className="hidden sm:block absolute inset-0">
               <Image
                 src={category.imageUrl}
                 alt={`${category.title} free printable coloring pages`}
                 fill
-                sizes="(max-width: 1024px) 33vw, 25vw"
+                sizes="(min-width: 640px) 33vw, 25vw"
                 className="object-cover"
               />
             </div>

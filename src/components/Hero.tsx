@@ -6,7 +6,7 @@ const Hero = () => {
     <section className="w-full text-center mb-12">
       <div className="relative w-full overflow-hidden h-[260px] sm:h-auto sm:aspect-[1542/592]">
         <Image
-          src="/images/cover.jpg"
+          src="/images/cover.webp"
           alt="Free printable coloring pages for kids and adults - KolorPaper"
           fill
           sizes="100vw"
