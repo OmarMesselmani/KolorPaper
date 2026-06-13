@@ -118,7 +118,7 @@ export default function AdminPosts({ token }: AdminPostsProps) {
           await new Promise((resolve) => { img.onload = resolve; });
           const canvas = document.createElement("canvas");
           const ctx = canvas.getContext("2d");
-          const MAX_WIDTH = 400;
+          const MAX_WIDTH = 800;
           let width = img.width;
           let height = img.height;
           if (width > MAX_WIDTH) {
@@ -140,8 +140,8 @@ export default function AdminPosts({ token }: AdminPostsProps) {
           body: JSON.stringify({
             fileName: file.name,
             fileType: "image",
-            base64Data,
-            thumbBase64Data
+            base64Data: thumbBase64Data || base64Data,
+            thumbBase64Data: undefined
           })
         });
 
