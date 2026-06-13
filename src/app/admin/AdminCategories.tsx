@@ -133,8 +133,8 @@ export default function AdminCategories({ token }: AdminCategoriesProps) {
           body: JSON.stringify({
             fileName: file.name,
             fileType: "image",
-            base64Data,
-            thumbBase64Data
+            base64Data: thumbBase64Data || base64Data,
+            thumbBase64Data: undefined
           })
         });
 
