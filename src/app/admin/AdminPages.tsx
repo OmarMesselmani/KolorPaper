@@ -555,7 +555,7 @@ export default function AdminPages({ token }: AdminPagesProps) {
                   ) : (
                     <div className="flex items-center gap-4 bg-gray-50 dark:bg-gray-950/40 border border-gray-100 dark:border-white/5 rounded-2xl p-4">
                       <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 flex-shrink-0">
-                        <img src={imageUrl} alt="Preview" className="w-full h-full object-cover" />
+                        <img src={imageUrl} alt="Preview" loading="lazy" className="w-full h-full object-cover" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5 mb-1">
@@ -617,7 +617,7 @@ export default function AdminPages({ token }: AdminPagesProps) {
                   ) : (
                     <div className="flex items-center gap-4 bg-gray-50 dark:bg-gray-950/40 border border-gray-100 dark:border-white/5 rounded-2xl p-4">
                       <div className="relative w-12 h-16 rounded-xl overflow-hidden border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 flex-shrink-0">
-                        <img src={thumbnailUrl} alt="Thumbnail preview" className="w-full h-full object-contain" />
+                        <img src={thumbnailUrl} alt="Thumbnail preview" loading="lazy" className="w-full h-full object-contain" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5 mb-1 flex-wrap">
@@ -810,7 +810,7 @@ export default function AdminPages({ token }: AdminPagesProps) {
                   {pages.map((page) => (
                     <tr key={page.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-950/20 transition-colors">
                       <td className="py-4 pl-2">
-                        <img src={page.imageUrl} alt={page.title} className="w-12 h-12 object-cover rounded-xl border border-gray-100 dark:border-white/10" />
+                        <img src={page.imageUrl} alt={page.title} loading="lazy" className="w-12 h-12 object-cover rounded-xl border border-gray-100 dark:border-white/10" />
                       </td>
                       <td className="py-4 font-extrabold text-[#0F0728] dark:text-white">
                         <div>{page.title}</div>

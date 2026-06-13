@@ -407,7 +407,7 @@ export default function AdminCategories({ token }: AdminCategoriesProps) {
                   ) : (
                     <div className="flex items-center gap-4 bg-gray-50 dark:bg-gray-950/40 border border-gray-100 dark:border-white/5 rounded-2xl p-4">
                       <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 flex-shrink-0">
-                        <img src={imageUrl} alt="Preview" className="w-full h-full object-cover" />
+                        <img src={imageUrl} alt="Preview" loading="lazy" className="w-full h-full object-cover" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5 mb-1">

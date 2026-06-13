@@ -138,7 +138,7 @@ export default function ColoringCard({ page }: { page: ColoringPage }) {
   const [isNew, setIsNew] = useState(false);
   useEffect(() => {
     if (page.createdAt) {
-      setIsNew((Date.now() - new Date(page.createdAt).getTime()) < 14 * 24 * 60 * 60 * 1000);
+      setIsNew((Date.now() - new Date(page.createdAt).getTime()) < 7 * 24 * 60 * 60 * 1000);
     }
   }, [page.createdAt]);
   return (
@@ -156,13 +156,13 @@ export default function ColoringCard({ page }: { page: ColoringPage }) {
 
         {/* Badge (Right) */}
         {isNew && (
-          <span className="absolute top-3 right-3 z-10 text-[10px] font-extrabold px-2.5 py-1 rounded-full shadow-md bg-orange-500 text-white">
+          <span className="absolute bottom-3 left-3 z-10 text-[10px] font-extrabold px-2.5 py-1 rounded-full shadow-md bg-purple-600 text-white">
             New
           </span>
         )}
 
-        {/* Buttons (Left) */}
-        <div className="absolute bottom-3 left-3 z-10 flex gap-2 print:hidden">
+        {/* Buttons (Top Right) */}
+        <div className="absolute top-3 right-3 z-10 flex gap-2 print:hidden">
           {/* Like Button */}
           <button
             onClick={handleLike}
@@ -211,7 +211,7 @@ export default function ColoringCard({ page }: { page: ColoringPage }) {
         <h3 className="font-bold text-lg text-gray-900 dark:text-white m-0 truncate">{page.title}</h3>
         
         {/* Stats Footer */}
-        <div className="flex items-center gap-4 text-xs font-semibold text-gray-500 dark:text-gray-400">
+        <div className="flex items-center gap-4 text-xs font-semibold text-gray-600 dark:text-gray-400">
           <div className="flex items-center gap-1.5 group/stat hover:text-purple-600 transition-colors">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="opacity-70 group-hover/stat:opacity-100 group-hover/stat:scale-110 transition-all">
               <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />

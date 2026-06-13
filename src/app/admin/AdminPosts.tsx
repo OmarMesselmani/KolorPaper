@@ -459,7 +459,7 @@ export default function AdminPosts({ token }: AdminPostsProps) {
               <div className="h-32 border border-white/5 rounded-2xl bg-[#070216] overflow-hidden flex items-center justify-center relative group">
                 {coverImage ? (
                   <>
-                    <img src={coverImage} alt="Cover Preview" className="w-full h-full object-cover" />
+                    <img src={coverImage} alt="Cover Preview" loading="lazy" className="w-full h-full object-cover" />
                     <button
                       type="button"
                       onClick={() => setCoverImage("")}
@@ -545,7 +545,7 @@ export default function AdminPosts({ token }: AdminPostsProps) {
                       <div className="flex items-center gap-4">
                         <div className="w-16 h-10 rounded-lg overflow-hidden bg-gray-900 border border-white/5 flex-shrink-0">
                           {post.coverImage ? (
-                            <img src={post.coverImage} alt={post.title} className="w-full h-full object-cover" />
+                            <img src={post.coverImage} alt={post.title} loading="lazy" className="w-full h-full object-cover" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-[10px] text-gray-600 bg-gray-950">No Cover</div>
                           )}

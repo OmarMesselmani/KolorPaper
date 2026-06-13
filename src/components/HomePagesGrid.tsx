@@ -65,7 +65,7 @@ export default function HomePagesGrid({ newest, mostDownloaded, mostLiked }: Hom
             onClick={() => { setActiveTab(tab.key); setVisibleCount(step); }}
             className={`px-8 py-4 text-base font-bold border-b-2 transition-all duration-300 cursor-pointer bg-transparent ${activeTab === tab.key
                 ? "border-purple-600 text-purple-600"
-                : "border-transparent text-gray-500 hover:text-gray-800"
+                : "border-transparent text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-100"
               }`}
           >
             {tab.label}

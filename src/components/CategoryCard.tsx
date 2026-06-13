@@ -44,7 +44,7 @@ export default function CategoryCard({ category, index = 0 }: { category: Catego
       {/* Badge */}
       {badge && (
         <span
-          className="absolute top-3 left-3 z-10 text-xs font-extrabold px-2.5 py-1 rounded-full shadow-md bg-orange-500 text-white"
+          className="absolute top-3 left-3 z-10 text-xs font-extrabold px-2.5 py-1 rounded-full shadow-md bg-orange-600 text-white"
         >
           🔥 Popular
         </span>
@@ -58,6 +58,8 @@ export default function CategoryCard({ category, index = 0 }: { category: Catego
             <img
               src={category.imageUrl}
               alt={`${category.title} free printable coloring pages`}
+              width={600}
+              height={600}
               className="w-full h-auto block sm:hidden"
             />
             {/* Desktop: Optimized fixed-height image */}
@@ -81,13 +83,13 @@ export default function CategoryCard({ category, index = 0 }: { category: Catego
         <h3 className="text-sm sm:text-xl font-bold text-gray-800 dark:text-gray-100 text-center mb-0.5 sm:mb-1 truncate">
           {category.title}
         </h3>
-        <p className={`text-xs sm:text-sm font-medium text-purple-600 dark:text-purple-400 text-center ${hasStats ? 'mb-1.5 sm:mb-3' : 'mb-0'}`}>
+        <p className={`text-xs sm:text-sm font-medium text-purple-700 dark:text-purple-300 text-center ${hasStats ? 'mb-1.5 sm:mb-3' : 'mb-0'}`}>
           ({pageCount}) pages
         </p>
 
         {/* Stats row */}
         {(category.downloads !== undefined || category.likes !== undefined) && (
-          <div className="flex items-center justify-center gap-3 sm:gap-4 text-[10px] sm:text-xs font-semibold text-gray-400 dark:text-gray-500">
+          <div className="flex items-center justify-center gap-3 sm:gap-4 text-[10px] sm:text-xs font-semibold text-gray-500 dark:text-gray-400">
             {category.downloads !== undefined && (
               <span className="flex items-center gap-1">
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">

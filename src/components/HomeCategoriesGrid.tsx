@@ -69,7 +69,7 @@ export default function HomeCategoriesGrid({ categories }: HomeCategoriesGridPro
             onClick={() => { setActiveTab(tab.key); setVisibleCount(step); }}
             className={`px-4 sm:px-8 py-4 text-sm sm:text-base font-bold border-b-2 transition-all duration-300 cursor-pointer bg-transparent ${activeTab === tab.key
                 ? "border-purple-600 text-purple-600"
-                : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                : "border-transparent text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100"
               }`}
           >
             {tab.label}

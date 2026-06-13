@@ -1,8 +1,11 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const url = new URL(req.url);
+    const rangeParam = url.searchParams.get("range") || "7";
+    const range = parseInt(rangeParam, 10);
     const totalPages = await prisma.coloringPage.count();
     const totalCategories = await prisma.category.count();
 
@@ -24,35 +27,63 @@ export async function GET() {
       orderBy: { createdAt: "desc" }
     });
 
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - Math.max(range, 7)); // At least 7 days to ensure yesterday is covered
 
-    // Using basic aggregation for recent activity to avoid complex raw SQL that might differ across edge/node adapters
     const recentViews = await prisma.pageView.findMany({
       where: {
-        createdAt: { gte: sevenDaysAgo },
-        action: { in: ['view', 'download'] }
+        createdAt: { gte: startDate },
+        action: { in: ['view', 'download', 'like'] }
       },
       select: { createdAt: true, action: true }
     });
 
-    const dailyActivity: Record<string, { views: number; downloads: number }> = {};
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
-      const dateStr = d.toISOString().split("T")[0];
-      dailyActivity[dateStr] = { views: 0, downloads: 0 };
-    }
+    const yesterdayDate = new Date();
+    yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+    const yesterdayStr = yesterdayDate.toISOString().split("T")[0];
+    
+    let yesterdayViews = 0, yesterdayDownloads = 0, yesterdayLikes = 0;
 
-    for (const record of recentViews) {
-      const dateStr = record.createdAt.toISOString().split("T")[0];
-      if (dailyActivity[dateStr]) {
-        if (record.action === "view") dailyActivity[dateStr].views++;
-        else if (record.action === "download") dailyActivity[dateStr].downloads++;
+    const timelineData: Record<string, { views: number; downloads: number; likes: number }> = {};
+    
+    if (range === 365) {
+      for (let i = 11; i >= 0; i--) {
+        const d = new Date();
+        d.setMonth(d.getMonth() - i);
+        const monthStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        timelineData[monthStr] = { views: 0, downloads: 0, likes: 0 };
+      }
+    } else {
+      for (let i = range - 1; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const dateStr = d.toISOString().split("T")[0];
+        timelineData[dateStr] = { views: 0, downloads: 0, likes: 0 };
       }
     }
 
-    const activityTimeline = Object.entries(dailyActivity).map(([date, stats]) => ({
+    for (const record of recentViews) {
+      const fullDateStr = record.createdAt.toISOString().split("T")[0];
+      
+      if (fullDateStr === yesterdayStr) {
+        if (record.action === "view") yesterdayViews++;
+        else if (record.action === "download") yesterdayDownloads++;
+        else if (record.action === "like") yesterdayLikes++;
+      }
+
+      let bucketKey = fullDateStr;
+      if (range === 365) {
+        bucketKey = fullDateStr.substring(0, 7);
+      }
+
+      if (timelineData[bucketKey]) {
+        if (record.action === "view") timelineData[bucketKey].views++;
+        else if (record.action === "download") timelineData[bucketKey].downloads++;
+        else if (record.action === "like") timelineData[bucketKey].likes++;
+      }
+    }
+
+    const activityTimeline = Object.entries(timelineData).map(([date, stats]) => ({
       date, ...stats
     }));
 
@@ -62,6 +93,9 @@ export async function GET() {
         totalViews: pageMetrics._sum.views || 0,
         totalDownloads: pageMetrics._sum.downloads || 0,
         totalLikes: pageMetrics._sum.likes || 0,
+        yesterdayViews,
+        yesterdayDownloads,
+        yesterdayLikes,
         totalMessages, unreadMessages
       },
       popularPages, recentMessages, activityTimeline

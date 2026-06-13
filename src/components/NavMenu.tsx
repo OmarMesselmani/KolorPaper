@@ -88,6 +88,7 @@ export default function NavMenu({ categories }: { categories: Category[] }) {
               <button 
                 onClick={() => setIsOpen(false)}
                 className="p-2 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-all"
+                aria-label="Close menu"
               >
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="18" y1="6" x2="6" y2="18" />
@@ -137,6 +138,7 @@ export default function NavMenu({ categories }: { categories: Category[] }) {
                         <button 
                           onClick={() => toggleExpand(category.id)}
                           className={`p-3 mr-2 hover:bg-purple-600/10 dark:hover:bg-purple-500/20 rounded-xl transition-all ${isExpanded ? 'rotate-180 text-purple-600 dark:text-purple-400' : 'text-gray-400 dark:text-gray-500'}`}
+                          aria-label="Toggle category"
                         >
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                             <path d="m6 9 6 6 6-6"/>

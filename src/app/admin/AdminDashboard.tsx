@@ -14,6 +14,9 @@ interface StatsSummary {
   totalViews: number;
   totalDownloads: number;
   totalLikes: number;
+  yesterdayViews?: number;
+  yesterdayDownloads?: number;
+  yesterdayLikes?: number;
   totalMessages: number;
   unreadMessages: number;
 }
@@ -50,6 +53,7 @@ export default function AdminDashboard({ token, onTabChange }: AdminDashboardPro
   const [popularPages, setPopularPages] = useState<PopularPage[]>([]);
   const [recentMessages, setRecentMessages] = useState<RecentMessage[]>([]);
   const [timeline, setTimeline] = useState<ActivityDay[]>([]);
+  const [timeRange, setTimeRange] = useState("7");
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
 
@@ -58,7 +62,7 @@ export default function AdminDashboard({ token, onTabChange }: AdminDashboardPro
       setLoading(true);
       setError("");
 
-      const res = await fetch(`${API_URL}/admin/stats`, {
+      const res = await fetch(`${API_URL}/admin/stats?range=${timeRange}`, {
         headers: {
           "Authorization": `Bearer ${token}`
         }
@@ -83,7 +87,7 @@ export default function AdminDashboard({ token, onTabChange }: AdminDashboardPro
 
   useEffect(() => {
     fetchStats();
-  }, [token]);
+  }, [token, timeRange]);
 
   if (loading) {
     return (
@@ -116,9 +120,9 @@ export default function AdminDashboard({ token, onTabChange }: AdminDashboardPro
     const chartWidth = 500;
     const maxVal = Math.max(...timeline.map(d => Math.max(d.views, d.downloads)), 10);
     
-    // Generate coordinate strings for lines
-    const pointsViews: string[] = [];
-    const pointsDownloads: string[] = [];
+    // Generate smooth paths for lines
+    let pathViews = "";
+    let pathDownloads = "";
 
     timeline.forEach((day, index) => {
       const x = (index / (timeline.length - 1)) * chartWidth;
@@ -126,8 +130,18 @@ export default function AdminDashboard({ token, onTabChange }: AdminDashboardPro
       const yViews = chartHeight - (day.views / maxVal) * chartHeight;
       const yDownloads = chartHeight - (day.downloads / maxVal) * chartHeight;
 
-      pointsViews.push(`${x},${yViews}`);
-      pointsDownloads.push(`${x},${yDownloads}`);
+      if (index === 0) {
+        pathViews += `M ${x},${yViews}`;
+        pathDownloads += `M ${x},${yDownloads}`;
+      } else {
+        const prevX = ((index - 1) / (timeline.length - 1)) * chartWidth;
+        const prevYViews = chartHeight - (timeline[index - 1].views / maxVal) * chartHeight;
+        const prevYDownloads = chartHeight - (timeline[index - 1].downloads / maxVal) * chartHeight;
+        
+        const cpX = (prevX + x) / 2;
+        pathViews += ` C ${cpX},${prevYViews} ${cpX},${yViews} ${x},${yViews}`;
+        pathDownloads += ` C ${cpX},${prevYDownloads} ${cpX},${yDownloads} ${x},${yDownloads}`;
+      }
     });
 
     return (
@@ -147,10 +161,21 @@ export default function AdminDashboard({ token, onTabChange }: AdminDashboardPro
 
           {/* X Axis Dates */}
           {timeline.map((day, index) => {
+            // Filter labels to avoid crowding for 30-day view
+            if (timeline.length > 12 && index % Math.ceil(timeline.length / 6) !== 0 && index !== timeline.length - 1 && index !== 0) return null;
+
             const x = (index / (timeline.length - 1)) * chartWidth;
-            // Short date format e.g. "May 27"
-            const dateObj = new Date(day.date);
-            const dateStr = dateObj.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+            
+            let dateStr = "";
+            if (day.date.length === 7) { // YYYY-MM
+              const [year, month] = day.date.split("-");
+              const d = new Date(parseInt(year), parseInt(month) - 1, 1);
+              dateStr = d.toLocaleDateString("en-US", { month: "short" });
+            } else {
+              const dateObj = new Date(day.date);
+              dateStr = dateObj.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+            }
+            
             return (
               <text key={index} x={x} y={chartHeight + 16} fill="currentColor" fontSize="9" textAnchor="middle" className="fill-gray-400 font-bold opacity-80">
                 {dateStr}
@@ -159,23 +184,23 @@ export default function AdminDashboard({ token, onTabChange }: AdminDashboardPro
           })}
 
           {/* Views Line */}
-          <polyline
+          <path
             fill="none"
             stroke="url(#viewsGradient)"
-            strokeWidth="3.5"
+            strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-            points={pointsViews.join(" ")}
+            d={pathViews}
           />
 
           {/* Downloads Line */}
-          <polyline
+          <path
             fill="none"
             stroke="url(#downloadsGradient)"
-            strokeWidth="3.5"
+            strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-            points={pointsDownloads.join(" ")}
+            d={pathDownloads}
           />
 
           {/* Gradients */}
@@ -237,6 +262,9 @@ export default function AdminDashboard({ token, onTabChange }: AdminDashboardPro
             </div>
           </div>
           <h2 className="text-2xl font-black text-[#0F0728] dark:text-white">{stats?.totalViews.toLocaleString()}</h2>
+          {stats?.yesterdayViews !== undefined && (
+            <span className="text-[10px] text-gray-400 dark:text-gray-500 font-bold mt-1 block">Last day: {stats.yesterdayViews.toLocaleString()}</span>
+          )}
         </div>
 
         {/* Total Downloads */}
@@ -250,6 +278,9 @@ export default function AdminDashboard({ token, onTabChange }: AdminDashboardPro
             </div>
           </div>
           <h2 className="text-2xl font-black text-[#0F0728] dark:text-white">{stats?.totalDownloads.toLocaleString()}</h2>
+          {stats?.yesterdayDownloads !== undefined && (
+            <span className="text-[10px] text-gray-400 dark:text-gray-500 font-bold mt-1 block">Last day: {stats.yesterdayDownloads.toLocaleString()}</span>
+          )}
         </div>
 
         {/* Total Likes */}
@@ -263,6 +294,9 @@ export default function AdminDashboard({ token, onTabChange }: AdminDashboardPro
             </div>
           </div>
           <h2 className="text-2xl font-black text-[#0F0728] dark:text-white">{stats?.totalLikes.toLocaleString()}</h2>
+          {stats?.yesterdayLikes !== undefined && (
+            <span className="text-[10px] text-gray-400 dark:text-gray-500 font-bold mt-1 block">Last day: {stats.yesterdayLikes.toLocaleString()}</span>
+          )}
         </div>
 
         {/* Unread Messages */}
@@ -293,14 +327,27 @@ export default function AdminDashboard({ token, onTabChange }: AdminDashboardPro
               <h3 className="text-lg font-black text-[#0F0728] dark:text-white">Traffic Timeline</h3>
               <p className="text-xs text-gray-400 dark:text-gray-500 font-semibold">Comparative views vs. downloads count</p>
             </div>
-            {/* Chart Legend */}
-            <div className="flex items-center gap-4 text-xs font-bold">
-              <span className="flex items-center gap-1.5 text-purple-600 dark:text-purple-400">
-                <span className="w-3 h-1 bg-purple-500 rounded-full inline-block"></span> Views
-              </span>
-              <span className="flex items-center gap-1.5 text-orange-600 dark:text-orange-400">
-                <span className="w-3 h-1 bg-orange-500 rounded-full inline-block"></span> Downloads
-              </span>
+            
+            <div className="flex items-center gap-4">
+              <select 
+                value={timeRange} 
+                onChange={(e) => setTimeRange(e.target.value)}
+                className="px-3 py-1.5 bg-gray-50 dark:bg-gray-950/40 border border-gray-100 dark:border-white/5 rounded-xl text-gray-600 dark:text-gray-300 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all cursor-pointer appearance-none"
+              >
+                <option value="7">Last 7 Days</option>
+                <option value="30">Last 30 Days</option>
+                <option value="365">Last 12 Months</option>
+              </select>
+
+              {/* Chart Legend */}
+              <div className="flex items-center gap-4 text-xs font-bold">
+                <span className="flex items-center gap-1.5 text-purple-600 dark:text-purple-400">
+                  <span className="w-3 h-1 bg-purple-500 rounded-full inline-block"></span> Views
+                </span>
+                <span className="flex items-center gap-1.5 text-orange-600 dark:text-orange-400">
+                  <span className="w-3 h-1 bg-orange-500 rounded-full inline-block"></span> Downloads
+                </span>
+              </div>
             </div>
           </div>
 
