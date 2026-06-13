@@ -1,4 +1,4 @@
-import { getCategoryBySlug, getCategories, getColoringPages, getColoringPageBySlug } from "@/lib/data";
+import { cachedGetCategoryBySlug, cachedGetColoringPageBySlug, getCategories, cachedGetColoringPages, cachedGetAllCategories } from "@/lib/data";
 import Image from "next/image";
 import Tag from "@/components/Tag";
 import CategoryCard from "@/components/CategoryCard";
@@ -26,7 +26,12 @@ export async function generateMetadata({
   const { slug } = await params;
   const lastSlug = slug[slug.length - 1];
 
-  const coloringPage = await getColoringPageBySlug(lastSlug);
+  // Run both lookups in parallel - only one will match
+  const [coloringPage, category] = await Promise.all([
+    cachedGetColoringPageBySlug(lastSlug),
+    cachedGetCategoryBySlug(lastSlug),
+  ]);
+
   if (coloringPage) {
     const url = `${siteUrl}/${slug.join('/')}`;
     const title = `${coloringPage.title} - Free Printable Coloring Page`;
@@ -60,11 +65,10 @@ export async function generateMetadata({
     };
   }
 
-  const category = await getCategoryBySlug(lastSlug);
   if (category) {
     const url = `${siteUrl}/${slug.join('/')}`;
     const title = `${category.title} Coloring Pages - Free Printable`;
-    const description = category.description || `Explore our collection of free printable ${category.title} coloring pages for kids and adults. Download and print high-quality coloring sheets.`;
+    const description = category.description || `Explore our collection of free printable ${category.title} coloring pages for kids and adults. Download high-quality coloring sheets.`;
     return {
       title,
       description,
@@ -109,19 +113,32 @@ export default async function DynamicPage({
   const { difficulty, ageGroup } = await searchParams;
   const lastSlug = slug[slug.length - 1];
 
+  // Run both lookups in parallel (cached, so shared with generateMetadata)
+  const [coloringPage, category] = await Promise.all([
+    cachedGetColoringPageBySlug(lastSlug),
+    cachedGetCategoryBySlug(lastSlug),
+  ]);
+
+  // Build breadcrumbs efficiently: one query per slug segment, reuse last slug data
   const breadcrumbPaths = await Promise.all(slug.map(async (s, i) => {
-    const cat = await getCategoryBySlug(s);
-    const page = await getColoringPageBySlug(s);
+    // For the last slug, reuse the already-fetched data
+    if (s === lastSlug) {
+      return {
+        title: coloringPage?.title || category?.title || s,
+        href: `/${slug.slice(0, i + 1).join('/')}`
+      };
+    }
+    // For parent slugs, they are always categories (cached)
+    const cat = await cachedGetCategoryBySlug(s);
     return {
-      title: cat?.title || page?.title || s,
+      title: cat?.title || s,
       href: `/${slug.slice(0, i + 1).join('/')}`
     };
   }));
 
-  const coloringPage = await getColoringPageBySlug(lastSlug);
   if (coloringPage) {
     const targetSlug = coloringPage.subCategorySlug || coloringPage.categorySlug;
-    const allRelated = (await getColoringPages(targetSlug))
+    const allRelated = (await cachedGetColoringPages(targetSlug))
       .filter(p => p.id !== coloringPage.id);
 
     // Shuffle array randomly
@@ -294,10 +311,12 @@ export default async function DynamicPage({
     );
   }
 
-  const category = await getCategoryBySlug(lastSlug);
   if (category) {
-    const subCategories = await getCategories(category.slug);
-    const pages = await getColoringPages(category.slug, { difficulty, ageGroup });
+    // Run sub-queries in parallel
+    const [subCategories, pages] = await Promise.all([
+      getCategories(category.slug),
+      cachedGetColoringPages(category.slug, { difficulty, ageGroup }),
+    ]);
 
     return (
       <>

@@ -1,4 +1,4 @@
-import { getAllColoringPages, getAllCategories } from "@/lib/data";
+import { getHomePageData, cachedGetAllCategories } from "@/lib/data";
 import { getRandomPostsData } from "@/lib/blog-data";
 import Hero from "@/components/Hero";
 import StatsBar from "@/components/StatsBar";
@@ -10,19 +10,27 @@ import LatestPosts from "@/components/LatestPosts";
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const allPages = await getAllColoringPages();
-  const allCategories = await getAllCategories();
+  // Run all data fetches in parallel
+  const [homeData, allCategories, randomizedPosts] = await Promise.all([
+    getHomePageData(),
+    cachedGetAllCategories(),
+    getRandomPostsData(),
+  ]);
   const subCategories = allCategories.filter(cat => cat.parentSlug);
-  const randomizedPosts = await getRandomPostsData();
 
   return (
     <>
       <Hero />
       <StatsBar />
-      <HomePagesGrid pages={allPages} />
+      <HomePagesGrid
+        newest={homeData.newest}
+        mostDownloaded={homeData.mostDownloaded}
+        mostLiked={homeData.mostLiked}
+      />
       <HomeCategoriesGrid categories={subCategories} />
       <WhyUs />
       <LatestPosts posts={randomizedPosts} />
     </>
   );
 }
+

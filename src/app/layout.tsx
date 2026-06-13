@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import { getAllCategories } from "@/lib/data";
+import { cachedGetAllCategories } from "@/lib/data";
 import LayoutWrapper from "@/components/LayoutWrapper";
 import Script from "next/script";
 
@@ -60,7 +60,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const categories = await getAllCategories();
+  const categories = await cachedGetAllCategories();
 
   return (
     <html lang="en" dir="ltr" suppressHydrationWarning>

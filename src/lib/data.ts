@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { Category, ColoringPage } from "@/types";
 import { prisma } from "@/lib/db";
 
@@ -203,6 +204,51 @@ export async function getPagesByTag(
   }
 }
 
+const HOME_PAGE_INCLUDE = {
+  category: { select: { title: true, slug: true } },
+  subCategory: { select: { title: true, slug: true } },
+};
+
+// Fetch only the data the home page actually needs (3 sorted lists)
+// instead of pulling all 10,000 rows and sorting client-side.
+export async function getHomePageData(limit: number = 120): Promise<{
+  newest: ColoringPage[];
+  mostDownloaded: ColoringPage[];
+  mostLiked: ColoringPage[];
+}> {
+  try {
+    const where = { published: true };
+    const [newest, mostDownloaded, mostLiked] = await Promise.all([
+      prisma.coloringPage.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        take: limit,
+        include: HOME_PAGE_INCLUDE,
+      }),
+      prisma.coloringPage.findMany({
+        where,
+        orderBy: { downloads: "desc" },
+        take: limit,
+        include: HOME_PAGE_INCLUDE,
+      }),
+      prisma.coloringPage.findMany({
+        where,
+        orderBy: { likes: "desc" },
+        take: limit,
+        include: HOME_PAGE_INCLUDE,
+      }),
+    ]);
+    return {
+      newest: JSON.parse(JSON.stringify(newest)),
+      mostDownloaded: JSON.parse(JSON.stringify(mostDownloaded)),
+      mostLiked: JSON.parse(JSON.stringify(mostLiked)),
+    };
+  } catch (error) {
+    console.error("Failed to fetch home page data:", error);
+    return { newest: [], mostDownloaded: [], mostLiked: [] };
+  }
+}
+
 export function shuffleArray<T>(array: T[]): T[] {
   const arr = [...array];
   for (let i = arr.length - 1; i > 0; i--) {
@@ -211,3 +257,11 @@ export function shuffleArray<T>(array: T[]): T[] {
   }
   return arr;
 }
+
+// React cache() deduplicates calls with the same arguments within a single
+// server request. generateMetadata and the page component now share results
+// instead of hitting the database twice for the same slug.
+export const cachedGetColoringPageBySlug = cache(getColoringPageBySlug);
+export const cachedGetCategoryBySlug = cache(getCategoryBySlug);
+export const cachedGetAllCategories = cache(getAllCategories);
+export const cachedGetColoringPages = cache(getColoringPages);

@@ -6,7 +6,9 @@ import ColoringCard from "./ColoringCard";
 import LoadMore from "./LoadMore";
 
 interface HomePagesGridProps {
-  pages: ColoringPage[];
+  newest: ColoringPage[];
+  mostDownloaded: ColoringPage[];
+  mostLiked: ColoringPage[];
 }
 
 type Tab = "newest" | "downloads" | "likes";
@@ -17,7 +19,7 @@ const tabs: { key: Tab; label: string }[] = [
   { key: "likes", label: "Most Liked" },
 ];
 
-export default function HomePagesGrid({ pages }: HomePagesGridProps) {
+export default function HomePagesGrid({ newest, mostDownloaded, mostLiked }: HomePagesGridProps) {
   const [activeTab, setActiveTab] = useState<Tab>("newest");
   const [step, setStep] = useState(12);
   const [visibleCount, setVisibleCount] = useState(12);
@@ -40,18 +42,12 @@ export default function HomePagesGrid({ pages }: HomePagesGridProps) {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // Data is already sorted server-side, just pick the right list
   const sorted = useMemo(() => {
-    const list = [...pages];
-    if (activeTab === "downloads") {
-      list.sort((a, b) => (b.downloads || 0) - (a.downloads || 0));
-    } else if (activeTab === "likes") {
-      list.sort((a, b) => (b.likes || 0) - (a.likes || 0));
-    } else {
-      // newest
-      list.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
-    }
-    return list;
-  }, [pages, activeTab]);
+    if (activeTab === "downloads") return mostDownloaded;
+    if (activeTab === "likes") return mostLiked;
+    return newest;
+  }, [newest, mostDownloaded, mostLiked, activeTab]);
 
   const MAX_CARDS = 120;
   const visible = sorted.slice(0, Math.min(visibleCount, MAX_CARDS));
