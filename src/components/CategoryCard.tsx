@@ -25,6 +25,17 @@ function getDefaultPageCount(title: string): number {
   return Math.round(count / 10) * 10;
 }
 
+function getCategoryThumbnail(url: string | undefined | null): string {
+  if (!url) return "";
+  if (url.includes('/uploads/images/')) {
+    const filename = url.split('/').pop();
+    if (!filename) return url;
+    const nameWithoutExt = filename.substring(0, filename.lastIndexOf('.')) || filename;
+    return url.replace('/uploads/images/', '/uploads/thumbnails/thumb-').replace(filename, `${nameWithoutExt}.webp`);
+  }
+  return url;
+}
+
 export default function CategoryCard({ category, index = 0 }: { category: Category; index?: number }) {
   // Determine badge: first 3 are "New", top downloads get "Popular"
   const badge: "Popular" | null =
@@ -57,7 +68,7 @@ export default function CategoryCard({ category, index = 0 }: { category: Catego
             {/* Mobile: Full width and height responsive image without cropping */}
             <div className="block sm:hidden relative w-full aspect-square">
               <Image
-                src={category.imageUrl}
+                src={getCategoryThumbnail(category.imageUrl)}
                 alt={`${category.title} free printable coloring pages`}
                 fill
                 sizes="(max-width: 640px) 100vw"
