@@ -78,7 +78,7 @@ export default function CategoryCard({ category, index = 0 }: { category: Catego
             {/* Desktop: Optimized fixed-height image */}
             <div className="hidden sm:block absolute inset-0">
               <Image
-                src={category.imageUrl}
+                src={getCategoryThumbnail(category.imageUrl)}
                 alt={`${category.title} free printable coloring pages`}
                 fill
                 sizes="(min-width: 640px) 33vw, 25vw"
