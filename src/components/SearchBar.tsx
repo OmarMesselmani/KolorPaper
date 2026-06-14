@@ -46,7 +46,7 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
       </button>
       <input 
         type="text" 
-        className="w-full py-2.5 pr-11 pl-11 bg-white dark:bg-gray-900 border border-purple-600/10 dark:border-white/10 rounded-xl font-inherit text-[0.95rem] text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 transition-all duration-300 shadow-sm focus:outline-none focus:border-purple-600 dark:focus:border-purple-500 focus:shadow-[0_10px_15px_-3px_rgba(124,58,237,0.1),0_4px_6px_-2px_rgba(124,58,237,0.05)] dark:focus:shadow-[0_10px_15px_-3px_rgba(168,85,247,0.15)] focus:-translate-y-[1px]"
+        className="w-full py-2.5 pr-11 pl-11 bg-white dark:bg-gray-900 border border-purple-600/10 dark:border-white/10 rounded-full font-inherit text-[0.95rem] text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 transition-all duration-300 shadow-sm focus:outline-none focus:border-purple-600 dark:focus:border-purple-500 focus:shadow-[0_10px_15px_-3px_rgba(124,58,237,0.1),0_4px_6px_-2px_rgba(124,58,237,0.05)] dark:focus:shadow-[0_10px_15px_-3px_rgba(168,85,247,0.15)] focus:-translate-y-[1px]"
         placeholder="Search for coloring pages..." 
         value={query}
         onChange={(e) => setQuery(e.target.value)}
