@@ -168,8 +168,8 @@ export default function Footer({ categories = [] }: FooterProps) {
 
         {/* Footer Bottom Bar */}
         <div className="py-8 flex justify-center items-center">
-          <p className="text-purple-300/50 text-xs text-center m-0 font-medium font-sans">
-            &copy; {new Date().getFullYear()} <span className="text-purple-300 font-bold">KolorPaper</span>. All Rights Reserved. Crafted with ❤️ for creative minds.
+          <p className="text-purple-200 text-xs text-center m-0 font-medium font-sans">
+            &copy; {new Date().getFullYear()} <span className="text-white font-bold">KolorPaper</span>. All Rights Reserved.
           </p>
         </div>
       </div>
