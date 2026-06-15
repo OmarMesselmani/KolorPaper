@@ -138,7 +138,7 @@ export default function AdminPosts({ token }: AdminPostsProps) {
             "Authorization": `Bearer ${token}`
           },
           body: JSON.stringify({
-            fileName: file.name,
+            fileName: file.type.startsWith("image/") ? file.name.replace(/\.[^/.]+$/, ".webp") : file.name,
             fileType: "image",
             base64Data: thumbBase64Data || base64Data,
             thumbBase64Data: undefined
