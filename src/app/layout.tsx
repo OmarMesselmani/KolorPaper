@@ -18,10 +18,10 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kolorpaper.com';
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "KolorPaper - Free Printable Coloring Pages for Kids & Adults",
+    default: "KolorPaper - Printable Coloring Pages with Colored Examples",
     template: "%s | KolorPaper",
   },
-  description: "Explore thousands of free printable coloring pages for kids and adults. Download high-quality coloring sheets, print and enjoy!",
+  description: "Free printable coloring pages with colored examples for kids and adults. Download coloring sheets and use the included color reference to inspire your creativity.",
   icons: {
     icon: "/favicon.svg",
   },
@@ -33,21 +33,21 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: siteUrl,
     siteName: 'KolorPaper',
-    title: 'KolorPaper - Free Printable Coloring Pages for Kids & Adults',
-    description: 'Explore thousands of free printable coloring pages for kids and adults. Download high-quality coloring sheets, print and enjoy!',
+    title: 'KolorPaper - Printable Coloring Pages with Colored Examples',
+    description: 'Free printable coloring pages with colored examples for kids and adults. Download coloring sheets and use the included color reference to inspire your creativity.',
     images: [
       {
         url: `${siteUrl}/images/cover.jpg`,
         width: 1200,
         height: 630,
-        alt: 'KolorPaper - Free Printable Coloring Pages',
+        alt: 'KolorPaper - Printable Coloring Pages with Colored Examples',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'KolorPaper - Free Printable Coloring Pages for Kids & Adults',
-    description: 'Explore thousands of free printable coloring pages for kids and adults. Download high-quality coloring sheets, print and enjoy!',
+    title: 'KolorPaper - Printable Coloring Pages with Colored Examples',
+    description: 'Free printable coloring pages with colored examples for kids and adults. Download coloring sheets and use the included color reference to inspire your creativity.',
     images: [`${siteUrl}/images/cover.jpg`],
   },
   robots: {

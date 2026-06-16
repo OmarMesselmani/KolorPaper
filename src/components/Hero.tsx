@@ -23,7 +23,7 @@ const Hero = () => {
             Print, color, smile.
           </h1>
           <p className="text-xs sm:text-base md:text-lg lg:text-xl text-gray-700 dark:text-gray-300 max-w-2xl mx-auto m-0 font-bold select-text pointer-events-auto leading-relaxed">
-            Explore thousands of printable coloring pages for kids and families.
+            Every coloring page includes a colored example and a printable outline, making coloring easier and more fun for kids.
           </p>
         </div>
       </div>
