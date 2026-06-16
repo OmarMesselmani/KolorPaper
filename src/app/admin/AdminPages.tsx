@@ -260,6 +260,10 @@ export default function AdminPages({ token }: AdminPagesProps) {
       setError("Please select a category.");
       return;
     }
+    if (!subCategorySlug) {
+      setError("Please select a subcategory.");
+      return;
+    }
 
     const payload = {
       title,
@@ -467,14 +471,15 @@ export default function AdminPages({ token }: AdminPagesProps) {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Subcategory (Optional)</label>
+              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Subcategory</label>
               <select
+                required
                 value={subCategorySlug}
                 onChange={(e) => setSubCategorySlug(e.target.value)}
                 disabled={!categorySlug}
                 className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-950/40 border border-gray-100 dark:border-white/5 rounded-xl text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-sm transition-all disabled:opacity-50 appearance-none"
               >
-                <option value="">-- None --</option>
+                <option value="">-- Select Subcategory --</option>
                 {subCategories.map(c => (
                   <option key={c.id} value={c.slug}>{c.title}</option>
                 ))}
