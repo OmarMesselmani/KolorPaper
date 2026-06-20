@@ -66,7 +66,7 @@ export default async function SeeMore({ currentPage }: { currentPage: ColoringPa
       <h2 className="text-3xl font-bold text-[#0F0728] dark:text-gray-100 mb-6 flex items-center gap-3 before:content-[''] before:block before:w-1 before:h-7 before:bg-purple-600 before:rounded-sm">
         See More
       </h2>
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
         {result.map(page => (
           <ColoringCard key={page.id} page={page} />
         ))}

@@ -5,7 +5,6 @@ import CategoryCard from "@/components/CategoryCard";
 import ColoringCard from "@/components/ColoringCard";
 import PrintButton from "@/components/PrintButton";
 import DownloadPdf from "@/components/DownloadPdf";
-import DownloadImageButton from "@/components/DownloadImageButton";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import PaginatedGrid from "@/components/PaginatedGrid";
 import LikeButton from "@/components/LikeButton";
@@ -147,7 +146,7 @@ export default async function DynamicPage({
       [allRelated[i], allRelated[j]] = [allRelated[j], allRelated[i]];
     }
 
-    const relatedPages = allRelated.slice(0, 4);
+    const relatedPages = allRelated.slice(0, 3);
 
     return (
       <>
@@ -200,67 +199,72 @@ export default async function DynamicPage({
               <h1 className="text-xl md:text-2xl font-bold text-[#0F0728] dark:text-gray-100 mb-4">{coloringPage.title}</h1>
               <p className="text-xs sm:text-sm leading-relaxed text-gray-500 dark:text-gray-400 mb-6">{coloringPage.description}</p>
 
-              <div className="flex gap-4 flex-wrap print:hidden">
-                <PrintButton slug={coloringPage.slug} imageUrl={coloringPage.imageUrl} title={coloringPage.title} />
-                <DownloadPdf imageUrl={coloringPage.imageUrl} title={coloringPage.title} pdfUrl={coloringPage.pdfUrl} slug={coloringPage.slug} />
-                <DownloadImageButton imageUrl={coloringPage.imageUrl} title={coloringPage.title} slug={coloringPage.slug} />
-                <LikeButton slug={coloringPage.slug} initialLikes={coloringPage.likes} />
+              <div className="flex flex-col gap-4 w-full max-w-[450px] print:hidden">
+                <div className="flex gap-4 w-full">
+                  <div className="flex-1">
+                    <PrintButton slug={coloringPage.slug} imageUrl={coloringPage.imageUrl} title={coloringPage.title} />
+                  </div>
+                  <div className="flex-1">
+                    <LikeButton slug={coloringPage.slug} initialLikes={coloringPage.likes} />
+                  </div>
+                </div>
+                <div className="w-full">
+                  <DownloadPdf imageUrl={coloringPage.imageUrl} title={coloringPage.title} pdfUrl={coloringPage.pdfUrl} slug={coloringPage.slug} />
+                </div>
               </div>
 
               <PageStats slug={coloringPage.slug} views={coloringPage.views} downloads={coloringPage.downloads} likes={coloringPage.likes} className="mt-6" />
 
               {(coloringPage.difficulty || coloringPage.ageGroup || coloringPage.style) && (
-                <div className="mt-8 pt-6 border-t border-black/5 dark:border-white/5 flex flex-col gap-6 print:hidden">
-                  <div className="flex flex-row gap-8 sm:gap-16 items-center flex-wrap sm:flex-nowrap">
-                    {coloringPage.difficulty && (
-                      <div className="flex items-center gap-3">
-                        <div className="flex flex-col">
-                          <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
-                            Difficulty: <span className={`capitalize font-black ${coloringPage.difficulty === 'very easy' ? 'text-[#34c759]' :
-                                coloringPage.difficulty === 'easy' ? 'text-[#8bc34a]' :
-                                coloringPage.difficulty === 'hard' ? 'text-[#ff9500]' :
-                                coloringPage.difficulty === 'very hard' ? 'text-[#ff3b30]' :
-                                  'text-[#ffcc00]'
-                              }`}>{coloringPage.difficulty}</span>
-                          </span>
+                <div className="mt-8 pt-6 border-t border-black/5 dark:border-white/5 flex flex-row items-center gap-6 sm:gap-12 flex-nowrap print:hidden overflow-x-auto no-scrollbar w-full">
+                  {coloringPage.difficulty && (
+                    <div className="flex items-center gap-3 flex-shrink-0">
+                      <div className="flex flex-col">
+                        <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+                          Difficulty: <span className={`capitalize font-black ${coloringPage.difficulty === 'very easy' ? 'text-[#34c759]' :
+                              coloringPage.difficulty === 'easy' ? 'text-[#8bc34a]' :
+                              coloringPage.difficulty === 'hard' ? 'text-[#ff9500]' :
+                              coloringPage.difficulty === 'very hard' ? 'text-[#ff3b30]' :
+                                'text-[#ffcc00]'
+                            }`}>{coloringPage.difficulty}</span>
+                        </span>
 
-                          {/* Custom Difficulty Slider */}
-                          <div className="relative w-36 h-7 flex items-center">
-                            {/* Track */}
-                            <div className="w-full h-3.5 rounded-full bg-gradient-to-r from-[#34c759] via-[#ffcc00] via-[#ff9500] to-[#ff3b30] border-2 border-white dark:border-gray-800 shadow-[inset_0_2px_4px_rgba(0,0,0,0.15)]" />
+                        {/* Custom Difficulty Slider */}
+                        <div className="relative w-28 h-7 flex items-center">
+                          {/* Track */}
+                          <div className="w-full h-3.5 rounded-full bg-gradient-to-r from-[#34c759] via-[#ffcc00] via-[#ff9500] to-[#ff3b30] border-2 border-white dark:border-gray-800 shadow-[inset_0_2px_4px_rgba(0,0,0,0.15)]" />
 
-                            {/* Thumb */}
+                          {/* Thumb */}
+                          <div
+                            className="absolute w-5 h-5 rounded-full bg-white flex items-center justify-center shadow-[0_2px_6px_rgba(0,0,0,0.25)] border border-gray-200/50 transition-all duration-700 ease-out"
+                            style={{
+                              left: coloringPage.difficulty === 'very easy' ? '10%' : coloringPage.difficulty === 'easy' ? '30%' : coloringPage.difficulty === 'hard' ? '70%' : coloringPage.difficulty === 'very hard' ? '90%' : '50%',
+                              transform: 'translateX(-50%)'
+                            }}
+                          >
                             <div
-                              className="absolute w-5 h-5 rounded-full bg-white flex items-center justify-center shadow-[0_2px_6px_rgba(0,0,0,0.25)] border border-gray-200/50 transition-all duration-700 ease-out"
-                              style={{
-                                left: coloringPage.difficulty === 'very easy' ? '10%' : coloringPage.difficulty === 'easy' ? '30%' : coloringPage.difficulty === 'hard' ? '70%' : coloringPage.difficulty === 'very hard' ? '90%' : '50%',
-                                transform: 'translateX(-50%)'
-                              }}
-                            >
-                              <div
-                                className={`w-3 h-3 rounded-full transition-colors duration-500 ${coloringPage.difficulty === 'very easy' ? 'bg-[#34c759]' : coloringPage.difficulty === 'easy' ? 'bg-[#8bc34a]' : coloringPage.difficulty === 'hard' ? 'bg-[#ff9500]' : coloringPage.difficulty === 'very hard' ? 'bg-[#ff3b30]' : 'bg-[#ffcc00]'
-                                  }`}
-                              />
-                            </div>
+                              className={`w-3 h-3 rounded-full transition-colors duration-500 ${coloringPage.difficulty === 'very easy' ? 'bg-[#34c759]' : coloringPage.difficulty === 'easy' ? 'bg-[#8bc34a]' : coloringPage.difficulty === 'hard' ? 'bg-[#ff9500]' : coloringPage.difficulty === 'very hard' ? 'bg-[#ff3b30]' : 'bg-[#ffcc00]'
+                                }`}
+                            />
                           </div>
                         </div>
                       </div>
-                    )}
+                    </div>
+                  )}
 
-                    {coloringPage.ageGroup && (
-                      <div className="flex items-center gap-3">
-                        <div className="flex flex-col">
-                          <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Age Group:</span>
-                          <span className="font-bold text-gray-850 dark:text-gray-200 capitalize text-sm sm:text-base">
-                            {coloringPage.ageGroup === 'adults' ? 'adults' : coloringPage.ageGroup}
-                          </span>
-                        </div>
+                  {coloringPage.ageGroup && (
+                    <div className="flex items-center gap-3 flex-shrink-0">
+                      <div className="flex flex-col">
+                        <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Age Group:</span>
+                        <span className="font-bold text-gray-850 dark:text-gray-200 capitalize text-sm sm:text-base">
+                          {coloringPage.ageGroup === 'adults' ? 'adults' : coloringPage.ageGroup}
+                        </span>
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
 
                   {coloringPage.style && (
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 flex-shrink-0">
                       <div className="flex flex-col">
                         <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Style:</span>
                         <span className="font-bold text-gray-850 dark:text-gray-200 capitalize text-sm sm:text-base">

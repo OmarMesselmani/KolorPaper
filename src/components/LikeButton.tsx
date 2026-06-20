@@ -103,7 +103,11 @@ export default function LikeButton({ slug, initialLikes = 0 }: LikeButtonProps) 
   return (
     <button
       onClick={handleLike}
-      className="relative group h-14 px-5 flex items-center justify-center bg-white dark:bg-gray-900 border border-black/5 dark:border-white/10 rounded-2xl cursor-pointer shadow-sm transition-all duration-300 hover:-translate-y-1 active:translate-y-0 active:scale-95 select-none"
+      className={`relative group w-full h-14 flex items-center justify-center border transition-all duration-300 hover:-translate-y-1 active:translate-y-0 active:scale-95 select-none rounded-2xl cursor-pointer ${
+        liked 
+          ? 'bg-red-50 dark:bg-red-950/20 border-red-100 dark:border-red-900/30' 
+          : 'bg-white dark:bg-gray-900 border-black/5 dark:border-white/10'
+      }`}
       aria-label="Like coloring page"
     >
       <svg 
@@ -122,14 +126,8 @@ export default function LikeButton({ slug, initialLikes = 0 }: LikeButtonProps) 
       <span
         className={`text-base font-extrabold ml-2.5 transition-colors duration-300 ${liked ? 'text-red-500' : 'text-gray-700 dark:text-gray-300'}`}
       >
-        {likesCount.toLocaleString()}
+        {liked ? 'Liked' : 'Like'} ({likesCount.toLocaleString()})
       </span>
-
-      {/* Tooltip */}
-      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-3 py-1.5 bg-gray-900/95 backdrop-blur-sm text-white text-xs font-bold rounded-lg opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap shadow-xl z-10">
-        {liked ? 'Liked!' : 'Like this Page'}
-        <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900/95"></div>
-      </div>
     </button>
   );
 }
