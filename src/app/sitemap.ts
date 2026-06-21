@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
 import { getAllCategories, getAllColoringPages } from '@/lib/data';
+import { prisma } from '@/lib/db';
 import { getSortedPostsData } from '@/lib/blog-data';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -8,6 +9,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const categories = await getAllCategories();
   const pages = await getAllColoringPages();
   const blogPosts = await getSortedPostsData();
+  const customTags = await prisma.tag.findMany({
+    select: { name: true, updatedAt: true },
+  });
 
   const categoryEntries: MetadataRoute.Sitemap = categories.map((cat) => ({
     url: cat.parentSlug ? `${siteUrl}/${cat.parentSlug}/${cat.slug}` : `${siteUrl}/${cat.slug}`,
@@ -30,6 +34,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: post.date ? new Date(post.date) : new Date(),
     changeFrequency: 'monthly',
     priority: 0.7,
+  }));
+
+  const tagEntries: MetadataRoute.Sitemap = customTags.map((tag: { name: string; updatedAt: Date }) => ({
+    url: `${siteUrl}/tags/${encodeURIComponent(tag.name)}`,
+    lastModified: tag.updatedAt,
+    changeFrequency: 'weekly',
+    priority: 0.6,
   }));
 
   return [
@@ -72,5 +83,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...categoryEntries,
     ...pageEntries,
     ...blogEntries,
+    ...tagEntries,
   ];
 }
