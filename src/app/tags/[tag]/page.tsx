@@ -1,4 +1,5 @@
 import { getPagesByTag } from "@/lib/data";
+import { prisma } from "@/lib/db";
 import ColoringCard from "@/components/ColoringCard";
 import PaginatedGrid from "@/components/PaginatedGrid";
 import Breadcrumbs from "@/components/Breadcrumbs";
@@ -9,10 +10,15 @@ import { Metadata } from "next";
 export async function generateMetadata({ params }: { params: Promise<{ tag: string }> }): Promise<Metadata> {
   const { tag: encodedTag } = await params;
   const tag = decodeURIComponent(encodedTag);
+  const normalizedTag = tag.toLowerCase().trim();
   
+  const customData = await prisma.tag.findUnique({
+    where: { name: normalizedTag }
+  });
+
   return {
-    title: `${tag} Coloring Pages | KolorPaper`,
-    description: `Free printable ${tag} coloring pages for kids and adults. Download high-quality ${tag} coloring sheets.`,
+    title: customData?.title ? `${customData.title} | KolorPaper` : `${tag} Coloring Pages | KolorPaper`,
+    description: customData?.description || `Free printable ${tag} coloring pages for kids and adults. Download high-quality ${tag} coloring sheets.`,
   };
 }
 
@@ -29,6 +35,11 @@ export default async function TagPage({
 
   const results = await getPagesByTag(tag, { difficulty, ageGroup });
 
+  const normalizedTag = tag.toLowerCase().trim();
+  const customData = await prisma.tag.findUnique({
+    where: { name: normalizedTag }
+  });
+
   return (
     <>
       <div className="max-w-[1240px] mx-auto px-6 pt-8">
@@ -37,11 +48,18 @@ export default async function TagPage({
 
       <div className="max-w-[1240px] mx-auto px-6 pb-16 mt-8">
         <div className="w-full">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-3xl md:text-4xl font-bold text-[#0F0728] dark:text-gray-100 flex items-center gap-3 before:content-[''] before:block before:w-1 before:h-8 before:bg-purple-600 before:rounded-sm m-0">
-              <span>Search results for tag &quot;<span className="capitalize">{tag}</span>&quot;</span>
-            </h2>
-            <FilterDrawer />
+          <div className="flex flex-col mb-8">
+            <div className="flex items-center justify-between">
+              <h1 className="text-3xl md:text-4xl font-bold text-[#0F0728] dark:text-gray-100 flex items-center gap-3 before:content-[''] before:block before:w-1 before:h-8 before:bg-purple-600 before:rounded-sm m-0">
+                <span>{customData?.h2 || <>Search results for tag &quot;<span className="capitalize">{tag}</span>&quot;</>}</span>
+              </h1>
+              <FilterDrawer />
+            </div>
+            {customData?.description && (
+              <p className="mt-4 text-gray-600 dark:text-gray-300 max-w-3xl">
+                {customData.description}
+              </p>
+            )}
           </div>
           
           {results.length > 0 ? (

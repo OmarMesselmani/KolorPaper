@@ -7,6 +7,7 @@ import AdminCategories from "./AdminCategories";
 import AdminPages from "./AdminPages";
 import AdminPosts from "./AdminPosts";
 import AdminMessages from "./AdminMessages";
+import AdminTags from "./AdminTags";
 
 interface AdminUser {
   id: string;
@@ -17,7 +18,7 @@ interface AdminUser {
 export default function AdminPage() {
   const [token, setToken] = useState<string | null>(null);
   const [admin, setAdmin] = useState<AdminUser | null>(null);
-  const [activeTab, setActiveTab] = useState("dashboard"); // dashboard, categories, pages, posts, messages
+  const [activeTab, setActiveTab] = useState("dashboard"); // dashboard, categories, pages, posts, messages, tags
   const [initializing, setInitializing] = useState(true);
 
   useEffect(() => {
@@ -89,6 +90,8 @@ export default function AdminPage() {
         return <AdminPages token={token} />;
       case "posts":
         return <AdminPosts token={token} />;
+      case "tags":
+        return <AdminTags token={token} />;
       case "messages":
         return <AdminMessages token={token} />;
       default:
@@ -152,6 +155,18 @@ export default function AdminPage() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 0 1-2.25 2.25M16.5 7.5V18a2.25 2.25 0 0 0 2.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 0 0 2.25 2.25h13.5M6 7.5h3v3H6v-3Z" />
             </svg>
             <span>Blog Posts</span>
+          </button>
+
+          {/* Tags Manager */}
+          <button
+            onClick={() => setActiveTab("tags")}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-extrabold transition-all duration-300 ${activeTab === "tags" ? "bg-purple-600 text-white shadow-lg shadow-purple-600/20" : "text-gray-400 hover:text-white hover:bg-white/5"}`}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581a2.25 2.25 0 0 0 3.182 0l4.318-4.318a2.25 2.25 0 0 0 0-3.182L11.16 3.659A2.25 2.25 0 0 0 9.568 3Z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6Z" />
+            </svg>
+            <span>Tags</span>
           </button>
 
           {/* Messaging Panel */}

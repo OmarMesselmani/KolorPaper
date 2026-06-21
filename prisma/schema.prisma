@@ -108,3 +108,13 @@ model BlogPost {
 
   @@index([published])
 }
+
+model Tag {
+  id          String   @id @default(cuid())
+  name        String   @unique // The tag identifier (e.g. "rabbit")
+  title       String?  // Optional custom SEO title
+  description String?  // Optional custom SEO description
+  h2          String?  // Optional custom H2 heading
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
