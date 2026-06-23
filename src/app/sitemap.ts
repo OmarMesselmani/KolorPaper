@@ -1,42 +1,47 @@
 import { MetadataRoute } from 'next';
-import { getAllCategories, getAllColoringPages } from '@/lib/data';
-import { prisma } from '@/lib/db';
-import { getSortedPostsData } from '@/lib/blog-data';
+import {
+  getSitemapCategories,
+  getSitemapColoringPages,
+  getSitemapBlogPosts,
+  getSitemapTags,
+} from '@/lib/data';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kolorpaper.com';
 
-  const categories = await getAllCategories();
-  const pages = await getAllColoringPages();
-  const blogPosts = await getSortedPostsData();
-  const customTags = await prisma.tag.findMany({
-    select: { name: true, updatedAt: true },
-  });
+  // Fetch all dynamic data in parallel; individual helpers already catch errors
+  // and return [] on failure, so one broken source won't crash the whole sitemap.
+  const [categories, pages, blogPosts, tags] = await Promise.all([
+    getSitemapCategories(),
+    getSitemapColoringPages(),
+    getSitemapBlogPosts(),
+    getSitemapTags(),
+  ] as const);
 
   const categoryEntries: MetadataRoute.Sitemap = categories.map((cat) => ({
     url: cat.parentSlug ? `${siteUrl}/${cat.parentSlug}/${cat.slug}` : `${siteUrl}/${cat.slug}`,
-    lastModified: new Date(),
+    lastModified: cat.updatedAt,
     changeFrequency: 'weekly',
     priority: 0.8,
   }));
 
   const pageEntries: MetadataRoute.Sitemap = pages.map((page) => ({
-    url: page.subCategorySlug 
-      ? `${siteUrl}/${page.categorySlug}/${page.subCategorySlug}/${page.slug}` 
+    url: page.subCategorySlug
+      ? `${siteUrl}/${page.categorySlug}/${page.subCategorySlug}/${page.slug}`
       : `${siteUrl}/${page.categorySlug}/${page.slug}`,
-    lastModified: new Date(page.createdAt || new Date()),
+    lastModified: page.updatedAt,
     changeFrequency: 'monthly',
     priority: 0.6,
   }));
 
   const blogEntries: MetadataRoute.Sitemap = blogPosts.map((post) => ({
     url: `${siteUrl}/blog/${post.slug}`,
-    lastModified: post.date ? new Date(post.date) : new Date(),
+    lastModified: post.updatedAt,
     changeFrequency: 'monthly',
     priority: 0.7,
   }));
 
-  const tagEntries: MetadataRoute.Sitemap = customTags.map((tag: { name: string; updatedAt: Date }) => ({
+  const tagEntries: MetadataRoute.Sitemap = tags.map((tag) => ({
     url: `${siteUrl}/tags/${encodeURIComponent(tag.name)}`,
     lastModified: tag.updatedAt,
     changeFrequency: 'weekly',
@@ -58,25 +63,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: `${siteUrl}/about`,
-      lastModified: new Date(),
+      lastModified: new Date('2025-01-01'),
       changeFrequency: 'monthly',
       priority: 0.5,
     },
     {
       url: `${siteUrl}/contact`,
-      lastModified: new Date(),
+      lastModified: new Date('2025-01-01'),
       changeFrequency: 'monthly',
       priority: 0.5,
     },
     {
       url: `${siteUrl}/terms-of-use`,
-      lastModified: new Date(),
+      lastModified: new Date('2025-01-01'),
       changeFrequency: 'yearly',
       priority: 0.3,
     },
     {
       url: `${siteUrl}/privacy-policy`,
-      lastModified: new Date(),
+      lastModified: new Date('2025-01-01'),
       changeFrequency: 'yearly',
       priority: 0.3,
     },

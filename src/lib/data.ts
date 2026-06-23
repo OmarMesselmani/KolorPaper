@@ -265,3 +265,63 @@ export const cachedGetColoringPageBySlug = cache(getColoringPageBySlug);
 export const cachedGetCategoryBySlug = cache(getCategoryBySlug);
 export const cachedGetAllCategories = cache(getAllCategories);
 export const cachedGetColoringPages = cache(getColoringPages);
+
+// ── Sitemap-optimised queries (minimal columns, no caching needed) ──
+
+type SitemapCategory = { slug: string; parentSlug: string | null; updatedAt: Date };
+type SitemapPage = { slug: string; categorySlug: string; subCategorySlug: string | null; updatedAt: Date };
+type SitemapPost = { slug: string; updatedAt: Date };
+type SitemapTag = { name: string; updatedAt: Date };
+
+export async function getSitemapCategories(): Promise<SitemapCategory[]> {
+  try {
+    return await prisma.category.findMany({
+      select: { slug: true, parentSlug: true, updatedAt: true },
+      orderBy: { sortOrder: "asc" },
+    });
+  } catch (error) {
+    console.error("Failed to fetch sitemap categories:", error);
+    return [];
+  }
+}
+
+export async function getSitemapColoringPages(): Promise<SitemapPage[]> {
+  try {
+    return await prisma.coloringPage.findMany({
+      where: { published: true },
+      select: {
+        slug: true,
+        categorySlug: true,
+        subCategorySlug: true,
+        updatedAt: true,
+      },
+    });
+  } catch (error) {
+    console.error("Failed to fetch sitemap coloring pages:", error);
+    return [];
+  }
+}
+
+export async function getSitemapBlogPosts(): Promise<SitemapPost[]> {
+  try {
+    return await prisma.blogPost.findMany({
+      where: { published: true },
+      select: { slug: true, updatedAt: true },
+      orderBy: { createdAt: "desc" },
+    });
+  } catch (error) {
+    console.error("Failed to fetch sitemap blog posts:", error);
+    return [];
+  }
+}
+
+export async function getSitemapTags(): Promise<SitemapTag[]> {
+  try {
+    return await prisma.tag.findMany({
+      select: { name: true, updatedAt: true },
+    });
+  } catch (error) {
+    console.error("Failed to fetch sitemap tags:", error);
+    return [];
+  }
+}

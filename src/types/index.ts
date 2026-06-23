@@ -16,6 +16,7 @@ export interface ColoringPage {
   style?: string;
   tags?: string[];
   createdAt?: string | Date;
+  updatedAt?: string | Date;
 }
 
 export interface Category {
@@ -29,6 +30,7 @@ export interface Category {
   downloads?: number;
   likes?: number;
   createdAt?: string | Date;
+  updatedAt?: string | Date;
   _count?: {
     pages: number;
     subPages: number;
