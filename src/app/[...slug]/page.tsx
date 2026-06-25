@@ -166,7 +166,9 @@ export default async function DynamicPage({
               "creator": {
                 "@type": "Organization",
                 "name": "KolorPaper"
-              }
+              },
+              "creditText": "KolorPaper",
+              "copyrightNotice": `© ${new Date().getFullYear()} KolorPaper`
             })
           }}
         />
