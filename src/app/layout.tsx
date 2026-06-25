@@ -23,7 +23,10 @@ export const metadata: Metadata = {
   },
   description: "Free printable coloring pages with colored examples for kids and adults. Download coloring sheets and use the included color reference to inspire your creativity.",
   icons: {
-    icon: "/favicon.svg",
+    icon: [
+      { url: "/favicon.png", type: "image/png" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+    ],
   },
   alternates: {
     canonical: siteUrl,

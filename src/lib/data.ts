@@ -40,6 +40,24 @@ export async function getCategories(parentSlug?: string): Promise<Category[]> {
   }
 }
 
+export async function getAllSubcategories(): Promise<Category[]> {
+  try {
+    const subcategories = await prisma.category.findMany({
+      where: { parentSlug: { not: null } },
+      orderBy: { sortOrder: "asc" },
+      include: {
+        _count: {
+          select: { pages: true, subPages: true }
+        }
+      }
+    });
+    return JSON.parse(JSON.stringify(subcategories));
+  } catch (error) {
+    console.error("Failed to fetch all subcategories:", error);
+    return [];
+  }
+}
+
 export async function getCategoryBySlug(slug: string): Promise<Category | null> {
   try {
     const category = await prisma.category.findUnique({
@@ -132,12 +150,13 @@ export async function getColoringPageBySlug(slug: string): Promise<ColoringPage 
 
 export async function searchColoringPages(
   query: string,
-  filters?: { difficulty?: string; ageGroup?: string }
+  filters?: { difficulty?: string; ageGroup?: string; style?: string }
 ): Promise<ColoringPage[]> {
   try {
     const where: any = { published: true };
     if (filters?.difficulty) where.difficulty = filters.difficulty;
     if (filters?.ageGroup) where.ageGroup = filters.ageGroup;
+    if (filters?.style) where.style = { equals: filters.style, mode: 'insensitive' };
 
     if (query) {
       const searchLower = query.toLowerCase().trim();
@@ -265,6 +284,7 @@ export const cachedGetColoringPageBySlug = cache(getColoringPageBySlug);
 export const cachedGetCategoryBySlug = cache(getCategoryBySlug);
 export const cachedGetAllCategories = cache(getAllCategories);
 export const cachedGetColoringPages = cache(getColoringPages);
+export const cachedGetAllSubcategories = cache(getAllSubcategories);
 
 // ── Sitemap-optimised queries (minimal columns, no caching needed) ──
 

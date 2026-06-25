@@ -115,6 +115,8 @@ export default function NavMenu({ categories }: { categories: Category[] }) {
               </Link>
 
 
+
+
               
               <div className="h-px bg-purple-600/5 dark:bg-white/5 my-4 mx-4" />
               

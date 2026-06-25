@@ -31,7 +31,7 @@ export default function CategoryCard({ category, index = 0 }: { category: Catego
   const badge: "Popular" | null =
     (category.downloads ?? 0) >= 800 ? "Popular" : null;
 
-  const href = `/${category.parentSlug}/${category.slug}`;
+  const href = category.parentSlug ? `/${category.parentSlug}/${category.slug}` : `/${category.slug}`;
 
   const pageCount = category._count?.subPages ?? 0;
 
@@ -52,11 +52,11 @@ export default function CategoryCard({ category, index = 0 }: { category: Catego
       )}
 
       {/* Image area */}
-      <div className="relative w-full h-auto sm:h-60 bg-white dark:bg-gray-900 flex items-center justify-center text-8xl transition-transform duration-500 group-hover:scale-105 overflow-hidden">
+      <div className="relative w-full h-auto sm:h-60 bg-white dark:bg-gray-900 flex items-center justify-center transition-transform duration-500 group-hover:scale-105 overflow-hidden">
         {category.imageUrl ? (
           <>
             {/* Mobile: Full width and height responsive image without cropping */}
-            <div className="block sm:hidden relative w-full aspect-square">
+            <div className="block sm:hidden relative w-full aspect-square text-sm text-gray-400 text-center">
               <Image
                 src={category.imageUrl}
                 alt={`${category.title} free printable coloring pages`}
@@ -66,7 +66,7 @@ export default function CategoryCard({ category, index = 0 }: { category: Catego
               />
             </div>
             {/* Desktop: Optimized fixed-height image */}
-            <div className="hidden sm:block absolute inset-0">
+            <div className="hidden sm:block absolute inset-0 text-sm text-gray-400 text-center">
               <Image
                 src={category.imageUrl}
                 alt={`${category.title} free printable coloring pages`}
@@ -77,7 +77,7 @@ export default function CategoryCard({ category, index = 0 }: { category: Catego
             </div>
           </>
         ) : (
-          <div className="placeholder-img h-36 sm:h-full flex items-center justify-center w-full">🎨</div>
+          <div className="placeholder-img h-36 sm:h-full flex items-center justify-center w-full text-8xl">🎨</div>
         )}
       </div>
 

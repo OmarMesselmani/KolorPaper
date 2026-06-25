@@ -22,13 +22,13 @@ export const metadata: Metadata = {
 export default async function SearchPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; difficulty?: string; ageGroup?: string }>;
+  searchParams: Promise<{ q?: string; difficulty?: string; ageGroup?: string; style?: string }>;
 }) {
-  const { q, difficulty, ageGroup } = await searchParams;
+  const { q, difficulty, ageGroup, style } = await searchParams;
   const query = q?.trim() || "";
 
-  const hasFilters = query || difficulty || ageGroup;
-  const results = hasFilters ? await searchColoringPages(query, { difficulty, ageGroup }) : [];
+  const hasFilters = query || difficulty || ageGroup || style;
+  const results = hasFilters ? await searchColoringPages(query, { difficulty, ageGroup, style }) : [];
 
   return (
     <>

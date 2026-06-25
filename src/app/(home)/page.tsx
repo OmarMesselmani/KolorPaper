@@ -3,7 +3,7 @@ import { getRandomPostsData } from "@/lib/blog-data";
 import Hero from "@/components/Hero";
 import StatsBar from "@/components/StatsBar";
 import HomePagesGrid from "@/components/HomePagesGrid";
-import HomeCategoriesGrid from "@/components/HomeCategoriesGrid";
+import HomeCategoriesCarousel from "@/components/HomeCategoriesCarousel";
 import WhyUs from "@/components/WhyUs";
 import LatestPosts from "@/components/LatestPosts";
 
@@ -27,7 +27,7 @@ export default async function Home() {
         mostDownloaded={homeData.mostDownloaded}
         mostLiked={homeData.mostLiked}
       />
-      <HomeCategoriesGrid categories={subCategories} />
+      <HomeCategoriesCarousel categories={subCategories} />
       <WhyUs />
       <LatestPosts posts={randomizedPosts} />
     </>
