@@ -54,7 +54,7 @@ export default function HomePagesGrid({ newest, mostDownloaded, mostLiked }: Hom
   const hasMore = visibleCount < sorted.length && visibleCount < MAX_CARDS;
 
   return (
-    <div className="max-w-[1240px] min-[1921px]:max-w-[1550px] mx-auto px-6 transition-all duration-300">
+    <div className="max-w-[1240px] mx-auto px-6 transition-all duration-300">
       <h2 className="text-3xl sm:text-4xl font-extrabold bg-gradient-to-br from-purple-600 to-orange-500 bg-clip-text text-transparent text-center pb-2 mb-6">
         Start Your Coloring Journey
       </h2>
