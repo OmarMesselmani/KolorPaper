@@ -84,7 +84,7 @@ export default function DownloadPdf({ imageUrl, title, pdfUrl, slug }: { imageUr
     <button 
       onClick={handleDownload}
       disabled={loading}
-      className={`relative group w-full h-14 flex items-center justify-center bg-gradient-to-tr from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white border-none rounded-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 active:scale-95 select-none ${loading ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'}`}
+      className={`relative group w-full h-14 flex items-center justify-center bg-gradient-to-tr from-rose-500 to-red-600 hover:from-rose-400 hover:to-red-500 text-white border-none rounded-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 active:scale-95 select-none ${loading ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'}`}
       aria-label="Download PDF"
     >
       {loading ? (

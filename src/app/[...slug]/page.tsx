@@ -1,4 +1,4 @@
-import { cachedGetCategoryBySlug, cachedGetColoringPageBySlug, getCategories, cachedGetColoringPages, cachedGetAllCategories } from "@/lib/data";
+import { cachedGetCategoryBySlug, cachedGetColoringPageBySlug, getCategories, cachedGetColoringPages, cachedGetAllCategories, cachedGetAllCustomTagNames } from "@/lib/data";
 import Image from "next/image";
 import Tag from "@/components/Tag";
 import CategoryCard from "@/components/CategoryCard";
@@ -317,10 +317,18 @@ export default async function DynamicPage({
 
   if (category) {
     // Run sub-queries in parallel
-    const [subCategories, pages] = await Promise.all([
+    const [subCategories, pages, customTagNames] = await Promise.all([
       getCategories(category.slug),
       cachedGetColoringPages(category.slug, { difficulty, ageGroup }),
+      category.parentSlug ? cachedGetAllCustomTagNames() : Promise.resolve([]),
     ]);
+
+    let categoryTags: string[] = [];
+    // Only display tags on subcategories, and only if they are Custom Tags
+    if (category.parentSlug && customTagNames.length > 0) {
+      const allPageTags = Array.from(new Set(pages.flatMap(p => p.tags || [])));
+      categoryTags = allPageTags.filter(tag => customTagNames.includes(tag)).sort();
+    }
 
     return (
       <>
@@ -328,9 +336,21 @@ export default async function DynamicPage({
           <Breadcrumbs paths={breadcrumbPaths} />
           <h1 className="text-4xl font-extrabold mt-8 mb-3 text-gray-800 dark:text-gray-100">{category.title}</h1>
           {category.description && (
-            <p className="text-sm sm:text-base leading-relaxed text-gray-500 dark:text-gray-400 mb-8 max-w-3xl">
+            <p className="text-sm sm:text-base leading-relaxed text-gray-500 dark:text-gray-400 mb-6 max-w-3xl">
               {category.description}
             </p>
+          )}
+          {categoryTags.length > 0 && (
+            <div className="flex items-center flex-wrap gap-3 mb-8 mt-2">
+              <span className="text-sm font-semibold text-gray-500 dark:text-gray-400 m-0">
+                Explore related topics:
+              </span>
+              <div className="flex flex-wrap gap-2">
+                {categoryTags.map(tag => (
+                  <Tag key={tag} name={tag} />
+                ))}
+              </div>
+            </div>
           )}
         </div>
 

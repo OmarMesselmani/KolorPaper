@@ -286,6 +286,17 @@ export const cachedGetAllCategories = cache(getAllCategories);
 export const cachedGetColoringPages = cache(getColoringPages);
 export const cachedGetAllSubcategories = cache(getAllSubcategories);
 
+export async function getAllCustomTagNames(): Promise<string[]> {
+  try {
+    const tags = await prisma.tag.findMany({ select: { name: true } });
+    return tags.map((t: { name: string }) => t.name);
+  } catch (error) {
+    console.error("Failed to fetch custom tag names:", error);
+    return [];
+  }
+}
+export const cachedGetAllCustomTagNames = cache(getAllCustomTagNames);
+
 // ── Sitemap-optimised queries (minimal columns, no caching needed) ──
 
 type SitemapCategory = { slug: string; parentSlug: string | null; updatedAt: Date };

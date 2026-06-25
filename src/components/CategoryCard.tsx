@@ -63,6 +63,7 @@ export default function CategoryCard({ category, index = 0 }: { category: Catego
                 fill
                 sizes="(max-width: 640px) 100vw"
                 className="object-contain"
+                loading="lazy"
               />
             </div>
             {/* Desktop: Optimized fixed-height image */}
@@ -73,6 +74,7 @@ export default function CategoryCard({ category, index = 0 }: { category: Catego
                 fill
                 sizes="(min-width: 640px) 33vw, 25vw"
                 className="object-cover"
+                loading="lazy"
               />
             </div>
           </>

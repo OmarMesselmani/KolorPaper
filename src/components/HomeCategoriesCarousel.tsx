@@ -45,8 +45,8 @@ export default function HomeCategoriesCarousel({ categories }: HomeCategoriesCar
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const [isHovered, setIsHovered] = useState(false);
 
-  // Duplicate categories to create a massive seamless infinite scrolling effect
-  const displayCategories = [...categories, ...categories, ...categories, ...categories, ...categories, ...categories, ...categories, ...categories, ...categories, ...categories];
+  // Duplicate categories to create a seamless infinite scrolling effect without bloating the DOM
+  const displayCategories = [...categories, ...categories, ...categories];
 
   const slide = useCallback((direction: 'left' | 'right') => {
     if (!scrollRef.current) return;

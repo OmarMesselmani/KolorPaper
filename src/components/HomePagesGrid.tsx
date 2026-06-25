@@ -26,14 +26,14 @@ export default function HomePagesGrid({ newest, mostDownloaded, mostLiked }: Hom
 
   useEffect(() => {
     const handleResize = () => {
-      // 1536px is Tailwind's 2xl breakpoint, typical for large monitors (24", 27"+)
-      const is2Xl = window.innerWidth >= 1536;
-      const currentStep = is2Xl ? 15 : 12;
+      // 1921px targets screens larger than standard 1080p (24" monitors), like 27" 1440p or 4K monitors
+      const isHugeScreen = window.innerWidth >= 1921;
+      const currentStep = isHugeScreen ? 15 : 12;
       setStep(currentStep);
       setVisibleCount(prev => {
         // Automatically adjust the initial visible count so the grid is perfectly full
-        if (prev === 12 && is2Xl) return 15;
-        if (prev === 15 && !is2Xl) return 12;
+        if (prev === 12 && isHugeScreen) return 15;
+        if (prev === 15 && !isHugeScreen) return 12;
         return prev;
       });
     };
@@ -54,7 +54,7 @@ export default function HomePagesGrid({ newest, mostDownloaded, mostLiked }: Hom
   const hasMore = visibleCount < sorted.length && visibleCount < MAX_CARDS;
 
   return (
-    <div className="max-w-[1240px] mx-auto px-6">
+    <div className="max-w-[1240px] min-[1921px]:max-w-[1550px] mx-auto px-6 transition-all duration-300">
       <h2 className="text-3xl sm:text-4xl font-extrabold bg-gradient-to-br from-purple-600 to-orange-500 bg-clip-text text-transparent text-center pb-2 mb-6">
         Start Your Coloring Journey
       </h2>
@@ -73,7 +73,7 @@ export default function HomePagesGrid({ newest, mostDownloaded, mostLiked }: Hom
         ))}
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-8 pb-8">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 min-[1921px]:grid-cols-5 gap-4 sm:gap-8 pb-8">
         {visible.map((page) => (
           <ColoringCard key={page.id} page={page} />
         ))}
