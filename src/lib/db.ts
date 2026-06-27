@@ -25,9 +25,9 @@ function getPrismaClient() {
     ssl: {
       rejectUnauthorized: false,
     },
-    max: 3,
-    idleTimeoutMillis: 1000,
-    connectionTimeoutMillis: 10000,
+    max: 1,
+    maxUses: 1,
+    connectionTimeoutMillis: 5000,
   });
   const adapter = new PrismaPg(pool);
   const client = new PrismaClient({ adapter });
