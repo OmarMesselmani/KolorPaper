@@ -283,7 +283,7 @@ export default async function DynamicPage({
             {/* Sidebar Column */}
             {(() => {
               let parsedTags: string[] = [];
-              try { parsedTags = coloringPage.tags ? JSON.parse(coloringPage.tags as string) : []; } catch(e) {}
+              try { parsedTags = coloringPage.tags ? JSON.parse(String(coloringPage.tags)) : []; } catch(e) {}
               return (relatedPages.length > 0 || parsedTags.length > 0) && (
               <div className="w-full lg:w-80 min-w-[280px] print:hidden flex flex-col gap-6 flex-shrink-0">
                 {relatedPages.length > 0 && (
@@ -332,7 +332,7 @@ export default async function DynamicPage({
     let categoryTags: string[] = [];
     // Only display tags on subcategories, and only if they are Custom Tags
     if (category.parentSlug && customTagNames.length > 0) {
-      const allPageTags = Array.from(new Set(pages.flatMap(p => { try { return p.tags ? JSON.parse(p.tags as string) : [] } catch(e) { return [] } })));
+      const allPageTags = Array.from(new Set(pages.flatMap(p => { try { return p.tags ? JSON.parse(String(p.tags)) : [] } catch(e) { return [] } })));
       categoryTags = allPageTags.filter(tag => customTagNames.includes(tag)).sort();
     }
 
