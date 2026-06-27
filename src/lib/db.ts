@@ -8,14 +8,12 @@ const globalForPrisma = globalThis as unknown as {
 
 let cachedPrisma: any;
 
-function getPrismaClient() {
-  if (cachedPrisma) return cachedPrisma;
-  if (globalForPrisma.prisma) {
-    cachedPrisma = globalForPrisma.prisma;
-    return cachedPrisma;
-  }
-
 function getConnectionString() {
+  // Extract directly from OpenNext Cloudflare Context
+  const cfContext = (globalThis as any)[Symbol.for("__cloudflare-context__")];
+  if (cfContext && cfContext.env && cfContext.env.HYPERDRIVE) {
+    return cfContext.env.HYPERDRIVE.connectionString;
+  }
   if (process.env.HYPERDRIVE && typeof process.env.HYPERDRIVE === 'string') {
     return process.env.HYPERDRIVE;
   }
@@ -24,6 +22,13 @@ function getConnectionString() {
   }
   return process.env.DATABASE_URL;
 }
+
+function getPrismaClient() {
+  if (cachedPrisma) return cachedPrisma;
+  if (globalForPrisma.prisma) {
+    cachedPrisma = globalForPrisma.prisma;
+    return cachedPrisma;
+  }
 
   const connectionString = getConnectionString();
   if (!connectionString) {
