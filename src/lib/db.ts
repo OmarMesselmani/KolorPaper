@@ -15,9 +15,19 @@ function getPrismaClient() {
     return cachedPrisma;
   }
 
-  const connectionString = process.env.DATABASE_URL;
+function getConnectionString() {
+  if (process.env.HYPERDRIVE && typeof process.env.HYPERDRIVE === 'string') {
+    return process.env.HYPERDRIVE;
+  }
+  if (process.env.HYPERDRIVE && typeof process.env.HYPERDRIVE === 'object') {
+    return (process.env.HYPERDRIVE as any).connectionString;
+  }
+  return process.env.DATABASE_URL;
+}
+
+  const connectionString = getConnectionString();
   if (!connectionString) {
-    throw new Error("DATABASE_URL is not configured in environment variables");
+    throw new Error("DATABASE_URL or HYPERDRIVE is not configured in environment variables");
   }
 
   const pool = new Pool({
