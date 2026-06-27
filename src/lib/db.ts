@@ -1,5 +1,5 @@
-import { PrismaNeonHTTP } from "@prisma/adapter-neon";
-
+import { Pool } from "pg";
+import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
 
 const globalForPrisma = globalThis as unknown as {
@@ -20,7 +20,8 @@ function getPrismaClient() {
     throw new Error("DATABASE_URL is not configured in environment variables");
   }
 
-  const adapter = new PrismaNeonHTTP(connectionString, {});
+  const pool = new Pool({ connectionString });
+  const adapter = new PrismaPg(pool);
   const client = new PrismaClient({ adapter });
 
   cachedPrisma = client;
