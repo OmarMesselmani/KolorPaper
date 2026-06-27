@@ -203,7 +203,7 @@ export async function getPagesByTag(
   filters?: { difficulty?: string; ageGroup?: string }
 ): Promise<ColoringPage[]> {
   try {
-    const where: any = { published: true, tags: { has: tag } };
+    const where: any = { published: true, tags: { contains: '"' + tag + '"' } };
     if (filters?.difficulty) where.difficulty = filters.difficulty;
     if (filters?.ageGroup) where.ageGroup = filters.ageGroup;
 

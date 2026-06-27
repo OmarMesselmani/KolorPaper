@@ -1,0 +1,7 @@
+name = "kolorpaper"
+compatibility_date = "2024-03-29"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "kolorpaper-d1"
+database_id = "4d0862d2-b59f-4d13-93f9-09bd2a3dc8f5"

@@ -57,7 +57,7 @@ export async function GET(req: NextRequest) {
     }
 
     if (tag) {
-      where.tags = { has: tag };
+      where.tags = { contains: '"' + tag + '"' };
     }
 
     // Search query

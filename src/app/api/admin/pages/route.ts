@@ -26,6 +26,7 @@ export async function POST(req: NextRequest) {
     const cleanAgeGroup = ageGroup ? stripHtml(ageGroup).substring(0, 50) : null;
     const cleanStyle = style ? stripHtml(style).substring(0, 50) : "Cartoon";
     const cleanTags = Array.isArray(tags) ? tags.map((t: string) => stripHtml(t).substring(0, 50)) : [];
+    const stringifiedTags = JSON.stringify(cleanTags);
 
     if (!cleanTitle || !cleanSlug || !cleanImageUrl || !cleanThumbnailUrl || !cleanCategorySlug) {
       return NextResponse.json({ error: "Invalid inputs after sanitization" }, { status: 400 });
@@ -62,7 +63,7 @@ export async function POST(req: NextRequest) {
         difficulty: cleanDifficulty,
         ageGroup: cleanAgeGroup,
         style: cleanStyle,
-        tags: cleanTags,
+        tags: stringifiedTags,
         published: published !== undefined ? published : true
       }
     });

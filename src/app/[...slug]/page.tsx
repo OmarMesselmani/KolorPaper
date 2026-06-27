@@ -281,7 +281,10 @@ export default async function DynamicPage({
             </div>
 
             {/* Sidebar Column */}
-            {(relatedPages.length > 0 || (coloringPage.tags && coloringPage.tags.length > 0)) && (
+            {(() => {
+              let parsedTags: string[] = [];
+              try { parsedTags = coloringPage.tags ? JSON.parse(coloringPage.tags as string) : []; } catch(e) {}
+              return (relatedPages.length > 0 || parsedTags.length > 0) && (
               <div className="w-full lg:w-80 min-w-[280px] print:hidden flex flex-col gap-6 flex-shrink-0">
                 {relatedPages.length > 0 && (
                   <div className="bg-white dark:bg-gray-900 p-6 rounded-3xl border border-black/5 dark:border-white/5 shadow-[0_10px_15px_-3px_rgba(124,58,237,0.05)] flex flex-col gap-6">
@@ -296,20 +299,20 @@ export default async function DynamicPage({
                   </div>
                 )}
 
-                {coloringPage.tags && coloringPage.tags.length > 0 && (
+                {parsedTags.length > 0 && (
                   <div className="bg-white dark:bg-gray-900 p-6 rounded-3xl border border-black/5 dark:border-white/5 shadow-[0_10px_15px_-3px_rgba(124,58,237,0.05)] flex flex-col gap-4">
                     <h3 className="text-xl font-bold text-[#0F0728] dark:text-gray-100 flex items-center gap-3 before:content-[''] before:block before:w-1 before:h-5 before:bg-purple-600 before:rounded-sm m-0">
                       Tags
                     </h3>
                     <div className="flex flex-wrap gap-2">
-                      {coloringPage.tags.map(tag => (
+                      {parsedTags.map(tag => (
                         <Tag key={tag} name={tag} />
                       ))}
                     </div>
                   </div>
                 )}
               </div>
-            )}
+            )})()}
           </div>
         </div>
 
@@ -329,7 +332,7 @@ export default async function DynamicPage({
     let categoryTags: string[] = [];
     // Only display tags on subcategories, and only if they are Custom Tags
     if (category.parentSlug && customTagNames.length > 0) {
-      const allPageTags = Array.from(new Set(pages.flatMap(p => p.tags || [])));
+      const allPageTags = Array.from(new Set(pages.flatMap(p => { try { return p.tags ? JSON.parse(p.tags as string) : [] } catch(e) { return [] } })));
       categoryTags = allPageTags.filter(tag => customTagNames.includes(tag)).sort();
     }
 

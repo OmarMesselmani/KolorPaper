@@ -2,13 +2,13 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
 }
 
 model Category {
@@ -45,7 +45,7 @@ model ColoringPage {
   difficulty      String? // easy, medium, hard
   ageGroup        String? // toddler, preschool, kids, adults
   style           String   @default("Cartoon") // Cartoon, Anime, Kawaii, etc.
-  tags            String[] @default([])
+  tags            String   @default("[]")
   views           Int      @default(0)
   downloads       Int      @default(0)
   likes           Int      @default(0)

@@ -22,7 +22,7 @@ interface Page {
   difficulty: string | null;
   ageGroup: string | null;
   style: string | null;
-  tags?: string[];
+  tags?: string | string[];
   views: number;
   downloads: number;
   likes: number;
@@ -326,7 +326,12 @@ export default function AdminPages({ token }: AdminPagesProps) {
     setDifficulty(page.difficulty || "medium");
     setAgeGroup(page.ageGroup || "kids");
     setStyle(page.style || "Cartoon");
-    setTagsInput(page.tags?.join(", ") || "");
+    try {
+      const parsed = page.tags ? (typeof page.tags === 'string' ? JSON.parse(page.tags) : page.tags) : [];
+      setTagsInput(parsed.join(", "));
+    } catch(e) {
+      setTagsInput("");
+    }
     setPublished(page.published);
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });

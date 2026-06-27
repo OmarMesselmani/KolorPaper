@@ -9,7 +9,7 @@ export default async function CustomTagSidebarCard({ name }: { name: string }) {
       where: { name }
     }),
     prisma.coloringPage.count({
-      where: { tags: { has: name }, published: true }
+      where: { tags: { contains: '"' + name + '"' }, published: true }
     })
   ]);
 

@@ -27,7 +27,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     const cleanDifficulty = difficulty !== undefined ? (difficulty ? stripHtml(difficulty).substring(0, 50) : null) : existing.difficulty;
     const cleanAgeGroup = ageGroup !== undefined ? (ageGroup ? stripHtml(ageGroup).substring(0, 50) : null) : existing.ageGroup;
     const cleanStyle = style !== undefined ? (style ? stripHtml(style).substring(0, 50) : "Cartoon") : existing.style;
-    const cleanTags = tags !== undefined ? (Array.isArray(tags) ? tags.map((t: string) => stripHtml(t).substring(0, 50)) : []) : existing.tags;
+    const cleanTags = tags !== undefined ? (Array.isArray(tags) ? tags.map((t: string) => stripHtml(t).substring(0, 50)) : []) : undefined;
+    const stringifiedTags = cleanTags !== undefined ? JSON.stringify(cleanTags) : existing.tags;
 
     if (slug !== undefined && !cleanSlug) {
       return NextResponse.json({ error: "Invalid slug format" }, { status: 400 });
@@ -69,7 +70,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         difficulty: cleanDifficulty,
         ageGroup: cleanAgeGroup,
         style: cleanStyle,
-        tags: cleanTags,
+        tags: stringifiedTags,
         published: published !== undefined ? published : existing.published
       }
     });

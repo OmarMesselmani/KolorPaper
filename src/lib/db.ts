@@ -1,5 +1,4 @@
-import { Pool } from "pg";
-import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaD1 } from "@prisma/adapter-d1";
 import { PrismaClient } from "@prisma/client";
 
 const globalForPrisma = globalThis as unknown as {
@@ -8,21 +7,6 @@ const globalForPrisma = globalThis as unknown as {
 
 let cachedPrisma: any;
 
-function getConnectionString() {
-  // Extract directly from OpenNext Cloudflare Context
-  const cfContext = (globalThis as any)[Symbol.for("__cloudflare-context__")];
-  if (cfContext && cfContext.env && cfContext.env.HYPERDRIVE) {
-    return cfContext.env.HYPERDRIVE.connectionString;
-  }
-  if (process.env.HYPERDRIVE && typeof process.env.HYPERDRIVE === 'string') {
-    return process.env.HYPERDRIVE;
-  }
-  if (process.env.HYPERDRIVE && typeof process.env.HYPERDRIVE === 'object') {
-    return (process.env.HYPERDRIVE as any).connectionString;
-  }
-  return process.env.DATABASE_URL;
-}
-
 function getPrismaClient() {
   if (cachedPrisma) return cachedPrisma;
   if (globalForPrisma.prisma) {
@@ -30,19 +14,21 @@ function getPrismaClient() {
     return cachedPrisma;
   }
 
-  const connectionString = getConnectionString();
-  if (!connectionString) {
-    throw new Error("DATABASE_URL or HYPERDRIVE is not configured in environment variables");
-  }
+  // Extract directly from OpenNext Cloudflare Context
+  const cfContext = (globalThis as any)[Symbol.for("__cloudflare-context__")];
+  
+  // D1 binding is expected to be named 'DB'
+  const d1Binding = cfContext?.env?.DB || (process.env as any).DB;
 
-  const pool = new Pool({
-    connectionString,
-    ssl: {
-      rejectUnauthorized: false,
-    },
-  });
-  const adapter = new PrismaPg(pool);
-  const client = new PrismaClient({ adapter });
+  let client;
+
+  if (d1Binding) {
+    const adapter = new PrismaD1(d1Binding);
+    client = new PrismaClient({ adapter });
+  } else {
+    // Fallback for local development or scripts (requires DATABASE_URL in .env)
+    client = new PrismaClient();
+  }
 
   cachedPrisma = client;
   if (process.env.NODE_ENV !== "production") {
