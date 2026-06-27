@@ -12,6 +12,7 @@ import RelatedCard from "@/components/RelatedCard";
 import SeeMore from "@/components/SeeMore";
 import PageStats from "@/components/PageStats";
 import FilterDrawer from "@/components/FilterDrawer";
+import CustomTagSidebarCard from "@/components/CustomTagSidebarCard";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 
@@ -342,48 +343,53 @@ export default async function DynamicPage({
               {category.description}
             </p>
           )}
-          {categoryTags.length > 0 && (
-            <div className="flex items-center flex-wrap gap-3 mb-8 mt-2">
-              <span className="text-sm font-semibold text-gray-500 dark:text-gray-400 m-0">
-                Explore related topics:
-              </span>
-              <div className="flex flex-wrap gap-2">
-                {categoryTags.map(tag => (
-                  <Tag key={tag} name={tag} />
-                ))}
-              </div>
-            </div>
-          )}
         </div>
 
         <div className="max-w-[1240px] mx-auto px-6">
-          {subCategories.length > 0 && (
-            <div className="mb-16">
-              <h2 className="text-3xl font-bold mb-6 text-gray-800 dark:text-gray-100 flex items-center gap-3 before:content-[''] before:block before:w-1 before:h-6 before:bg-purple-600 before:rounded-sm">Subcategories</h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 pb-16">
-                {subCategories.map(sub => <CategoryCard key={sub.id} category={sub} />)}
-              </div>
-            </div>
-          )}
+          <div className="flex gap-8 items-start flex-wrap lg:flex-nowrap">
+            <div className="flex-1 min-w-[320px] w-full">
+              {subCategories.length > 0 && (
+                <div className="mb-16">
+                  <h2 className="text-3xl font-bold mb-6 text-gray-800 dark:text-gray-100 flex items-center gap-3 before:content-[''] before:block before:w-1 before:h-6 before:bg-purple-600 before:rounded-sm">Subcategories</h2>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 pb-16">
+                    {subCategories.map(sub => <CategoryCard key={sub.id} category={sub} />)}
+                  </div>
+                </div>
+              )}
 
-          {pages.length > 0 && subCategories.length === 0 && (
-            <div className="mb-16">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-3 before:content-[''] before:block before:w-1 before:h-6 before:bg-purple-600 before:rounded-sm">Coloring Pages</h2>
-                <FilterDrawer />
-              </div>
-              <PaginatedGrid pages={pages} />
-            </div>
-          )}
+              {pages.length > 0 && subCategories.length === 0 && (
+                <div className="mb-16">
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-3 before:content-[''] before:block before:w-1 before:h-6 before:bg-purple-600 before:rounded-sm">Coloring Pages</h2>
+                    <FilterDrawer />
+                  </div>
+                  <PaginatedGrid pages={pages} />
+                </div>
+              )}
 
-          {subCategories.length === 0 && pages.length === 0 && (
-            <div className="text-center p-16 bg-white dark:bg-gray-900 rounded-2xl text-gray-500 dark:text-gray-400 border-2 border-dashed border-black/5 dark:border-white/5">
-              <p className="mb-4">No drawings found matching your filters in this category.</p>
-              {(difficulty || ageGroup) && (
-                <FilterDrawer />
+              {subCategories.length === 0 && pages.length === 0 && (
+                <div className="text-center p-16 bg-white dark:bg-gray-900 rounded-2xl text-gray-500 dark:text-gray-400 border-2 border-dashed border-black/5 dark:border-white/5">
+                  <p className="mb-4">No drawings found matching your filters in this category.</p>
+                  {(difficulty || ageGroup) && (
+                    <FilterDrawer />
+                  )}
+                </div>
               )}
             </div>
-          )}
+
+            {categoryTags.length > 0 && (
+              <div className="w-full lg:w-56 min-w-[220px] flex flex-col gap-4 flex-shrink-0 mb-16 pt-2">
+                <h3 className="text-xl font-bold text-[#0F0728] dark:text-gray-100 flex items-center gap-3 before:content-[''] before:block before:w-1 before:h-5 before:bg-purple-600 before:rounded-sm m-0 mb-2">
+                  Related topics
+                </h3>
+                <div className="flex flex-col gap-4">
+                  {categoryTags.map(tag => (
+                    <CustomTagSidebarCard key={tag} name={tag} />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </>
     );

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from "react";
+import DeleteConfirmModal from "@/components/DeleteConfirmModal";
 
 interface Tag {
   id: string;
@@ -8,6 +9,7 @@ interface Tag {
   title: string | null;
   description: string | null;
   h2: string | null;
+  imageUrl: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -25,8 +27,14 @@ export default function AdminTags({ token }: { token: string }) {
     title: "",
     description: "",
     h2: "",
+    imageUrl: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  
+  // Delete confirm modal states
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ type: 'tag' | 'image'; id?: string } | null>(null);
 
   useEffect(() => {
     fetchTags();
@@ -54,10 +62,11 @@ export default function AdminTags({ token }: { token: string }) {
         title: tag.title || "",
         description: tag.description || "",
         h2: tag.h2 || "",
+        imageUrl: tag.imageUrl || "",
       });
     } else {
       setEditingTag(null);
-      setFormData({ name: "", title: "", description: "", h2: "" });
+      setFormData({ name: "", title: "", description: "", h2: "", imageUrl: "" });
     }
     setIsModalOpen(true);
   };
@@ -65,6 +74,69 @@ export default function AdminTags({ token }: { token: string }) {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setEditingTag(null);
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async () => {
+      try {
+        setUploading(true);
+        setError("");
+        
+        const base64Data = reader.result as string;
+        
+        // Client-side thumbnail generation
+        let thumbBase64Data = undefined;
+        if (file.type.startsWith("image/")) {
+          const img = new Image();
+          img.src = base64Data;
+          await new Promise((resolve) => { img.onload = resolve; });
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+          const MAX_WIDTH = 400;
+          let width = img.width;
+          let height = img.height;
+          if (width > MAX_WIDTH) {
+            height = Math.round((height * MAX_WIDTH) / width);
+            width = MAX_WIDTH;
+          }
+          canvas.width = width;
+          canvas.height = height;
+          ctx?.drawImage(img, 0, 0, width, height);
+          thumbBase64Data = canvas.toDataURL("image/webp", 0.75);
+        }
+
+        const res = await fetch(`/api/admin/upload`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            fileName: file.type.startsWith("image/") ? file.name.replace(/\.[^/.]+$/, ".webp") : file.name,
+            fileType: "image",
+            base64Data: thumbBase64Data || base64Data,
+            thumbBase64Data: undefined
+          })
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || "Upload failed");
+        }
+
+        setFormData(prev => ({ ...prev, imageUrl: data.url }));
+      } catch (err) {
+        console.error(err);
+        setError(err instanceof Error ? err.message : "Failed to upload file.");
+      } finally {
+        setUploading(false);
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -96,20 +168,37 @@ export default function AdminTags({ token }: { token: string }) {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this custom tag? It will revert to default SEO.")) return;
+  const triggerDeleteTag = (id: string) => {
+    setDeleteTarget({ type: 'tag', id });
+    setDeleteModalOpen(true);
+  };
 
-    try {
-      const res = await fetch(`/api/admin/tags/${id}`, {
-        method: "DELETE",
-      });
+  const triggerRemoveImage = () => {
+    setDeleteTarget({ type: 'image' });
+    setDeleteModalOpen(true);
+  };
 
-      if (!res.ok) throw new Error("Failed to delete tag");
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
 
-      await fetchTags();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete tag");
+    if (deleteTarget.type === 'tag' && deleteTarget.id) {
+      try {
+        const res = await fetch(`/api/admin/tags/${deleteTarget.id}`, {
+          method: "DELETE",
+        });
+
+        if (!res.ok) throw new Error("Failed to delete tag");
+
+        await fetchTags();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to delete tag");
+      }
+    } else if (deleteTarget.type === 'image') {
+      setFormData(prev => ({ ...prev, imageUrl: "" }));
     }
+
+    setDeleteModalOpen(false);
+    setDeleteTarget(null);
   };
 
   if (loading) {
@@ -166,6 +255,7 @@ export default function AdminTags({ token }: { token: string }) {
           <table className="w-full text-left text-sm">
             <thead className="bg-white/5 border-b border-white/10 text-gray-400">
               <tr>
+                <th className="px-6 py-4 font-bold w-16">Image</th>
                 <th className="px-6 py-4 font-bold">Tag Name</th>
                 <th className="px-6 py-4 font-bold">Custom Title</th>
                 <th className="px-6 py-4 font-bold">Custom H2</th>
@@ -175,22 +265,41 @@ export default function AdminTags({ token }: { token: string }) {
             <tbody className="divide-y divide-white/5">
               {tags.map((tag) => (
                 <tr key={tag.id} className="hover:bg-white/5 transition-colors group">
+                  <td className="px-6 py-4">
+                    {tag.imageUrl ? (
+                      <div className="w-10 h-10 rounded-lg overflow-hidden relative bg-white/5">
+                        <img src={tag.imageUrl} alt={tag.name} className="object-cover w-full h-full" />
+                      </div>
+                    ) : (
+                      <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-lg">
+                        🎨
+                      </div>
+                    )}
+                  </td>
                   <td className="px-6 py-4 font-bold text-white capitalize">{tag.name}</td>
                   <td className="px-6 py-4 text-gray-300 truncate max-w-xs">{tag.title || <span className="text-gray-600 italic">Default</span>}</td>
                   <td className="px-6 py-4 text-gray-300 truncate max-w-xs">{tag.h2 || <span className="text-gray-600 italic">Default</span>}</td>
-                  <td className="px-6 py-4 text-right space-x-3">
-                    <button
-                      onClick={() => handleOpenModal(tag)}
-                      className="text-gray-400 hover:text-purple-400 transition-colors"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(tag.id)}
-                      className="text-gray-400 hover:text-red-400 transition-colors"
-                    >
-                      Delete
-                    </button>
+                  <td className="px-6 py-4 text-right align-middle">
+                    <div className="flex justify-end gap-2">
+                      <button
+                        onClick={() => handleOpenModal(tag)}
+                        className="p-2 text-gray-400 hover:text-purple-400 hover:bg-purple-400/10 rounded-lg transition-colors"
+                        title="Edit"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={() => triggerDeleteTag(tag.id)}
+                        className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors"
+                        title="Delete"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                        </svg>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -228,6 +337,37 @@ export default function AdminTags({ token }: { token: string }) {
                   className="w-full bg-[#070216] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-600/50 focus:border-purple-600 transition-all"
                   placeholder="rabbit"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-gray-300 mb-1.5">Tag Image</label>
+                <div className="flex items-center gap-4">
+                  {formData.imageUrl && (
+                    <div className="w-16 h-16 rounded-lg overflow-hidden bg-[#070216] border border-white/10 relative flex-shrink-0">
+                      <img src={formData.imageUrl} alt="Preview" className="object-cover w-full h-full" />
+                    </div>
+                  )}
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileUpload}
+                        className="block w-full text-sm text-gray-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-purple-600 file:text-white hover:file:bg-purple-700 transition-all cursor-pointer"
+                      />
+                      {formData.imageUrl && (
+                        <button
+                          type="button"
+                          onClick={triggerRemoveImage}
+                          className="px-3 py-2 bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white font-bold rounded-xl transition-colors text-sm border border-red-500/20"
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                    {uploading && <p className="text-purple-400 text-xs mt-2 animate-pulse">Compressing and uploading image...</p>}
+                  </div>
+                </div>
               </div>
 
               <div>
@@ -293,6 +433,21 @@ export default function AdminTags({ token }: { token: string }) {
           </div>
         </div>
       )}
+      {/* Confirm Delete Modal */}
+      <DeleteConfirmModal
+        isOpen={deleteModalOpen}
+        onClose={() => {
+          setDeleteModalOpen(false);
+          setDeleteTarget(null);
+        }}
+        onConfirm={handleConfirmDelete}
+        title={deleteTarget?.type === 'tag' ? "تأكيد حذف الوسم" : "تأكيد إزالة الصورة"}
+        message={
+          deleteTarget?.type === 'tag'
+            ? "هل ترغب فعلاً في حذف هذا الوسم المخصص؟ سيؤدي ذلك إلى استعادة إعدادات الـ SEO الافتراضية."
+            : "هل ترغب فعلاً في إزالة صورة هذا الوسم نهائياً؟"
+        }
+      />
     </div>
   );
 }

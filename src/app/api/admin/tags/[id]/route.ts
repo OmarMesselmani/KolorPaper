@@ -10,7 +10,7 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { name, title, description, h2 } = body;
+    const { name, title, description, h2, imageUrl } = body;
 
     if (!name) {
       return NextResponse.json({ error: 'Tag name is required' }, { status: 400 });
@@ -34,6 +34,7 @@ export async function PUT(
         title: title || null,
         description: description || null,
         h2: h2 || null,
+        imageUrl: imageUrl || null,
       },
     });
 
