@@ -41,7 +41,7 @@ export default async function StatsBar() {
   ];
 
   return (
-    <section className="w-full max-w-[1240px] mx-auto px-6 mb-14">
+    <section className="w-full max-w-[1240px] mx-auto px-6 mt-12 mb-14">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {stats.map((stat) => (
           <div

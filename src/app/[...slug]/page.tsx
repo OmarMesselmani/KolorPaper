@@ -13,6 +13,7 @@ import SeeMore from "@/components/SeeMore";
 import PageStats from "@/components/PageStats";
 import FilterDrawer from "@/components/FilterDrawer";
 import CustomTagSidebarCard from "@/components/CustomTagSidebarCard";
+import CopyLinkButton from "@/components/CopyLinkButton";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 
@@ -278,6 +279,47 @@ export default async function DynamicPage({
                   )}
                 </div>
               )}
+
+              {/* Share Actions */}
+              <div className="mt-8 pt-6 border-t border-black/5 dark:border-white/5 print:hidden">
+                <h3 className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3">Share with Friends</h3>
+                <div className="flex gap-4">
+                  <a 
+                    href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`${siteUrl}/${slug.join('/')}`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center w-11 h-11 bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-all hover:scale-110 duration-200 cursor-pointer"
+                    aria-label="Share on Facebook"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"></path>
+                    </svg>
+                  </a>
+                  <a 
+                    href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(`${siteUrl}/${slug.join('/')}`)}&text=${encodeURIComponent(`Check out this free printable coloring page: ${coloringPage.title}`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center w-11 h-11 bg-gray-50 text-gray-800 dark:bg-gray-800/40 dark:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800/60 transition-all hover:scale-110 duration-200 cursor-pointer"
+                    aria-label="Share on X"
+                  >
+                     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path>
+                    </svg>
+                  </a>
+                  <a 
+                    href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`${coloringPage.title} Free Printable Coloring Page - ${siteUrl}/${slug.join('/')}`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center w-11 h-11 bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400 rounded-full hover:bg-green-100 dark:hover:bg-green-900/40 transition-all hover:scale-110 duration-200 cursor-pointer"
+                    aria-label="Share on WhatsApp"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M3 21l1.65-3.8a9 9 0 113.4 2.9L3 21" />
+                    </svg>
+                  </a>
+                  <CopyLinkButton url={`${siteUrl}/${slug.join('/')}`} />
+                </div>
+              </div>
             </div>
 
             {/* Sidebar Column */}
@@ -381,9 +423,9 @@ export default async function DynamicPage({
             </div>
 
             {categoryTags.length > 0 && (
-              <div className="w-full lg:w-56 min-w-[220px] flex flex-col gap-4 flex-shrink-0 mb-16 pt-2">
+              <div className="w-full lg:w-48 min-w-[190px] flex flex-col gap-4 flex-shrink-0 mb-16 pt-2">
                 <h3 className="text-xl font-bold text-[#0F0728] dark:text-gray-100 flex items-center gap-3 before:content-[''] before:block before:w-1 before:h-5 before:bg-purple-600 before:rounded-sm m-0 mb-2">
-                  Related topics
+                  Related Topics
                 </h3>
                 <div className="flex flex-col gap-4">
                   {categoryTags.map(tag => (

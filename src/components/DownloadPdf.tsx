@@ -84,7 +84,7 @@ export default function DownloadPdf({ imageUrl, title, pdfUrl, slug }: { imageUr
     <button 
       onClick={handleDownload}
       disabled={loading}
-      className={`relative group w-full h-14 flex items-center justify-center bg-gradient-to-tr from-rose-500 to-red-600 hover:from-rose-400 hover:to-red-500 text-white border-none rounded-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 active:scale-95 select-none ${loading ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'}`}
+      className={`relative group w-full h-14 flex items-center justify-center bg-gradient-to-tr from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white border-none rounded-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 active:scale-95 select-none ${loading ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'}`}
       aria-label="Download PDF"
     >
       {loading ? (
@@ -93,7 +93,7 @@ export default function DownloadPdf({ imageUrl, title, pdfUrl, slug }: { imageUr
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3"></circle>
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
-          <span className="font-extrabold text-sm sm:text-base">Generating PDF...</span>
+          <span className="font-semibold text-sm sm:text-base">Generating PDF...</span>
         </div>
       ) : (
         <div className="flex items-center gap-2">
@@ -113,7 +113,7 @@ export default function DownloadPdf({ imageUrl, title, pdfUrl, slug }: { imageUr
             <path d="M12 18v-6"></path>
             <polyline points="9 15 12 18 15 15"></polyline>
           </svg>
-          <span className="font-extrabold text-sm sm:text-base">Download PDF</span>
+          <span className="font-semibold text-sm sm:text-base">Download PDF</span>
         </div>
       )}
     </button>

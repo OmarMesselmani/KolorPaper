@@ -2,7 +2,7 @@
 @plugin "@tailwindcss/typography";
 
 @theme {
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif, var(--font-tajawal);
+  --font-sans: var(--font-outfit), 'Inter', system-ui, -apple-system, sans-serif, var(--font-tajawal);
 }
 
 @custom-variant dark (&:where(.dark, .dark *));

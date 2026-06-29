@@ -112,18 +112,6 @@ export function CategorySkeleton() {
 export function HomeSkeleton() {
   return (
     <div className="animate-pulse">
-      {/* StatsBar Skeleton */}
-      <div className="w-full max-w-[1240px] mx-auto px-6 mb-14">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="flex flex-col items-center justify-center gap-2 py-6 px-4 rounded-2xl bg-white dark:bg-gray-900 border border-black/5 dark:border-white/5 h-28">
-              <div className="h-7 w-16 bg-gray-200 dark:bg-gray-800 rounded-md"></div>
-              <div className="h-4 w-24 bg-gray-200 dark:bg-gray-800 rounded-md"></div>
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* Pages Section Skeleton */}
       <div className="max-w-[1240px] mx-auto px-6 mb-16">
         <div className="h-10 w-64 bg-gray-200 dark:bg-gray-800 rounded-md mx-auto mb-6"></div>
@@ -136,6 +124,18 @@ export function HomeSkeleton() {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-8">
           {[...Array(10)].map((_, i) => (
             <CardSkeleton key={i} />
+          ))}
+        </div>
+      </div>
+
+      {/* StatsBar Skeleton */}
+      <div className="w-full max-w-[1240px] mx-auto px-6 mt-12 mb-14">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="flex flex-col items-center justify-center gap-2 py-6 px-4 rounded-2xl bg-white dark:bg-gray-900 border border-black/5 dark:border-white/5 h-28">
+              <div className="h-7 w-16 bg-gray-200 dark:bg-gray-800 rounded-md"></div>
+              <div className="h-4 w-24 bg-gray-200 dark:bg-gray-800 rounded-md"></div>
+            </div>
           ))}
         </div>
       </div>

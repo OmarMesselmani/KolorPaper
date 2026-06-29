@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useCallback, useState, useEffect } from 'react';
 
-export default function SearchFilters({ className }: { className?: string }) {
+export default function SearchFilters({ className, onClose }: { className?: string; onClose?: () => void }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -124,17 +124,26 @@ export default function SearchFilters({ className }: { className?: string }) {
         </div>
       )}
       
-      {(currentDifficulty || currentAgeGroup || currentStyle) && (
+      {onClose ? (
         <button 
-          onClick={() => {
-            const params = new URLSearchParams();
-            if (currentQuery) params.set('q', currentQuery);
-            router.push(`${pathname}?${params.toString()}`);
-          }}
-          className="mt-8 w-full py-3 px-4 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold rounded-xl transition-colors cursor-pointer border-none text-sm"
+          onClick={onClose}
+          className="mt-8 w-full py-3 px-4 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl transition-all duration-200 cursor-pointer border-none text-sm shadow-sm hover:shadow active:scale-[0.98]"
         >
-          Clear Filters
+          Done
         </button>
+      ) : (
+        (currentDifficulty || currentAgeGroup || currentStyle) && (
+          <button 
+            onClick={() => {
+              const params = new URLSearchParams();
+              if (currentQuery) params.set('q', currentQuery);
+              router.push(`${pathname}?${params.toString()}`);
+            }}
+            className="mt-8 w-full py-3 px-4 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold rounded-xl transition-colors cursor-pointer border-none text-sm"
+          >
+            Clear Filters
+          </button>
+        )
       )}
     </div>
   );

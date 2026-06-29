@@ -1,18 +1,60 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import SearchFilters from './SearchFilters';
 
 export default function FilterDrawer() {
   const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
+  const currentDifficulty = searchParams.get('difficulty') || '';
+  const currentAgeGroup = searchParams.get('ageGroup') || '';
+  const currentStyle = searchParams.get('style') || '';
+  const currentQuery = searchParams.get('q') || '';
+
+  const hasActiveFilters = !!(currentDifficulty || currentAgeGroup || currentStyle);
+
+  const handleButtonClick = () => {
+    if (hasActiveFilters) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete('difficulty');
+      params.delete('ageGroup');
+      params.delete('style');
+      router.push(`${pathname}?${params.toString()}`);
+    } else {
+      setIsOpen(true);
+    }
+  };
 
   return (
     <>
       <button
-        onClick={() => setIsOpen(true)}
-        className="flex items-center gap-2 px-6 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-white/10 rounded-xl font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-purple-600 dark:hover:border-purple-500 hover:text-purple-600 dark:hover:text-purple-400 transition-all shadow-sm cursor-pointer"
+        onClick={handleButtonClick}
+        className={`flex items-center gap-2 px-6 py-2.5 border rounded-xl font-bold transition-all shadow-sm cursor-pointer ${
+          hasActiveFilters
+            ? 'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-950/40 hover:border-red-300'
+            : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-purple-600 dark:hover:border-purple-500 hover:text-purple-600 dark:hover:text-purple-400'
+        }`}
       >
-        Filters
+        {hasActiveFilters ? (
+          <>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+            Clear Filters
+          </>
+        ) : (
+          <>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+            </svg>
+            Filters
+          </>
+        )}
       </button>
 
       {isOpen && (
@@ -36,7 +78,7 @@ export default function FilterDrawer() {
             </button>
             
             {/* The filters component without its default sticky wrapper styles */}
-            <SearchFilters className="p-6 pt-2" />
+            <SearchFilters className="p-6 pt-2" onClose={() => setIsOpen(false)} />
           </div>
         </div>
       )}

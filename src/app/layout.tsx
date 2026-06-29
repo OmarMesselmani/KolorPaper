@@ -3,7 +3,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { cachedGetAllCategories } from "@/lib/data";
 import LayoutWrapper from "@/components/LayoutWrapper";
-import { Tajawal } from "next/font/google";
+import { Tajawal, Outfit } from "next/font/google";
 import Script from "next/script";
 
 const tajawal = Tajawal({
@@ -11,6 +11,13 @@ const tajawal = Tajawal({
   weight: ["400", "500", "700", "800", "900"],
   display: "swap",
   variable: "--font-tajawal",
+});
+
+const outfit = Outfit({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
+  display: "swap",
+  variable: "--font-outfit",
 });
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kolorpaper.com';
@@ -107,7 +114,7 @@ export default async function RootLayout({
           }}
         />
       </head>
-      <body className={`bg-gray-50 dark:bg-gray-950 text-gray-800 dark:text-gray-100 font-sans antialiased m-0 transition-colors duration-300 ${tajawal.variable}`}>
+      <body className={`bg-gray-50 dark:bg-gray-950 text-gray-800 dark:text-gray-100 font-sans antialiased m-0 transition-colors duration-300 ${tajawal.variable} ${outfit.variable}`}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
           <LayoutWrapper categories={categories}>
             {children}
