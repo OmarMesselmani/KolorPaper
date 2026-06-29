@@ -175,6 +175,7 @@ export async function searchColoringPages(
           OR: [
             { title: { contains: query } },
             { description: { contains: query } },
+            { tags: { contains: query } },
             { categorySlug: { in: categorySlugs } },
             ...(categorySlugs.length > 0 ? [{ subCategorySlug: { in: categorySlugs } }] : [])
           ]
