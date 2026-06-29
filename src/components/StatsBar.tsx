@@ -48,7 +48,7 @@ export default async function StatsBar() {
             key={stat.label}
             className="flex flex-col items-center justify-center gap-2 py-6 px-4 rounded-2xl bg-white dark:bg-gray-900 border border-black/5 dark:border-white/5 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 group"
           >
-            <span className="text-2xl md:text-3xl font-black bg-gradient-to-br from-purple-600 to-orange-500 bg-clip-text text-transparent">
+            <span className="text-2xl md:text-3xl font-black bg-gradient-to-br from-purple-600 to-pink-500 bg-clip-text text-transparent">
               {stat.value}
             </span>
             <span className="text-sm font-semibold text-gray-500 dark:text-gray-400 text-center">

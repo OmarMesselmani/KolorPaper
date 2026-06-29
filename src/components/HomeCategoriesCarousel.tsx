@@ -99,7 +99,7 @@ export default function HomeCategoriesCarousel({ categories }: HomeCategoriesCar
 
   return (
     <div className="w-full max-w-[1240px] mx-auto px-6 mt-16 relative group">
-      <h2 className="text-3xl sm:text-4xl font-extrabold bg-gradient-to-br from-purple-600 to-orange-500 bg-clip-text text-transparent text-center pb-2 mb-10">
+      <h2 className="text-3xl sm:text-4xl font-extrabold bg-gradient-to-br from-purple-600 to-pink-500 bg-clip-text text-transparent text-center pb-2 mb-10">
         Explore Coloring Themes
       </h2>
 
@@ -151,7 +151,7 @@ export default function HomeCategoriesCarousel({ categories }: HomeCategoriesCar
       <div className="mt-8 flex justify-center pb-4">
         <Link 
           href="/categories"
-          className="px-8 py-3 bg-gradient-to-br from-purple-600 to-orange-500 text-white font-bold rounded-full shadow-lg hover:shadow-orange-500/30 transition-all duration-300 hover:-translate-y-1 active:translate-y-0 cursor-pointer border-none"
+          className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 via-pink-500 to-purple-600 bg-[length:200%_auto] text-white px-7 py-3 rounded-full font-bold text-base shadow-sm hover:shadow-lg hover:shadow-purple-500/20 hover:-translate-y-1 hover:bg-[position:right_center] transition-all duration-500 cursor-pointer border-none"
         >
           See All Categories
         </Link>

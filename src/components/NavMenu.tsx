@@ -83,7 +83,7 @@ export default function NavMenu({ categories }: { categories: Category[] }) {
           >
             <div className="p-6 border-b border-purple-600/10 dark:border-white/10 flex justify-between items-center bg-white dark:bg-gray-900 sticky top-0 z-10">
               <div className="flex items-center gap-2">
-                <h2 className="text-xl font-extrabold bg-gradient-to-br from-purple-600 to-orange-500 bg-clip-text text-transparent">Categories</h2>
+                <h2 className="text-xl font-extrabold bg-gradient-to-br from-purple-600 to-pink-500 bg-clip-text text-transparent">Categories</h2>
               </div>
               <button 
                 onClick={() => setIsOpen(false)}

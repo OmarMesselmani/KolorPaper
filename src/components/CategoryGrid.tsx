@@ -61,7 +61,7 @@ export default function CategoryGrid({ categories }: CategoryGridProps) {
         <div className="flex justify-center pb-16">
           <button
             onClick={() => setVisibleCount(prev => Math.min(prev + 8, sorted.length))}
-            className="px-7 py-3 bg-gradient-to-r from-purple-600 to-orange-500 text-white font-extrabold rounded-xl text-base transition-all duration-300 shadow-md hover:shadow-orange-500/20 hover:-translate-y-0.5 active:translate-y-0 cursor-pointer border-none"
+            className="px-7 py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-extrabold rounded-xl text-base transition-all duration-300 shadow-md hover:shadow-orange-500/20 hover:-translate-y-0.5 active:translate-y-0 cursor-pointer border-none"
           >
             See More...
           </button>

@@ -55,7 +55,7 @@ export default function HomePagesGrid({ newest, mostDownloaded, mostLiked }: Hom
 
   return (
     <div className="max-w-[1240px] mx-auto px-6 transition-all duration-300">
-      <h2 className="text-3xl sm:text-4xl font-extrabold bg-gradient-to-br from-purple-600 to-orange-500 bg-clip-text text-transparent text-center pb-2 mb-6">
+      <h2 className="text-3xl sm:text-4xl font-extrabold bg-gradient-to-br from-purple-600 to-pink-500 bg-clip-text text-transparent text-center pb-2 mb-6">
         Start Your Coloring Journey
       </h2>
       <div className="flex items-center justify-center gap-1 mb-8 border-b border-black/5 dark:border-white/5">

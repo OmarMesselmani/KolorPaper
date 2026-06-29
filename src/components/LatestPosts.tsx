@@ -16,7 +16,7 @@ export default function LatestPosts({ posts }: LatestPostsProps) {
         <div>
           <h2 className="text-3xl md:text-4xl font-black text-[#0F0728] dark:text-white leading-tight">
             From the{' '}
-            <span className="bg-gradient-to-br from-purple-600 to-orange-500 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-br from-purple-600 to-pink-500 bg-clip-text text-transparent">
               Blog
             </span>
           </h2>

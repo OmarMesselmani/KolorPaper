@@ -1,5 +1,9 @@
 const features = [
   {
+    title: "Colored Reference",
+    description: "Every page comes with a beautifully colored example to inspire your creativity.",
+  },
+  {
     title: "Completely Free",
     description: "All coloring pages are 100% free to download and print — no hidden fees, no subscriptions.",
   },
@@ -11,10 +15,6 @@ const features = [
     title: "Always Updated",
     description: "We regularly add new pages and categories so there's always something fresh to discover.",
   },
-  {
-    title: "Family Friendly",
-    description: "Safe, age-appropriate content suitable for toddlers, kids, and adults alike.",
-  },
 ];
 
 export default function WhyUs() {
@@ -24,7 +24,7 @@ export default function WhyUs() {
       <div className="text-center mb-12">
         <h2 className="text-3xl md:text-4xl font-black text-[#0F0728] dark:text-white mb-4">
           Why{" "}
-          <span className="bg-gradient-to-br from-purple-600 to-orange-500 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-br from-purple-600 to-pink-500 bg-clip-text text-transparent">
             KolorPaper?
           </span>
         </h2>
@@ -40,7 +40,7 @@ export default function WhyUs() {
             key={feature.title}
             className="flex flex-col items-center text-center gap-3 p-7 rounded-2xl bg-white dark:bg-gray-900 border border-black/5 dark:border-white/5 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-purple-600/20 dark:hover:border-purple-500/30 transition-all duration-300 group"
           >
-            <h3 className="text-lg font-black bg-gradient-to-r from-purple-600 to-orange-500 bg-clip-text text-transparent pb-1">
+            <h3 className="text-lg font-black bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent pb-1">
               {feature.title}
             </h3>
             <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed font-medium">
