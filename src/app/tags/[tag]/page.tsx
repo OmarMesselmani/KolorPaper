@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ tag: stri
   });
 
   return {
-    title: customData?.title ? `${customData.title} | KolorPaper` : `${tag} Coloring Pages | KolorPaper`,
+    title: customData?.title ? customData.title : `${tag} Coloring Pages`,
     description: customData?.description || `Free printable ${tag} coloring pages for kids and adults. Download high-quality ${tag} coloring sheets.`,
   };
 }

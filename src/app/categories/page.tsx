@@ -4,7 +4,7 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "All Categories - KolorPaper",
+  title: "All Categories",
   description: "Browse all coloring page categories and themes on KolorPaper.",
 };
 
@@ -25,7 +25,7 @@ export default async function CategoriesPage() {
         <Breadcrumbs paths={breadcrumbPaths} />
         <h1 className="text-4xl font-extrabold mt-8 mb-3 text-gray-800 dark:text-gray-100">All Categories</h1>
         <p className="text-sm sm:text-base leading-relaxed text-gray-500 dark:text-gray-400 mb-8 max-w-3xl">
-          Browse all our main categories and specific coloring page topics to find exactly what you're looking for.
+          Browse all our main categories and specific coloring page topics to find exactly what you&apos;re looking for.
         </p>
       </div>
 

@@ -3,13 +3,13 @@ import { Metadata } from "next";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kolorpaper.com';
 
 export const metadata: Metadata = {
-  title: "Privacy Policy - KolorPaper",
+  title: "Privacy Policy",
   description: "Read KolorPaper's privacy policy. Learn how we collect, use, and protect your information.",
   alternates: {
     canonical: `${siteUrl}/privacy-policy`,
   },
   openGraph: {
-    title: 'Privacy Policy - KolorPaper',
+    title: 'Privacy Policy',
     description: 'Read KolorPaper\'s privacy policy. Learn how we collect, use, and protect your information.',
     url: `${siteUrl}/privacy-policy`,
     siteName: 'KolorPaper',
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary',
-    title: 'Privacy Policy - KolorPaper',
+    title: 'Privacy Policy',
     description: 'Read KolorPaper\'s privacy policy. Learn how we collect, use, and protect your information.',
   },
 };

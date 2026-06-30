@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
   
   const url = `${siteUrl}/blog/${slug}`;
-  const title = `${post.title} | KolorPaper Blog`;
+  const title = `${post.title} | Blog`;
   const description = post.excerpt || `Read ${post.title} on KolorPaper Blog.`;
 
   return {

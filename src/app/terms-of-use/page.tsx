@@ -3,13 +3,13 @@ import { Metadata } from "next";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kolorpaper.com';
 
 export const metadata: Metadata = {
-  title: "Terms of Use - KolorPaper",
+  title: "Terms of Use",
   description: "Read KolorPaper's terms of use. Understand the rules and guidelines for using our free printable coloring pages.",
   alternates: {
     canonical: `${siteUrl}/terms-of-use`,
   },
   openGraph: {
-    title: 'Terms of Use - KolorPaper',
+    title: 'Terms of Use',
     description: 'Read KolorPaper\'s terms of use. Understand the rules and guidelines for using our free printable coloring pages.',
     url: `${siteUrl}/terms-of-use`,
     siteName: 'KolorPaper',
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary',
-    title: 'Terms of Use - KolorPaper',
+    title: 'Terms of Use',
     description: 'Read KolorPaper\'s terms of use. Understand the rules and guidelines for using our free printable coloring pages.',
   },
 };

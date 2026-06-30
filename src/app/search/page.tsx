@@ -9,7 +9,7 @@ import { Metadata } from "next";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kolorpaper.com';
 
 export const metadata: Metadata = {
-  title: "Search Coloring Pages - KolorPaper",
+  title: "Search Coloring Pages",
   description: "Search through thousands of free printable coloring pages for kids and adults on KolorPaper.",
   alternates: {
     canonical: `${siteUrl}/search`,
