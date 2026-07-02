@@ -138,7 +138,7 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
                     key={cat.slug} 
                     href={cat.parentSlug ? `/${cat.parentSlug}/${cat.slug}` : `/${cat.slug}`}
                     onClick={() => setIsFocused(false)}
-                    className="flex items-center px-4 py-2 hover:bg-purple-50 dark:hover:bg-purple-900/20 text-gray-700 dark:text-gray-200 text-sm transition-colors"
+                    className="flex items-center px-4 py-2 hover:bg-purple-50 dark:hover:bg-purple-900/20 text-black dark:text-white hover:text-purple-600 dark:hover:text-purple-400 text-sm transition-colors"
                   >
                     <svg className="w-4 h-4 mr-2 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2.28a2 2 0 01.948.236l.792.396A2 2 0 0010.916 5H20a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" /></svg>
                     {cat.title}
@@ -156,7 +156,7 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
                     key={tag.name} 
                     href={`/tags/${encodeURIComponent(tag.name)}`}
                     onClick={() => setIsFocused(false)}
-                    className="flex items-center px-4 py-2 hover:bg-purple-50 dark:hover:bg-purple-900/20 text-gray-700 dark:text-gray-200 text-sm transition-colors"
+                    className="flex items-center px-4 py-2 hover:bg-purple-50 dark:hover:bg-purple-900/20 text-black dark:text-white hover:text-purple-600 dark:hover:text-purple-400 text-sm transition-colors"
                   >
                     <span className="text-purple-500 mr-2 font-bold">#</span>
                     {tag.name}
@@ -174,12 +174,12 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
                     key={page.slug} 
                     href={`/page/${page.slug}`}
                     onClick={() => setIsFocused(false)}
-                    className="flex items-center px-4 py-2 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors group"
+                    className="flex items-center px-4 py-2 hover:bg-purple-50 dark:hover:bg-purple-900/20 text-black dark:text-white hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
                   >
                     <div className="relative w-10 h-10 rounded-md overflow-hidden bg-gray-100 flex-shrink-0 mr-3 border border-gray-200 dark:border-gray-700">
                       <Image src={page.thumbnailUrl} alt={page.title} fill className="object-cover" sizes="40px" />
                     </div>
-                    <span className="text-sm text-gray-800 dark:text-gray-200 font-medium group-hover:text-purple-700 dark:group-hover:text-purple-400 transition-colors line-clamp-1">{page.title}</span>
+                    <span className="text-sm font-medium line-clamp-1">{page.title}</span>
                   </Link>
                 ))}
               </div>

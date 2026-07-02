@@ -1,15 +1,33 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 
 // Middleware handles admin authentication
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const tags = await prisma.tag.findMany({
-      orderBy: { createdAt: 'desc' },
-    });
+    const { searchParams } = new URL(request.url);
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1") || 1);
+    const limit = Math.max(1, parseInt(searchParams.get("limit") || "10") || 10);
+    const skip = (page - 1) * limit;
 
-    return NextResponse.json(tags);
+    const [tags, total] = await Promise.all([
+      prisma.tag.findMany({
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      prisma.tag.count(),
+    ]);
+
+    return NextResponse.json({
+      tags,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
   } catch (error) {
     console.error('Failed to fetch tags:', error);
     return NextResponse.json({ error: 'Failed to fetch tags' }, { status: 500 });

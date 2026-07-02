@@ -18,6 +18,10 @@ export default function AdminTags({ token }: { token: string }) {
   const [tags, setTags] = useState<Tag[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  // Pagination state
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -38,15 +42,23 @@ export default function AdminTags({ token }: { token: string }) {
 
   useEffect(() => {
     fetchTags();
-  }, []);
+  }, [page]);
 
   const fetchTags = async () => {
     try {
       setLoading(true);
-      const res = await fetch("/api/admin/tags");
+      const res = await fetch(`/api/admin/tags?page=${page}&limit=10`);
       if (!res.ok) throw new Error("Failed to fetch tags");
       const data = await res.json();
-      setTags(data);
+      
+      // If we delete the last tag on the current page, fall back to the previous page
+      if (data.tags.length === 0 && page > 1) {
+        setPage(p => p - 1);
+        return;
+      }
+
+      setTags(data.tags);
+      setTotalPages(data.pagination.totalPages);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error fetching tags");
     } finally {
@@ -159,7 +171,15 @@ export default function AdminTags({ token }: { token: string }) {
         throw new Error(data.error || "Failed to save tag");
       }
 
-      await fetchTags();
+      if (!editingTag) {
+        if (page === 1) {
+          await fetchTags();
+        } else {
+          setPage(1);
+        }
+      } else {
+        await fetchTags();
+      }
       handleCloseModal();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save tag");
@@ -305,6 +325,29 @@ export default function AdminTags({ token }: { token: string }) {
               ))}
             </tbody>
           </table>
+          
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center gap-4 py-4 border-t border-white/5 bg-white/5">
+              <button
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl text-xs disabled:opacity-50 disabled:pointer-events-none transition-colors"
+              >
+                Previous
+              </button>
+              <span className="text-xs text-gray-300 font-bold">
+                Page {page} of {totalPages}
+              </span>
+              <button
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl text-xs disabled:opacity-50 disabled:pointer-events-none transition-colors"
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
       )}
 

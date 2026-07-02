@@ -148,7 +148,7 @@ export default async function DynamicPage({
       [allRelated[i], allRelated[j]] = [allRelated[j], allRelated[i]];
     }
 
-    const relatedPages = allRelated.slice(0, 3);
+    const relatedPages = allRelated.slice(0, 4);
 
     return (
       <>

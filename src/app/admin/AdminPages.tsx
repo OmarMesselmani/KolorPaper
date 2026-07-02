@@ -207,6 +207,12 @@ export default function AdminPages({ token }: AdminPagesProps) {
 
   useEffect(() => {
     fetchCategories();
+    if (typeof window !== "undefined") {
+      const savedCategory = localStorage.getItem("lastCategorySlug");
+      const savedSubCategory = localStorage.getItem("lastSubCategorySlug");
+      if (savedCategory) setCategorySlug(savedCategory);
+      if (savedSubCategory) setSubCategorySlug(savedSubCategory);
+    }
   }, []);
 
   useEffect(() => {
@@ -238,8 +244,13 @@ export default function AdminPages({ token }: AdminPagesProps) {
     setImageUrl("");
     setImageAlt("");
     setThumbnailUrl("");
-    setCategorySlug("");
-    setSubCategorySlug("");
+    if (typeof window !== "undefined") {
+      setCategorySlug(localStorage.getItem("lastCategorySlug") || "");
+      setSubCategorySlug(localStorage.getItem("lastSubCategorySlug") || "");
+    } else {
+      setCategorySlug("");
+      setSubCategorySlug("");
+    }
     setDescription("");
     setDifficulty("easy");
     setAgeGroup("kids");
@@ -465,6 +476,10 @@ export default function AdminPages({ token }: AdminPagesProps) {
                 onChange={(e) => {
                   setCategorySlug(e.target.value);
                   setSubCategorySlug("");
+                  if (typeof window !== "undefined") {
+                    localStorage.setItem("lastCategorySlug", e.target.value);
+                    localStorage.removeItem("lastSubCategorySlug");
+                  }
                 }}
                 className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-950/40 border border-gray-100 dark:border-white/5 rounded-xl text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-sm transition-all appearance-none"
               >
@@ -480,7 +495,12 @@ export default function AdminPages({ token }: AdminPagesProps) {
               <select
                 required
                 value={subCategorySlug}
-                onChange={(e) => setSubCategorySlug(e.target.value)}
+                onChange={(e) => {
+                  setSubCategorySlug(e.target.value);
+                  if (typeof window !== "undefined") {
+                    localStorage.setItem("lastSubCategorySlug", e.target.value);
+                  }
+                }}
                 disabled={!categorySlug}
                 className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-950/40 border border-gray-100 dark:border-white/5 rounded-xl text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-sm transition-all disabled:opacity-50 appearance-none"
               >
