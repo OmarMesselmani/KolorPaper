@@ -86,7 +86,9 @@ export default function NavMenu({ categories }: { categories: Category[] }) {
                 <h2 className="text-xl font-extrabold bg-gradient-to-br from-purple-600 to-pink-500 bg-clip-text text-transparent">Categories</h2>
               </div>
               <div className="flex items-center gap-2">
-                <DarkModeToggle />
+                <div className="sm:hidden flex items-center">
+                  <DarkModeToggle />
+                </div>
                 <button 
                   onClick={() => setIsOpen(false)}
                   className="p-2 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-all"

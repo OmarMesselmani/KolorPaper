@@ -26,14 +26,13 @@ export default function HomePagesGrid({ newest, mostDownloaded, mostLiked }: Hom
 
   useEffect(() => {
     const handleResize = () => {
-      // 1921px targets screens larger than standard 1080p (24" monitors), like 27" 1440p or 4K monitors
-      const isHugeScreen = window.innerWidth >= 1921;
-      const currentStep = isHugeScreen ? 15 : 12;
+      const isDesktop = window.innerWidth >= 1024;
+      const currentStep = isDesktop ? 15 : 12;
       setStep(currentStep);
       setVisibleCount(prev => {
         // Automatically adjust the initial visible count so the grid is perfectly full
-        if (prev === 12 && isHugeScreen) return 15;
-        if (prev === 15 && !isHugeScreen) return 12;
+        if (prev === 12 && isDesktop) return 15;
+        if (prev === 15 && !isDesktop) return 12;
         return prev;
       });
     };
@@ -73,7 +72,7 @@ export default function HomePagesGrid({ newest, mostDownloaded, mostLiked }: Hom
         ))}
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 min-[1921px]:grid-cols-5 gap-4 sm:gap-8 pb-8">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-8 pb-8">
         {visible.map((page) => (
           <ColoringCard key={page.id} page={page} />
         ))}

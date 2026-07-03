@@ -28,8 +28,8 @@ export function GridSkeleton() {
         <div className="h-4 w-96 max-w-full bg-gray-200 dark:bg-gray-800 rounded-md animate-pulse mb-2"></div>
         <div className="h-4 w-72 max-w-full bg-gray-200 dark:bg-gray-800 rounded-md animate-pulse"></div>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 pb-16">
-        {[...Array(12)].map((_, i) => (
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6 pb-16">
+        {[...Array(15)].map((_, i) => (
           <CardSkeleton key={i} />
         ))}
       </div>
@@ -100,8 +100,8 @@ export function CategorySkeleton() {
       <div className="h-8 bg-gray-200 dark:bg-gray-800 w-48 rounded-md mb-6"></div>
 
       {/* Grid of Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 pb-16">
-        {[...Array(8)].map((_, i) => (
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6 pb-16">
+        {[...Array(10)].map((_, i) => (
           <CardSkeleton key={i} />
         ))}
       </div>
@@ -121,8 +121,8 @@ export function HomeSkeleton() {
           <div className="h-5 w-32 bg-gray-200 dark:bg-gray-800 rounded-md"></div>
           <div className="h-5 w-24 bg-gray-200 dark:bg-gray-800 rounded-md"></div>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-8">
-          {[...Array(10)].map((_, i) => (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-8">
+          {[...Array(15)].map((_, i) => (
             <CardSkeleton key={i} />
           ))}
         </div>
@@ -138,6 +138,54 @@ export function HomeSkeleton() {
             </div>
           ))}
         </div>
+      </div>
+    </div>
+  );
+}
+
+export function CategoryCardSkeleton() {
+  return (
+    <div className="bg-white dark:bg-gray-950 rounded-2xl overflow-hidden border border-black/5 dark:border-white/5 shadow-sm flex flex-col h-full animate-pulse">
+      {/* Image Area */}
+      <div className="h-36 sm:h-60 bg-gray-200 dark:bg-gray-900 w-full relative"></div>
+      
+      {/* Info Area */}
+      <div className="px-3 py-2.5 sm:px-5 sm:py-3.5 border-t border-black/5 dark:border-white/5 flex flex-col items-center gap-2 bg-white dark:bg-gray-900">
+        <div className="h-5 sm:h-6 bg-gray-200 dark:bg-gray-800 rounded-md w-3/4 mb-1"></div>
+        <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded-md w-1/3"></div>
+      </div>
+    </div>
+  );
+}
+
+export function AllCategoriesSkeleton() {
+  return (
+    <div className="max-w-[1240px] mx-auto px-6 pt-8 animate-pulse pb-16">
+      {/* Breadcrumbs */}
+      <div className="h-4 sm:h-5 bg-gray-200 dark:bg-gray-800 w-1/4 rounded-md mb-8"></div>
+      
+      {/* Title */}
+      <div className="h-10 bg-gray-200 dark:bg-gray-800 w-1/3 rounded-md mb-4 mt-8"></div>
+      
+      {/* Description */}
+      <div className="h-4 bg-gray-200 dark:bg-gray-800 w-3/4 max-w-2xl rounded-md mb-2"></div>
+      <div className="h-4 bg-gray-200 dark:bg-gray-800 w-1/2 max-w-2xl rounded-md mb-12"></div>
+
+      {/* Sections */}
+      <div className="flex flex-col gap-8">
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="bg-white dark:bg-gray-900 rounded-3xl border border-black/5 dark:border-white/5 p-6 shadow-sm">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="h-10 w-10 sm:h-12 sm:w-12 bg-gray-200 dark:bg-gray-800 rounded-xl"></div>
+              <div className="h-6 sm:h-8 w-40 bg-gray-200 dark:bg-gray-800 rounded-md"></div>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6">
+              {[...Array(5)].map((_, j) => (
+                <CategoryCardSkeleton key={j} />
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

@@ -51,7 +51,7 @@ export default function CategoryGrid({ categories }: CategoryGridProps) {
         ))}
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-8 pb-8">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-8 pb-8">
         {visible.map((category, idx) => (
           <CategoryCard key={category.id} category={category} index={idx} />
         ))}

@@ -396,7 +396,7 @@ export default async function DynamicPage({
               {subCategories.length > 0 && (
                 <div className="mb-16">
                   <h2 className="text-2xl md:text-3xl font-bold mb-6 text-gray-800 dark:text-gray-100 flex items-center gap-2 md:gap-3 before:content-[''] before:block before:w-1 before:h-5 md:before:h-6 before:bg-purple-600 before:rounded-sm">Subcategories</h2>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 pb-16">
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6 pb-16">
                     {subCategories.map(sub => <CategoryCard key={sub.id} category={sub} />)}
                   </div>
                 </div>
