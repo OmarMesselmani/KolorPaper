@@ -16,8 +16,10 @@ export async function generateMetadata({ params }: { params: Promise<{ tag: stri
     where: { name: normalizedTag }
   });
 
+  const capitalizedTag = tag.charAt(0).toUpperCase() + tag.slice(1);
+
   return {
-    title: customData?.title ? customData.title : `${tag} Coloring Pages`,
+    title: customData?.title ? customData.title : `${capitalizedTag} Coloring Pages`,
     description: customData?.description || `Free printable ${tag} coloring pages for kids and adults. Download high-quality ${tag} coloring sheets.`,
   };
 }

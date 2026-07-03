@@ -85,25 +85,27 @@ export default function NavMenu({ categories }: { categories: Category[] }) {
               <div className="flex items-center gap-2">
                 <h2 className="text-xl font-extrabold bg-gradient-to-br from-purple-600 to-pink-500 bg-clip-text text-transparent">Categories</h2>
               </div>
-              <button 
-                onClick={() => setIsOpen(false)}
-                className="p-2 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-all"
-                aria-label="Close menu"
-              >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-              </button>
+              <div className="flex items-center gap-2">
+                <DarkModeToggle />
+                <button 
+                  onClick={() => setIsOpen(false)}
+                  className="p-2 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-all"
+                  aria-label="Close menu"
+                >
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+              </div>
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 space-y-1 custom-scrollbar bg-white dark:bg-gray-900">
-              {/* Mobile Search & Dark Mode Toggle */}
-              <div className="flex sm:hidden items-center gap-3 px-2 pb-4 mb-4 border-b border-purple-600/10 dark:border-white/10">
-                <div className="flex-1">
+              {/* Mobile Search */}
+              <div className="flex sm:hidden items-center px-2 pb-4 mb-4 border-b border-purple-600/10 dark:border-white/10">
+                <div className="w-full">
                   <SearchBar onSearch={() => setIsOpen(false)} />
                 </div>
-                <DarkModeToggle />
               </div>
 
               <Link

@@ -391,11 +391,11 @@ export default async function DynamicPage({
         </div>
 
         <div className="max-w-[1240px] mx-auto px-6">
-          <div className="flex gap-8 items-start flex-wrap lg:flex-nowrap">
-            <div className="flex-1 min-w-[320px] w-full">
+          <div className="flex gap-8 items-start flex-col lg:flex-row">
+            <div className="flex-1 min-w-[320px] w-full order-2 lg:order-1">
               {subCategories.length > 0 && (
                 <div className="mb-16">
-                  <h2 className="text-3xl font-bold mb-6 text-gray-800 dark:text-gray-100 flex items-center gap-3 before:content-[''] before:block before:w-1 before:h-6 before:bg-purple-600 before:rounded-sm">Subcategories</h2>
+                  <h2 className="text-2xl md:text-3xl font-bold mb-6 text-gray-800 dark:text-gray-100 flex items-center gap-2 md:gap-3 before:content-[''] before:block before:w-1 before:h-5 md:before:h-6 before:bg-purple-600 before:rounded-sm">Subcategories</h2>
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 pb-16">
                     {subCategories.map(sub => <CategoryCard key={sub.id} category={sub} />)}
                   </div>
@@ -405,7 +405,7 @@ export default async function DynamicPage({
               {pages.length > 0 && subCategories.length === 0 && (
                 <div className="mb-16">
                   <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-3 before:content-[''] before:block before:w-1 before:h-6 before:bg-purple-600 before:rounded-sm">Coloring Pages</h2>
+                    <h2 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2 md:gap-3 before:content-[''] before:block before:w-1 before:h-5 md:before:h-6 before:bg-purple-600 before:rounded-sm">Coloring Pages</h2>
                     <FilterDrawer />
                   </div>
                   <PaginatedGrid pages={pages} />
@@ -423,11 +423,11 @@ export default async function DynamicPage({
             </div>
 
             {categoryTags.length > 0 && (
-              <div className="w-full lg:w-48 min-w-[190px] flex flex-col gap-4 flex-shrink-0 mb-16 pt-2">
+              <div className="w-full lg:w-48 min-w-[190px] flex flex-col gap-4 flex-shrink-0 mb-16 lg:pt-2 order-1 lg:order-2">
                 <h3 className="text-xl font-bold text-[#0F0728] dark:text-gray-100 flex items-center gap-3 before:content-[''] before:block before:w-1 before:h-5 before:bg-purple-600 before:rounded-sm m-0 mb-2">
                   Related Topics
                 </h3>
-                <div className="flex flex-col gap-4">
+                <div className="grid grid-cols-2 lg:flex lg:flex-col gap-3 lg:gap-4">
                   {categoryTags.map(tag => (
                     <CustomTagSidebarCard key={tag} name={tag} />
                   ))}

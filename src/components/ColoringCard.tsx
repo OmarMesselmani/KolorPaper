@@ -208,7 +208,7 @@ export default function ColoringCard({ page }: { page: ColoringPage }) {
         </div>
       </div>
       <div className="p-5 bg-white dark:bg-gray-900 flex flex-col gap-3">
-        <h3 className="font-bold text-lg text-gray-900 dark:text-white m-0 truncate">{page.title}</h3>
+        <h3 className="font-bold text-base md:text-lg text-gray-900 dark:text-white m-0 truncate">{page.title}</h3>
         
         {/* Stats Footer */}
         <div className="flex items-center gap-4 text-xs font-semibold text-gray-600 dark:text-gray-400">
