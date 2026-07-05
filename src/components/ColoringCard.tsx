@@ -99,34 +99,60 @@ export default function ColoringCard({ page }: { page: ColoringPage }) {
     e.preventDefault();
     e.stopPropagation();
 
-    // Create a hidden iframe to print the full-size image only
-    const iframe = document.createElement('iframe');
-    iframe.style.position = 'fixed';
-    iframe.style.right = '0';
-    iframe.style.bottom = '0';
-    iframe.style.width = '0';
-    iframe.style.height = '0';
-    iframe.style.border = '0';
-    document.body.appendChild(iframe);
+    // Check if we already have a print container
+    let printContainer = document.getElementById('print-container');
+    if (!printContainer) {
+      printContainer = document.createElement('div');
+      printContainer.id = 'print-container';
+      document.body.appendChild(printContainer);
+      
+      const style = document.createElement('style');
+      style.innerHTML = `
+        @media print {
+          body > *:not(#print-container) {
+            display: none !important;
+          }
+          html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+            background-color: white !important;
+          }
+          #print-container {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100vh;
+          }
+          #print-container img {
+            max-width: 100%;
+            max-height: 100vh;
+            object-fit: contain;
+          }
+          @page { margin: 0; size: auto; }
+        }
+        @media screen {
+          #print-container {
+            display: none !important;
+          }
+        }
+      `;
+      document.head.appendChild(style);
+    }
 
-    const doc = iframe.contentWindow?.document;
-    if (doc) {
-      doc.write(`
-        <html>
-          <head>
-            <title>Print Coloring Page - ${page.title}</title>
-            <style>
-              @page { size: auto; margin: 0mm; }
-              body { margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: white; }
-              img { max-width: 100%; max-height: 100%; object-fit: contain; }
-            </style>
-          </head>
-          <body>
-            <img src="${page.imageUrl}" onload="window.print(); setTimeout(() => { window.parent.document.body.removeChild(window.frameElement); }, 100);" />
-          </body>
-        </html>
-      `);
-      doc.close();
+    printContainer.innerHTML = `<img src="${page.imageUrl}" />`;
+
+    const img = printContainer.querySelector('img');
+    if (img) {
+      img.onload = () => {
+        window.print();
+      };
+      // Fallback
+      setTimeout(() => {
+        if (!img.complete) window.print();
+      }, 500);
+    } else {
+      window.print();
     }
 
     // Track print event as download on backend

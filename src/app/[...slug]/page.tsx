@@ -68,7 +68,7 @@ export async function generateMetadata({
 
   if (category) {
     const url = `${siteUrl}/${slug.join('/')}`;
-    const title = `${category.title} Coloring Pages - Free Printable`;
+    const title = `${category.title} Coloring Pages`;
     const description = category.description || `Explore our collection of free printable ${category.title} coloring pages for kids and adults. Download high-quality coloring sheets.`;
     return {
       title,
@@ -408,7 +408,7 @@ export default async function DynamicPage({
                     <h2 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2 md:gap-3 before:content-[''] before:block before:w-1 before:h-5 md:before:h-6 before:bg-purple-600 before:rounded-sm">Coloring Pages</h2>
                     <FilterDrawer />
                   </div>
-                  <PaginatedGrid pages={pages} />
+                  <PaginatedGrid pages={pages} columns={categoryTags.length > 0 ? 4 : 5} />
                 </div>
               )}
 

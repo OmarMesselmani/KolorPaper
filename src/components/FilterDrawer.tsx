@@ -33,7 +33,7 @@ export default function FilterDrawer() {
     <>
       <button
         onClick={handleButtonClick}
-        className={`flex items-center gap-2 px-6 py-2.5 border rounded-xl font-bold transition-all shadow-sm cursor-pointer ${
+        className={`flex items-center gap-1.5 sm:gap-2 px-4 py-2 sm:px-6 sm:py-2.5 text-sm sm:text-base border rounded-lg sm:rounded-xl font-bold transition-all shadow-sm cursor-pointer ${
           hasActiveFilters
             ? 'bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-950/40 hover:border-red-300'
             : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-purple-600 dark:hover:border-purple-500 hover:text-purple-600 dark:hover:text-purple-400'

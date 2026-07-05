@@ -39,7 +39,7 @@ export default async function SearchPage({
       <div className="max-w-[1240px] mx-auto px-6 pb-16 mt-8">
         <div className="w-full">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-3xl md:text-4xl font-bold text-[#0F0728] dark:text-gray-100 flex items-center gap-3 before:content-[''] before:block before:w-1 before:h-8 before:bg-purple-600 before:rounded-sm m-0">
+            <h2 className="text-2xl md:text-4xl font-bold text-[#0F0728] dark:text-gray-100 flex items-center gap-2 md:gap-3 before:content-[''] before:block before:w-1 before:h-6 md:before:h-8 before:bg-purple-600 before:rounded-sm m-0">
               {query ? `Search results for "${query}"` : (hasFilters ? "Filtered Results" : "Search")}
             </h2>
             <FilterDrawer />
