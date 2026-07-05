@@ -70,6 +70,8 @@ export async function generateMetadata({
     const url = `${siteUrl}/${slug.join('/')}`;
     const title = `${category.title} Coloring Pages`;
     const description = category.description || `Explore our collection of free printable ${category.title} coloring pages for kids and adults. Download high-quality coloring sheets.`;
+    const optimizedImageUrl = category.imageUrl ? category.imageUrl.replace(/\.(jpe?g|png)$/i, '.webp') : undefined;
+
     return {
       title,
       description,
@@ -81,9 +83,9 @@ export async function generateMetadata({
         description,
         url,
         siteName: 'KolorPaper',
-        images: category.imageUrl ? [
+        images: optimizedImageUrl ? [
           {
-            url: category.imageUrl,
+            url: optimizedImageUrl,
             alt: `${category.title} coloring pages`,
           },
         ] : undefined,
@@ -93,7 +95,7 @@ export async function generateMetadata({
         card: 'summary_large_image',
         title,
         description,
-        images: category.imageUrl ? [category.imageUrl] : undefined,
+        images: optimizedImageUrl ? [optimizedImageUrl] : undefined,
       },
     };
   }
@@ -161,7 +163,7 @@ export default async function DynamicPage({
               "@type": "ImageObject",
               "name": `${coloringPage.title} Free Printable Coloring Page`,
               "description": coloringPage.description || `Free printable ${coloringPage.title} coloring page for kids.`,
-              "contentUrl": coloringPage.imageUrl,
+              "contentUrl": coloringPage.thumbnailUrl || coloringPage.imageUrl,
               "thumbnailUrl": coloringPage.thumbnailUrl || coloringPage.imageUrl,
               "license": `${siteUrl}/terms-of-use`,
               "acquireLicensePage": `${siteUrl}/${slug.join('/')}`,

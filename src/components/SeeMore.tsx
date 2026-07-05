@@ -19,7 +19,7 @@ export default async function SeeMore({ currentPage }: { currentPage: ColoringPa
   const seenIds = new Set<string>([currentPage.id]);
 
   for (const p of shuffledCandidates) {
-    if (result.length >= 5) break;
+    if (result.length >= 6) break;
     if (!seenIds.has(p.id)) {
       seenIds.add(p.id);
       result.push(p);
@@ -28,8 +28,8 @@ export default async function SeeMore({ currentPage }: { currentPage: ColoringPa
 
   // If we still need more pages, fetch a small random batch from the DB
   // instead of looping through every category one by one
-  if (result.length < 5) {
-    const needed = 5 - result.length;
+  if (result.length < 6) {
+    const needed = 6 - result.length;
     const excludeIds = Array.from(seenIds);
     try {
       const extraPages = await prisma.coloringPage.findMany({
@@ -48,7 +48,7 @@ export default async function SeeMore({ currentPage }: { currentPage: ColoringPa
       const parsed: ColoringPage[] = JSON.parse(JSON.stringify(extraPages));
       const shuffledExtra = shuffleArray(parsed);
       for (const p of shuffledExtra) {
-        if (result.length >= 5) break;
+        if (result.length >= 6) break;
         if (!seenIds.has(p.id)) {
           seenIds.add(p.id);
           result.push(p);
@@ -67,11 +67,17 @@ export default async function SeeMore({ currentPage }: { currentPage: ColoringPa
         See More
       </h2>
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
-        {result.map((page, index) => (
-          <div key={page.id} className={index === 4 ? "hidden lg:block" : ""}>
-            <ColoringCard page={page} />
-          </div>
-        ))}
+        {result.map((page, index) => {
+          let visibilityClass = "";
+          if (index === 4) visibilityClass = "block md:hidden lg:block";
+          if (index === 5) visibilityClass = "block md:hidden";
+          
+          return (
+            <div key={page.id} className={visibilityClass}>
+              <ColoringCard page={page} />
+            </div>
+          );
+        })}
       </div>
     </div>
   );

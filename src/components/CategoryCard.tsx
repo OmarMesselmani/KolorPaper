@@ -36,6 +36,8 @@ export default function CategoryCard({ category, index = 0 }: { category: Catego
   const pageCount = category._count?.subPages ?? 0;
 
   const hasStats = category.downloads !== undefined || category.likes !== undefined;
+  
+  const optimizedImageUrl = category.imageUrl ? category.imageUrl.replace(/\.(jpe?g|png)$/i, '.webp') : null;
 
   return (
     <Link
@@ -53,12 +55,12 @@ export default function CategoryCard({ category, index = 0 }: { category: Catego
 
       {/* Image area */}
       <div className="relative w-full h-auto sm:h-60 bg-white dark:bg-gray-900 flex items-center justify-center transition-transform duration-500 group-hover:scale-105 overflow-hidden">
-        {category.imageUrl ? (
+        {optimizedImageUrl ? (
           <>
             {/* Mobile: Full width and height responsive image without cropping */}
             <div className="block sm:hidden relative w-full aspect-square text-sm text-gray-400 text-center">
               <Image
-                src={category.imageUrl}
+                src={optimizedImageUrl}
                 alt={`${category.title} free printable coloring pages`}
                 fill
                 sizes="(max-width: 640px) 100vw"
@@ -69,7 +71,7 @@ export default function CategoryCard({ category, index = 0 }: { category: Catego
             {/* Desktop: Optimized fixed-height image */}
             <div className="hidden sm:block absolute inset-0 text-sm text-gray-400 text-center">
               <Image
-                src={category.imageUrl}
+                src={optimizedImageUrl}
                 alt={`${category.title} free printable coloring pages`}
                 fill
                 sizes="(min-width: 640px) 33vw, 25vw"
