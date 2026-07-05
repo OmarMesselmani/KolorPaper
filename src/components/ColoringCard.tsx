@@ -119,10 +119,14 @@ export default function ColoringCard({ page }: { page: ColoringPage }) {
           }
           #print-container {
             display: flex !important;
+            position: fixed !important;
+            left: 0 !important;
+            top: 0 !important;
             align-items: center;
             justify-content: center;
-            width: 100%;
-            height: 100vh;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 99999 !important;
           }
           #print-container img {
             max-width: 100%;
@@ -140,19 +144,21 @@ export default function ColoringCard({ page }: { page: ColoringPage }) {
       document.head.appendChild(style);
     }
 
-    printContainer.innerHTML = `<img src="${page.imageUrl}" />`;
+    printContainer.innerHTML = '';
+    const img = document.createElement('img');
+    img.src = page.imageUrl;
+    printContainer.appendChild(img);
 
-    const img = printContainer.querySelector('img');
-    if (img) {
-      img.onload = () => {
-        window.print();
-      };
-      // Fallback
-      setTimeout(() => {
-        if (!img.complete) window.print();
-      }, 500);
-    } else {
+    const triggerPrint = () => {
       window.print();
+    };
+
+    if (img.complete) {
+      triggerPrint();
+    } else {
+      img.onload = triggerPrint;
+      // Fallback in case of slow connection
+      setTimeout(triggerPrint, 1500);
     }
 
     // Track print event as download on backend
