@@ -35,7 +35,7 @@ export async function generateMetadata({
 
   if (coloringPage) {
     const url = `${siteUrl}/${slug.join('/')}`;
-    const title = `${coloringPage.title} - Free Printable Coloring Page`;
+    const title = `${coloringPage.title}`;
     const description = coloringPage.description || `Download and print this free ${coloringPage.title} coloring page for kids.`;
     const imageUrl = coloringPage.thumbnailUrl || coloringPage.imageUrl;
     return {
@@ -190,12 +190,7 @@ export default async function DynamicPage({
                 height={600}
                 className="w-full h-auto block print:hidden"
               />
-              {/* Print layout: uses high-resolution original image */}
-              <img
-                src={coloringPage.imageUrl}
-                alt={`Free printable ${coloringPage.title} coloring page for kids high resolution`}
-                className="hidden print:block w-full h-auto rounded-xl printable-area"
-              />
+
             </div>
 
             {/* Info Column */}

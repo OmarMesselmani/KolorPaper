@@ -37,49 +37,6 @@
 
 @media print {
   /* Remove all shadows, filters, backgrounds and borders globally when printing */
-  * {
-    box-shadow: none !important;
-    text-shadow: none !important;
-    filter: none !important;
-  }
-
-  /* Apply strict image printing only on pages with .printable-area */
-  html:has(.printable-area), body:has(.printable-area) {
-    height: 100%;
-    margin: 0 !important;
-    padding: 0 !important;
-    background: #fff !important;
-  }
-
-  body:has(.printable-area) * {
-    visibility: hidden;
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    filter: none !important;
-  }
-
-  .printable-area {
-    visibility: visible !important;
-    position: absolute;
-    left: 0 !important;
-    top: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: contain !important;
-    display: block !important;
-    background: transparent !important;
-    border: none !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    filter: none !important;
-  }
-}
-
-/* Custom prose styles to make text slightly smaller, closer together, and bullets purple */
-.prose {
-  --tw-prose-bullets: var(--color-purple-600, #9333ea);
-  --tw-prose-counters: var(--color-purple-600, #9333ea);
 }
 
 .dark .prose {
