@@ -234,10 +234,10 @@ export default function ColoringCard({ page }: { page: ColoringPage }) {
         </div>
       </div>
       <div className="p-5 bg-white dark:bg-gray-900 flex flex-col gap-3">
-        <h3 className="font-bold text-base md:text-lg text-gray-900 dark:text-white m-0 truncate">{page.title}</h3>
+        <h3 className="font-bold text-xs md:text-sm text-gray-900 dark:text-white m-0 truncate">{page.title}</h3>
         
         {/* Stats Footer */}
-        <div className="flex items-center gap-4 text-xs font-semibold text-gray-600 dark:text-gray-400">
+        <div className="hidden items-center gap-4 text-xs font-semibold text-gray-600 dark:text-gray-400">
           <div className="flex items-center gap-1.5 group/stat hover:text-purple-600 transition-colors">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="opacity-70 group-hover/stat:opacity-100 group-hover/stat:scale-110 transition-all">
               <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />

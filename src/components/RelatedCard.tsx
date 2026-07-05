@@ -48,7 +48,7 @@ export default function RelatedCard({ page }: RelatedCardProps) {
         </h4>
         
         {/* Stats */}
-        <div className="flex items-center gap-3 text-[11px] font-semibold text-gray-500 dark:text-gray-400 mt-1">
+        <div className="hidden items-center gap-3 text-[11px] font-semibold text-gray-500 dark:text-gray-400 mt-1">
           <div className="flex items-center gap-1 group/stat hover:text-purple-600 transition-colors">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="opacity-70 group-hover/stat:opacity-100 group-hover/stat:scale-110 transition-all shrink-0">
               <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />

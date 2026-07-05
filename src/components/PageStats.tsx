@@ -50,7 +50,7 @@ export default function PageStats({ slug, views, downloads, likes, className }: 
   }, [slug]);
 
   return (
-    <div className={`flex flex-row items-center gap-2 flex-nowrap ${className || ''}`}>
+    <div className={`hidden flex-row items-center gap-2 flex-nowrap ${className || ''}`}>
       {/* Views */}
       <div className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 rounded-xl text-xs sm:text-sm font-medium">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
