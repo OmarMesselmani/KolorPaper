@@ -30,14 +30,10 @@ export default function PrintButton({ slug, imageUrl, title }: PrintButtonProps)
           }
           #print-container {
             display: flex !important;
-            position: fixed !important;
-            left: 0 !important;
-            top: 0 !important;
             align-items: center;
             justify-content: center;
-            width: 100vw !important;
-            height: 100vh !important;
-            z-index: 99999 !important;
+            width: 100%;
+            height: 100vh;
           }
           #print-container img {
             max-width: 100%;
@@ -55,21 +51,19 @@ export default function PrintButton({ slug, imageUrl, title }: PrintButtonProps)
       document.head.appendChild(style);
     }
 
-    printContainer.innerHTML = '';
-    const img = document.createElement('img');
-    img.src = imageUrl;
-    printContainer.appendChild(img);
+    printContainer.innerHTML = `<img src="${imageUrl}" />`;
 
-    const triggerPrint = () => {
-      window.print();
-    };
-
-    if (img.complete) {
-      triggerPrint();
+    const img = printContainer.querySelector('img');
+    if (img) {
+      img.onload = () => {
+        window.print();
+      };
+      // Fallback
+      setTimeout(() => {
+        if (!img.complete) window.print();
+      }, 500);
     } else {
-      img.onload = triggerPrint;
-      // Fallback in case of slow connection
-      setTimeout(triggerPrint, 1500);
+      window.print();
     }
 
     // Track print as download
