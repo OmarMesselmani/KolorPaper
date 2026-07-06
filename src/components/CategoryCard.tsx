@@ -57,15 +57,15 @@ export default function CategoryCard({ category, index = 0, deferImage = false }
       {/* Image area — single Image component for both mobile and desktop,
           matching how ColoringCard handles images to avoid duplicate requests
           and lazy-loading race conditions. */}
-      <div className="relative w-full aspect-square sm:aspect-auto sm:h-60 bg-white dark:bg-gray-900 flex items-center justify-center transition-transform duration-500 group-hover:scale-105 overflow-hidden">
+      <div className="relative w-full aspect-square bg-white dark:bg-gray-900 flex items-center justify-center transition-transform duration-500 group-hover:scale-105 overflow-hidden">
         {imageUrl && !imgError && !deferImage ? (
           <Image
             key={imgKey}
             src={imageUrl}
             alt={`${category.title} free printable coloring pages`}
             fill
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            className="object-contain sm:object-cover"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 16vw, 16vw"
+            className="object-contain p-4"
             onError={() => {
               if (retryCount < MAX_RETRIES) {
                 // Retry with exponential backoff to handle CDN rate limiting (429)
@@ -80,7 +80,7 @@ export default function CategoryCard({ category, index = 0, deferImage = false }
             }}
           />
         ) : (
-          <div className="placeholder-img h-36 sm:h-full flex items-center justify-center w-full text-8xl">🎨</div>
+          <div className="placeholder-img w-full h-full flex items-center justify-center text-8xl">🎨</div>
         )}
       </div>
 
