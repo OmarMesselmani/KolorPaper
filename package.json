@@ -8,7 +8,8 @@
     "build:worker": "node scripts/build-worker-no-env-files.mjs",
     "start": "next start",
     "lint": "eslint",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "db:backup": "wrangler d1 export kolorpaper-d1 --remote --output=backup.sql"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
