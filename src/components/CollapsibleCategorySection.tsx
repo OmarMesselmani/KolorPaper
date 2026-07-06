@@ -1,16 +1,24 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import CategoryCard from "@/components/CategoryCard";
 import { Category } from "@/types";
 
 interface CollapsibleCategorySectionProps {
   mainCategory: Category;
   subCategories: Category[];
+  defaultOpen?: boolean;
 }
 
-export default function CollapsibleCategorySection({ mainCategory, subCategories }: CollapsibleCategorySectionProps) {
-  const [isOpen, setIsOpen] = useState(true);
+export default function CollapsibleCategorySection({ mainCategory, subCategories, defaultOpen = true }: CollapsibleCategorySectionProps) {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+  const [hasOpened, setHasOpened] = useState(defaultOpen);
+
+  useEffect(() => {
+    if (isOpen && !hasOpened) {
+      setHasOpened(true);
+    }
+  }, [isOpen, hasOpened]);
 
   return (
     <div className="border-b border-black/5 dark:border-white/5 pb-12 last:border-0">
@@ -44,10 +52,10 @@ export default function CollapsibleCategorySection({ mainCategory, subCategories
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6 pt-2">
             {subCategories.length > 0 ? (
               subCategories.map(sub => (
-                <CategoryCard key={sub.id} category={sub} />
+                <CategoryCard key={sub.id} category={sub} deferImage={!hasOpened} />
               ))
             ) : (
-              <CategoryCard category={mainCategory} />
+              <CategoryCard category={mainCategory} deferImage={!hasOpened} />
             )}
           </div>
         </div>

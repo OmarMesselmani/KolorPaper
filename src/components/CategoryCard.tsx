@@ -18,7 +18,7 @@ function formatCount(n: number): string {
 }
 
 
-export default function CategoryCard({ category, index = 0 }: { category: Category; index?: number }) {
+export default function CategoryCard({ category, index = 0, deferImage = false }: { category: Category; index?: number; deferImage?: boolean }) {
   const [imgError, setImgError] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
   const [imgKey, setImgKey] = useState(0);
@@ -58,7 +58,7 @@ export default function CategoryCard({ category, index = 0 }: { category: Catego
           matching how ColoringCard handles images to avoid duplicate requests
           and lazy-loading race conditions. */}
       <div className="relative w-full aspect-square sm:aspect-auto sm:h-60 bg-white dark:bg-gray-900 flex items-center justify-center transition-transform duration-500 group-hover:scale-105 overflow-hidden">
-        {imageUrl && !imgError ? (
+        {imageUrl && !imgError && !deferImage ? (
           <Image
             key={imgKey}
             src={imageUrl}

@@ -32,13 +32,14 @@ export default async function CategoriesPage() {
       <div className="max-w-[1240px] mx-auto px-6">
         {mainCategories.length > 0 ? (
           <div className="mb-16 flex flex-col gap-8">
-            {mainCategories.map(main => {
+            {mainCategories.map((main, index) => {
               const subCategories = allCategories.filter(sub => sub.parentSlug === main.slug);
               return (
                 <CollapsibleCategorySection 
                   key={main.id} 
                   mainCategory={main} 
-                  subCategories={subCategories} 
+                  subCategories={subCategories}
+                  defaultOpen={index === 0}
                 />
               );
             })}
