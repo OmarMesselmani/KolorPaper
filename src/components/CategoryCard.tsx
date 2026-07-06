@@ -20,6 +20,10 @@ function formatCount(n: number): string {
 
 export default function CategoryCard({ category, index = 0 }: { category: Category; index?: number }) {
   const [imgError, setImgError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+  const [imgKey, setImgKey] = useState(0);
+  const MAX_RETRIES = 3;
+
 
   // Determine badge: first 3 are "New", top downloads get "Popular"
   const badge: "Popular" | null =
@@ -56,12 +60,24 @@ export default function CategoryCard({ category, index = 0 }: { category: Catego
       <div className="relative w-full aspect-square sm:aspect-auto sm:h-60 bg-white dark:bg-gray-900 flex items-center justify-center transition-transform duration-500 group-hover:scale-105 overflow-hidden">
         {imageUrl && !imgError ? (
           <Image
+            key={imgKey}
             src={imageUrl}
             alt={`${category.title} free printable coloring pages`}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             className="object-contain sm:object-cover"
-            onError={() => setImgError(true)}
+            onError={() => {
+              if (retryCount < MAX_RETRIES) {
+                // Retry with exponential backoff to handle CDN rate limiting (429)
+                const delay = Math.pow(2, retryCount) * 1000;
+                setTimeout(() => {
+                  setRetryCount(prev => prev + 1);
+                  setImgKey(prev => prev + 1);
+                }, delay);
+              } else {
+                setImgError(true);
+              }
+            }}
           />
         ) : (
           <div className="placeholder-img h-36 sm:h-full flex items-center justify-center w-full text-8xl">🎨</div>

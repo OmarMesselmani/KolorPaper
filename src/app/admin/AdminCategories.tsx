@@ -133,8 +133,8 @@ export default function AdminCategories({ token }: AdminCategoriesProps) {
           body: JSON.stringify({
             fileName: file.type.startsWith("image/") ? file.name.replace(/\.[^/.]+$/, ".webp") : file.name,
             fileType: "image",
-            base64Data: thumbBase64Data || base64Data,
-            thumbBase64Data: undefined
+            base64Data: base64Data,
+            thumbBase64Data: thumbBase64Data
           })
         });
 
@@ -143,7 +143,8 @@ export default function AdminCategories({ token }: AdminCategoriesProps) {
           throw new Error(data.error || "Upload failed");
         }
 
-        setImageUrl(data.url);
+        // Use the thumbnail URL for categories — lighter and avoids CDN rate limiting
+        setImageUrl(data.thumbnailUrl || data.url);
         setSuccess(`File "${file.name}" uploaded successfully!`);
       } catch (err) {
         console.error(err);
