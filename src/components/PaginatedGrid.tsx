@@ -20,9 +20,16 @@ export default function PaginatedGrid({ pages, columns = 5 }: { pages: ColoringP
   return (
     <>
       <div className={`grid grid-cols-2 md:grid-cols-3 ${lgColsClass} gap-4 sm:gap-6 pb-8`}>
-        {visiblePages.map(page => (
-          <ColoringCard key={page.id} page={page} />
-        ))}
+        {visiblePages.map((page, index) => {
+          const is16th = (index + 1) % 16 === 0;
+          const hideOnDesktop = columns === 5 && is16th;
+          
+          return (
+            <div key={page.id} className={hideOnDesktop ? "md:hidden" : ""}>
+              <ColoringCard page={page} />
+            </div>
+          );
+        })}
       </div>
 
       {hasMore && (

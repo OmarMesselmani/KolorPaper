@@ -1,5 +1,8 @@
+'use client';
+
 import Link from "next/link";
 import Image from "next/image";
+import { useState } from "react";
 import { Category } from "@/types";
 
 function formatCount(n: number): string {
@@ -14,19 +17,10 @@ function formatCount(n: number): string {
   return String(n);
 }
 
-function getDefaultPageCount(title: string): number {
-  let hash = 0;
-  for (let i = 0; i < title.length; i++) {
-    hash = title.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  const min = 120;
-  const max = 1800;
-  const count = min + (Math.abs(hash) % (max - min));
-  return Math.round(count / 10) * 10;
-}
-
 
 export default function CategoryCard({ category, index = 0 }: { category: Category; index?: number }) {
+  const [imgError, setImgError] = useState(false);
+
   // Determine badge: first 3 are "New", top downloads get "Popular"
   const badge: "Popular" | null =
     (category.downloads ?? 0) >= 800 ? "Popular" : null;
@@ -36,8 +30,11 @@ export default function CategoryCard({ category, index = 0 }: { category: Catego
   const pageCount = category._count?.subPages ?? 0;
 
   const hasStats = category.downloads !== undefined || category.likes !== undefined;
-  
-  const optimizedImageUrl = category.imageUrl ? category.imageUrl.replace(/\.(jpe?g|png)$/i, '.webp') : null;
+
+  // Use imageUrl directly — images are already uploaded as .webp by the admin panel.
+  // The previous .replace() conversion was causing failures for URLs that didn't match
+  // the regex (e.g. already .webp, or URLs with query params).
+  const imageUrl = category.imageUrl || null;
 
   return (
     <Link
@@ -53,33 +50,19 @@ export default function CategoryCard({ category, index = 0 }: { category: Catego
         </span>
       )}
 
-      {/* Image area */}
-      <div className="relative w-full h-auto sm:h-60 bg-white dark:bg-gray-900 flex items-center justify-center transition-transform duration-500 group-hover:scale-105 overflow-hidden">
-        {optimizedImageUrl ? (
-          <>
-            {/* Mobile: Full width and height responsive image without cropping */}
-            <div className="block sm:hidden relative w-full aspect-square text-sm text-gray-400 text-center">
-              <Image
-                src={optimizedImageUrl}
-                alt={`${category.title} free printable coloring pages`}
-                fill
-                sizes="(max-width: 640px) 100vw"
-                className="object-contain"
-                loading="lazy"
-              />
-            </div>
-            {/* Desktop: Optimized fixed-height image */}
-            <div className="hidden sm:block absolute inset-0 text-sm text-gray-400 text-center">
-              <Image
-                src={optimizedImageUrl}
-                alt={`${category.title} free printable coloring pages`}
-                fill
-                sizes="(min-width: 640px) 33vw, 25vw"
-                className="object-cover"
-                loading="lazy"
-              />
-            </div>
-          </>
+      {/* Image area — single Image component for both mobile and desktop,
+          matching how ColoringCard handles images to avoid duplicate requests
+          and lazy-loading race conditions. */}
+      <div className="relative w-full aspect-square sm:aspect-auto sm:h-60 bg-white dark:bg-gray-900 flex items-center justify-center transition-transform duration-500 group-hover:scale-105 overflow-hidden">
+        {imageUrl && !imgError ? (
+          <Image
+            src={imageUrl}
+            alt={`${category.title} free printable coloring pages`}
+            fill
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            className="object-contain sm:object-cover"
+            onError={() => setImgError(true)}
+          />
         ) : (
           <div className="placeholder-img h-36 sm:h-full flex items-center justify-center w-full text-8xl">🎨</div>
         )}
