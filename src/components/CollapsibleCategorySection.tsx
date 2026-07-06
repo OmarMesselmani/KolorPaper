@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import CategoryCard from "@/components/CategoryCard";
 import { Category } from "@/types";
 
@@ -12,16 +12,36 @@ interface CollapsibleCategorySectionProps {
 
 export default function CollapsibleCategorySection({ mainCategory, subCategories, defaultOpen = true }: CollapsibleCategorySectionProps) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
-  const [hasOpened, setHasOpened] = useState(defaultOpen);
+  const [hasOpened, setHasOpened] = useState(false);
+  const sectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (isOpen && !hasOpened) {
+    // If explicitly opened by user click
+    if (isOpen && !hasOpened && !defaultOpen) {
       setHasOpened(true);
     }
-  }, [isOpen, hasOpened]);
+  }, [isOpen, hasOpened, defaultOpen]);
+
+  useEffect(() => {
+    if (typeof IntersectionObserver !== 'undefined' && sectionRef.current && !hasOpened) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting) {
+            setHasOpened(true);
+            observer.disconnect();
+          }
+        },
+        { rootMargin: '400px' } // Load images when within 400px of viewport
+      );
+      observer.observe(sectionRef.current);
+      return () => observer.disconnect();
+    } else if (!hasOpened) {
+      setHasOpened(true); // Fallback
+    }
+  }, [hasOpened]);
 
   return (
-    <div className="border-b border-black/5 dark:border-white/5 pb-12 last:border-0">
+    <div ref={sectionRef} className="border-b border-black/5 dark:border-white/5 pb-12 last:border-0">
       <div 
         className="flex items-center justify-between mb-6 cursor-pointer group"
         onClick={() => setIsOpen(!isOpen)}
@@ -49,7 +69,7 @@ export default function CollapsibleCategorySection({ mainCategory, subCategories
         }`}
       >
         <div className="overflow-hidden">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6 pt-2">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6 pt-2">
             {subCategories.length > 0 ? (
               subCategories.map(sub => (
                 <CategoryCard key={sub.id} category={sub} deferImage={!hasOpened} />

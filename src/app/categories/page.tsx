@@ -39,7 +39,6 @@ export default async function CategoriesPage() {
                   key={main.id} 
                   mainCategory={main} 
                   subCategories={subCategories}
-                  defaultOpen={index === 0}
                 />
               );
             })}

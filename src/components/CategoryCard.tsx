@@ -86,7 +86,7 @@ export default function CategoryCard({ category, index = 0, deferImage = false }
 
       {/* Info area */}
       <div className="px-3 py-2.5 sm:px-5 sm:py-3.5 bg-white dark:bg-gray-900 border-t border-black/5 dark:border-white/5">
-        <h3 className="text-sm sm:text-xl font-bold text-gray-800 dark:text-gray-100 text-center mb-0.5 sm:mb-1 truncate">
+        <h3 className="text-sm sm:text-lg font-bold text-gray-800 dark:text-gray-100 text-center mb-0.5 sm:mb-1 truncate">
           {category.title}
         </h3>
         <p className={`text-xs sm:text-sm font-medium text-purple-700 dark:text-purple-300 text-center ${hasStats ? 'mb-1.5 sm:mb-3' : 'mb-0'}`}>
