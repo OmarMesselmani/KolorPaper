@@ -100,23 +100,29 @@ export default function AdminVisitors({ token }: AdminVisitorsProps) {
   };
 
   const getCountryDisplay = (countryCode: string) => {
-    if (!countryCode || countryCode === 'Unknown') return '🌍 Unknown';
+    if (!countryCode || countryCode === 'Unknown') return <span className="flex items-center gap-2">🌍 <span>Unknown</span></span>;
     
     if (countryCode.length === 2) {
       try {
-        const codePoints = countryCode
-          .toUpperCase()
-          .split('')
-          .map(char => 127397 + char.charCodeAt(0));
-        const flagEmoji = String.fromCodePoint(...codePoints);
         const countryName = new Intl.DisplayNames(['en'], { type: 'region' }).of(countryCode.toUpperCase());
-        return `${flagEmoji} ${countryName || countryCode}`;
+        return (
+          <span className="flex items-center gap-2">
+            <img 
+              src={`https://flagcdn.com/w20/${countryCode.toLowerCase()}.png`} 
+              srcSet={`https://flagcdn.com/w40/${countryCode.toLowerCase()}.png 2x`}
+              width="20" 
+              alt={countryCode} 
+              className="rounded-sm shadow-[0_0_2px_rgba(0,0,0,0.2)]"
+            />
+            <span>{countryName || countryCode}</span>
+          </span>
+        );
       } catch (e) {
-        return `📍 ${countryCode}`;
+        return <span className="flex items-center gap-2">📍 <span>{countryCode}</span></span>;
       }
     }
     
-    return `📍 ${countryCode}`;
+    return <span className="flex items-center gap-2">📍 <span>{countryCode}</span></span>;
   };
 
   return (
@@ -153,7 +159,7 @@ export default function AdminVisitors({ token }: AdminVisitorsProps) {
                     <span className="font-mono text-xs font-bold text-gray-700 dark:text-gray-300">{visitor.ip}</span>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="text-xs font-bold text-gray-600 dark:text-gray-400">{getCountryDisplay(visitor.country)}</span>
+                    <div className="text-xs font-bold text-gray-600 dark:text-gray-400">{getCountryDisplay(visitor.country)}</div>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex flex-col">
