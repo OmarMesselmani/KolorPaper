@@ -44,6 +44,7 @@ interface ActivityDay {
   date: string;
   views: number;
   downloads: number;
+  visitors: number;
 }
 
 export default function AdminDashboard({ token, onTabChange }: AdminDashboardProps) {
@@ -54,6 +55,7 @@ export default function AdminDashboard({ token, onTabChange }: AdminDashboardPro
   const [recentMessages, setRecentMessages] = useState<RecentMessage[]>([]);
   const [timeline, setTimeline] = useState<ActivityDay[]>([]);
   const [timeRange, setTimeRange] = useState("7");
+  const [hoverIndex, setHoverIndex] = useState<number | null>(null);
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
 
@@ -118,35 +120,62 @@ export default function AdminDashboard({ token, onTabChange }: AdminDashboardPro
 
     const chartHeight = 160;
     const chartWidth = 500;
-    const maxVal = Math.max(...timeline.map(d => Math.max(d.views, d.downloads)), 10);
+    const maxVal = Math.max(...timeline.map(d => Math.max(d.views, d.downloads, d.visitors || 0)), 10);
     
+    const handleMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const scaleX = chartWidth / rect.width;
+      const viewBoxX = x * scaleX;
+      
+      let index = Math.round((viewBoxX / chartWidth) * (timeline.length - 1));
+      if (index < 0) index = 0;
+      if (index >= timeline.length) index = timeline.length - 1;
+      
+      setHoverIndex(index);
+    };
+
+    const handleMouseLeave = () => {
+      setHoverIndex(null);
+    };
+
     // Generate smooth paths for lines
     let pathViews = "";
     let pathDownloads = "";
+    let pathVisitors = "";
 
     timeline.forEach((day, index) => {
       const x = (index / (timeline.length - 1)) * chartWidth;
       
       const yViews = chartHeight - (day.views / maxVal) * chartHeight;
       const yDownloads = chartHeight - (day.downloads / maxVal) * chartHeight;
+      const yVisitors = chartHeight - ((day.visitors || 0) / maxVal) * chartHeight;
 
       if (index === 0) {
         pathViews += `M ${x},${yViews}`;
         pathDownloads += `M ${x},${yDownloads}`;
+        pathVisitors += `M ${x},${yVisitors}`;
       } else {
         const prevX = ((index - 1) / (timeline.length - 1)) * chartWidth;
         const prevYViews = chartHeight - (timeline[index - 1].views / maxVal) * chartHeight;
         const prevYDownloads = chartHeight - (timeline[index - 1].downloads / maxVal) * chartHeight;
+        const prevYVisitors = chartHeight - ((timeline[index - 1].visitors || 0) / maxVal) * chartHeight;
         
         const cpX = (prevX + x) / 2;
         pathViews += ` C ${cpX},${prevYViews} ${cpX},${yViews} ${x},${yViews}`;
         pathDownloads += ` C ${cpX},${prevYDownloads} ${cpX},${yDownloads} ${x},${yDownloads}`;
+        pathVisitors += ` C ${cpX},${prevYVisitors} ${cpX},${yVisitors} ${x},${yVisitors}`;
       }
     });
 
     return (
       <div className="w-full relative">
-        <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} className="w-full overflow-visible">
+        <svg 
+          viewBox={`0 0 ${chartWidth} ${chartHeight}`} 
+          className="w-full overflow-visible"
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+        >
           {/* Y Axis Gridlines */}
           {[0, 0.25, 0.5, 0.75, 1].map((ratio, i) => {
             const y = chartHeight * ratio;
@@ -203,6 +232,16 @@ export default function AdminDashboard({ token, onTabChange }: AdminDashboardPro
             d={pathDownloads}
           />
 
+          {/* Visitors Line */}
+          <path
+            fill="none"
+            stroke="url(#visitorsGradient)"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d={pathVisitors}
+          />
+
           {/* Gradients */}
           <defs>
             <linearGradient id="viewsGradient" x1="0" y1="0" x2="1" y2="0">
@@ -213,7 +252,50 @@ export default function AdminDashboard({ token, onTabChange }: AdminDashboardPro
               <stop offset="0%" stopColor="#f97316" />
               <stop offset="100%" stopColor="#fb923c" />
             </linearGradient>
+            <linearGradient id="visitorsGradient" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#10b981" />
+              <stop offset="100%" stopColor="#34d399" />
+            </linearGradient>
           </defs>
+
+          {/* Hover Crosshair and Tooltip */}
+          {hoverIndex !== null && timeline[hoverIndex] && (
+            <g>
+              {(() => {
+                const x = (hoverIndex / (timeline.length - 1)) * chartWidth;
+                const day = timeline[hoverIndex];
+                const yViews = chartHeight - (day.views / maxVal) * chartHeight;
+                const yDownloads = chartHeight - (day.downloads / maxVal) * chartHeight;
+                const yVisitors = chartHeight - ((day.visitors || 0) / maxVal) * chartHeight;
+                let dateStr = "";
+                if (day.date.length === 7) {
+                  const [year, month] = day.date.split("-");
+                  dateStr = new Date(parseInt(year), parseInt(month) - 1, 1).toLocaleDateString("en-US", { month: "short", year: "numeric" });
+                } else {
+                  dateStr = new Date(day.date).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+                }
+                
+                const tooltipX = x > chartWidth / 2 ? x - 85 : x + 10;
+                
+                return (
+                  <>
+                    <line x1={x} y1="0" x2={x} y2={chartHeight} stroke="currentColor" strokeWidth="1" strokeDasharray="4 4" className="text-gray-400 dark:text-gray-600 opacity-50" />
+                    <circle cx={x} cy={yViews} r="4" fill="#8b5cf6" stroke="currentColor" strokeWidth="2" className="text-white dark:text-gray-900" />
+                    <circle cx={x} cy={yDownloads} r="4" fill="#f97316" stroke="currentColor" strokeWidth="2" className="text-white dark:text-gray-900" />
+                    <circle cx={x} cy={yVisitors} r="4" fill="#10b981" stroke="currentColor" strokeWidth="2" className="text-white dark:text-gray-900" />
+                    
+                    <g transform={`translate(${tooltipX}, 5)`}>
+                      <rect x="0" y="0" width="75" height="58" rx="6" fill="currentColor" className="text-gray-800 dark:text-white shadow-lg" />
+                      <text x="37.5" y="14" fill="currentColor" fontSize="9" textAnchor="middle" className="text-white dark:text-gray-900 font-black">{dateStr}</text>
+                      <text x="37.5" y="26" fill="#34d399" fontSize="9" textAnchor="middle" className="font-bold">Visits: {day.visitors || 0}</text>
+                      <text x="37.5" y="38" fill="#c084fc" fontSize="9" textAnchor="middle" className="font-bold">Views: {day.views}</text>
+                      <text x="37.5" y="50" fill="#fb923c" fontSize="9" textAnchor="middle" className="font-bold">Down: {day.downloads}</text>
+                    </g>
+                  </>
+                );
+              })()}
+            </g>
+          )}
         </svg>
       </div>
     );
@@ -263,7 +345,7 @@ export default function AdminDashboard({ token, onTabChange }: AdminDashboardPro
           </div>
           <h2 className="text-2xl font-black text-[#0F0728] dark:text-white">{stats?.totalViews.toLocaleString()}</h2>
           {stats?.yesterdayViews !== undefined && (
-            <span className="text-[10px] text-gray-400 dark:text-gray-500 font-bold mt-1 block">Last day: {stats.yesterdayViews.toLocaleString()}</span>
+            <span className="text-xs text-gray-400 dark:text-gray-500 font-bold mt-1 block">Last day: {stats.yesterdayViews.toLocaleString()}</span>
           )}
         </div>
 
@@ -279,7 +361,7 @@ export default function AdminDashboard({ token, onTabChange }: AdminDashboardPro
           </div>
           <h2 className="text-2xl font-black text-[#0F0728] dark:text-white">{stats?.totalDownloads.toLocaleString()}</h2>
           {stats?.yesterdayDownloads !== undefined && (
-            <span className="text-[10px] text-gray-400 dark:text-gray-500 font-bold mt-1 block">Last day: {stats.yesterdayDownloads.toLocaleString()}</span>
+            <span className="text-xs text-gray-400 dark:text-gray-500 font-bold mt-1 block">Last day: {stats.yesterdayDownloads.toLocaleString()}</span>
           )}
         </div>
 
@@ -295,7 +377,7 @@ export default function AdminDashboard({ token, onTabChange }: AdminDashboardPro
           </div>
           <h2 className="text-2xl font-black text-[#0F0728] dark:text-white">{stats?.totalLikes.toLocaleString()}</h2>
           {stats?.yesterdayLikes !== undefined && (
-            <span className="text-[10px] text-gray-400 dark:text-gray-500 font-bold mt-1 block">Last day: {stats.yesterdayLikes.toLocaleString()}</span>
+            <span className="text-xs text-gray-400 dark:text-gray-500 font-bold mt-1 block">Last day: {stats.yesterdayLikes.toLocaleString()}</span>
           )}
         </div>
 
@@ -341,6 +423,9 @@ export default function AdminDashboard({ token, onTabChange }: AdminDashboardPro
 
               {/* Chart Legend */}
               <div className="flex items-center gap-4 text-xs font-bold">
+                <span className="flex items-center gap-1.5 text-green-600 dark:text-green-400">
+                  <span className="w-3 h-1 bg-green-500 rounded-full inline-block"></span> Visitors
+                </span>
                 <span className="flex items-center gap-1.5 text-purple-600 dark:text-purple-400">
                   <span className="w-3 h-1 bg-purple-500 rounded-full inline-block"></span> Views
                 </span>

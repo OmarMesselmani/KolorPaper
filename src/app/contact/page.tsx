@@ -137,6 +137,9 @@ export default function ContactPage() {
                     placeholder="you@example.com"
                     className="w-full px-4 py-3 bg-white dark:bg-gray-900 border border-purple-600/20 dark:border-white/10 rounded-xl text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent text-sm transition-all duration-300"
                   />
+                  <div className="not-prose !text-[12px] font-normal text-red-600 dark:text-red-400 mt-2 leading-none text-right">
+                    Please make sure to enter your email correctly so we can get back to you.
+                  </div>
                 </div>
                 <div>
                   <label htmlFor="message" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5">
@@ -155,7 +158,7 @@ export default function ContactPage() {
                 <button
                   type="submit"
                   disabled={cooldown}
-                  className="px-8 py-3 bg-gradient-to-r from-purple-600 to-orange-500 hover:from-purple-500 hover:to-orange-400 text-white font-extrabold rounded-xl transition-all duration-300 shadow-lg hover:shadow-orange-500/20 hover:-translate-y-0.5 active:translate-y-0 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                  className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 via-pink-500 to-purple-600 bg-[length:200%_auto] text-white px-7 py-3 rounded-full font-bold text-base shadow-sm hover:shadow-lg hover:shadow-purple-500/20 hover:-translate-y-1 hover:bg-[position:right_center] transition-all duration-500 cursor-pointer border-none disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:bg-[position:left_center]"
                 >
                   Send Message
                 </button>
@@ -175,11 +178,7 @@ export default function ContactPage() {
               <div>
                 <p className="font-bold text-[#0F0728] dark:text-gray-100 mb-1">Follow Us</p>
                 <div className="flex items-center gap-3">
-                  <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-purple-600 dark:text-purple-400 hover:text-orange-500 dark:hover:text-orange-400 transition-colors font-semibold no-underline">
-                    Instagram
-                  </a>
-                  <span className="text-gray-300 dark:text-gray-700">|</span>
-                  <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-purple-600 dark:text-purple-400 hover:text-orange-500 dark:hover:text-orange-400 transition-colors font-semibold no-underline">
+                  <a href="https://www.facebook.com/kolorpaper" target="_blank" rel="noopener noreferrer" className="text-purple-600 dark:text-purple-400 hover:text-orange-500 dark:hover:text-orange-400 transition-colors font-semibold no-underline">
                     Facebook
                   </a>
                 </div>

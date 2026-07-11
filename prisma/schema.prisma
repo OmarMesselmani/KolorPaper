@@ -85,6 +85,7 @@ model PageView {
   action    String // "view" | "download"
   ip        String?
   userAgent String?
+  country   String?
   createdAt DateTime     @default(now())
 
   page ColoringPage @relation(fields: [pageSlug], references: [slug])

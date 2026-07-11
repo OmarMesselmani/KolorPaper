@@ -28,10 +28,28 @@ export async function POST(
       undefined
     );
     const userAgent = req.headers.get("user-agent") || undefined;
+    const country = req.headers.get("cf-ipcountry") || req.headers.get("x-vercel-ip-country") || "Unknown";
 
     const page = await prisma.coloringPage.findUnique({ where: { slug } });
     if (!page) {
       return NextResponse.json({ error: "Page not found" }, { status: 404 });
+    }
+
+    // Check if the user has viewed this page in the last 24 hours
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const existingView = await prisma.pageView.findFirst({
+      where: {
+        pageSlug: slug,
+        action: "view",
+        ip,
+        createdAt: {
+          gte: twentyFourHoursAgo
+        }
+      }
+    });
+
+    if (existingView) {
+      return NextResponse.json({ views: page.views });
     }
 
     const updatedPage = await prisma.coloringPage.update({
@@ -44,7 +62,8 @@ export async function POST(
         pageSlug: slug,
         action: "view",
         ip,
-        userAgent
+        userAgent,
+        country
       }
     });
 

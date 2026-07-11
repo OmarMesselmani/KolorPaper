@@ -21,12 +21,9 @@ export async function POST(
 ) {
   try {
     const { slug } = await params;
-    const ip = anonymizeIp(
-      req.headers.get("cf-connecting-ip") ||
-      req.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
-      undefined
-    );
+    const ip = anonymizeIp(req.headers.get("cf-connecting-ip") || req.headers.get("x-forwarded-for")?.split(",")[0].trim() || undefined);
     const userAgent = req.headers.get("user-agent") || undefined;
+    const country = req.headers.get("cf-ipcountry") || req.headers.get("x-vercel-ip-country") || "Unknown";
 
     const page = await prisma.coloringPage.findUnique({ where: { slug } });
     if (!page) {
@@ -43,7 +40,8 @@ export async function POST(
         pageSlug: slug,
         action: "download",
         ip,
-        userAgent
+        userAgent,
+        country
       }
     });
 

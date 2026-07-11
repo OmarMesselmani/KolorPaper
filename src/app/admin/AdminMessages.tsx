@@ -239,7 +239,7 @@ export default function AdminMessages({ token }: AdminMessagesProps) {
                     <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
                       <button
                         onClick={() => handleToggleRead(msg, !msg.read)}
-                        className={`p-1.5 rounded-lg transition-colors ${msg.read ? "text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800" : "text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-950/20"}`}
+                        className={`p-1.5 bg-white/5 border border-white/10 rounded-lg transition-colors cursor-pointer ${msg.read ? "text-gray-400 hover:bg-white/10 hover:text-white" : "text-purple-500 hover:bg-white/10 hover:text-purple-400"}`}
                         title={msg.read ? "Mark as unread" : "Mark as read"}
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
@@ -248,7 +248,7 @@ export default function AdminMessages({ token }: AdminMessagesProps) {
                       </button>
                       <button
                         onClick={() => initiateDelete(msg.id)}
-                        className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-colors"
+                        className="p-1.5 bg-white/5 hover:bg-red-950/20 hover:text-red-400 border border-white/10 rounded-lg text-gray-400 transition-colors cursor-pointer"
                         title="Delete message"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">

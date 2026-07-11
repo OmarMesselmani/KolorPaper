@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "eslint",
     "postinstall": "prisma generate",
-    "db:backup": "wrangler d1 export kolorpaper-d1 --remote --output=backup.sql"
+    "db:backup": "wrangler d1 export kolorpaper-d1 --remote --output=backup.sql",
+    "db:sync": "npm run db:backup && node scripts/import-local-db.js"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",

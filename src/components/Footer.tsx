@@ -21,8 +21,6 @@ export default function Footer({ categories = [] }: FooterProps) {
 
   return (
     <footer className="relative bg-[#0F0728] text-white mt-24 print:hidden overflow-hidden">
-      {/* Decorative Brand Gradient Line at Top */}
-      <div className="h-[5px] bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 w-full" />
 
       {/* Decorative background glow shapes */}
       <div className="absolute top-1/2 left-0 -translate-y-1/2 w-64 h-64 bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
@@ -57,7 +55,7 @@ export default function Footer({ categories = [] }: FooterProps) {
               </a>
               {/* Facebook */}
               <a 
-                href="https://facebook.com" 
+                href="https://www.facebook.com/kolorpaper" 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-300 hover:text-white hover:bg-blue-600 hover:border-blue-600 transition-all duration-300 hover:-translate-y-1"

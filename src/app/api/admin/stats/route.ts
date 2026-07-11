@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
         createdAt: { gte: startDate },
         action: { in: ['view', 'download', 'like'] }
       },
-      select: { createdAt: true, action: true }
+      select: { createdAt: true, action: true, ip: true }
     });
 
     const yesterdayDate = new Date();
@@ -44,21 +44,21 @@ export async function GET(req: NextRequest) {
     
     let yesterdayViews = 0, yesterdayDownloads = 0, yesterdayLikes = 0;
 
-    const timelineData: Record<string, { views: number; downloads: number; likes: number }> = {};
+    const timelineData: Record<string, { views: number; downloads: number; likes: number; ips: Set<string> }> = {};
     
     if (range === 365) {
       for (let i = 11; i >= 0; i--) {
         const d = new Date();
         d.setMonth(d.getMonth() - i);
         const monthStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-        timelineData[monthStr] = { views: 0, downloads: 0, likes: 0 };
+        timelineData[monthStr] = { views: 0, downloads: 0, likes: 0, ips: new Set() };
       }
     } else {
       for (let i = range - 1; i >= 0; i--) {
         const d = new Date();
         d.setDate(d.getDate() - i);
         const dateStr = d.toISOString().split("T")[0];
-        timelineData[dateStr] = { views: 0, downloads: 0, likes: 0 };
+        timelineData[dateStr] = { views: 0, downloads: 0, likes: 0, ips: new Set() };
       }
     }
 
@@ -80,11 +80,16 @@ export async function GET(req: NextRequest) {
         if (record.action === "view") timelineData[bucketKey].views++;
         else if (record.action === "download") timelineData[bucketKey].downloads++;
         else if (record.action === "like") timelineData[bucketKey].likes++;
+        if (record.ip) timelineData[bucketKey].ips.add(record.ip);
       }
     }
 
     const activityTimeline = Object.entries(timelineData).map(([date, stats]) => ({
-      date, ...stats
+      date, 
+      views: stats.views,
+      downloads: stats.downloads,
+      likes: stats.likes,
+      visitors: stats.ips.size
     }));
 
     return NextResponse.json({

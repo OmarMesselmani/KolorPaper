@@ -8,6 +8,7 @@ import AdminPages from "./AdminPages";
 import AdminPosts from "./AdminPosts";
 import AdminMessages from "./AdminMessages";
 import AdminTags from "./AdminTags";
+import AdminVisitors from "./AdminVisitors";
 
 interface AdminUser {
   id: string;
@@ -94,6 +95,8 @@ export default function AdminPage() {
         return <AdminTags token={token} />;
       case "messages":
         return <AdminMessages token={token} />;
+      case "visitors":
+        return <AdminVisitors token={token} />;
       default:
         return <AdminDashboard token={token} onTabChange={setActiveTab} />;
     }
@@ -177,6 +180,17 @@ export default function AdminPage() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
             </svg>
             <span>Contact Messages</span>
+          </button>
+
+          {/* Visitors Analytics */}
+          <button
+            onClick={() => setActiveTab("visitors")}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-extrabold transition-all duration-300 ${activeTab === "visitors" ? "bg-purple-600 text-white shadow-lg shadow-purple-600/20" : "text-gray-400 hover:text-white hover:bg-white/5"}`}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+            </svg>
+            <span>Visitors</span>
           </button>
         </nav>
 
