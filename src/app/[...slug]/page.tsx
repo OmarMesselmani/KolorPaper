@@ -20,12 +20,16 @@ import { Metadata } from "next";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kolorpaper.com';
 
 export async function generateMetadata({
-  params
+  params,
+  searchParams,
 }: {
-  params: Promise<{ slug: string[] }>
+  params: Promise<{ slug: string[] }>;
+  searchParams: Promise<{ difficulty?: string; ageGroup?: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
+  const { difficulty, ageGroup } = await searchParams;
   const lastSlug = slug[slug.length - 1];
+  const hasFilters = !!(difficulty || ageGroup);
 
   // Run both lookups in parallel - only one will match
   const [coloringPage, category] = await Promise.all([
@@ -44,6 +48,7 @@ export async function generateMetadata({
       alternates: {
         canonical: url,
       },
+      robots: hasFilters ? { index: false, follow: true } : undefined,
       openGraph: {
         title,
         description,
@@ -78,6 +83,7 @@ export async function generateMetadata({
       alternates: {
         canonical: url,
       },
+      robots: hasFilters ? { index: false, follow: true } : undefined,
       openGraph: {
         title,
         description,

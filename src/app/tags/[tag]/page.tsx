@@ -7,8 +7,18 @@ import FilterDrawer from "@/components/FilterDrawer";
 import { Suspense } from "react";
 import { Metadata } from "next";
 
-export async function generateMetadata({ params }: { params: Promise<{ tag: string }> }): Promise<Metadata> {
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kolorpaper.com';
+
+export async function generateMetadata({ 
+  params,
+  searchParams,
+}: { 
+  params: Promise<{ tag: string }>;
+  searchParams: Promise<{ difficulty?: string; ageGroup?: string }>;
+}): Promise<Metadata> {
   const { tag: encodedTag } = await params;
+  const { difficulty, ageGroup } = await searchParams;
+  const hasFilters = !!(difficulty || ageGroup);
   const tag = decodeURIComponent(encodedTag);
   const normalizedTag = tag.toLowerCase().trim();
   
@@ -21,6 +31,10 @@ export async function generateMetadata({ params }: { params: Promise<{ tag: stri
   return {
     title: customData?.title ? customData.title : `${capitalizedTag} Coloring Pages`,
     description: customData?.description || `Free printable ${tag} coloring pages for kids and adults. Download high-quality ${tag} coloring sheets.`,
+    alternates: {
+      canonical: `${siteUrl}/tags/${encodedTag}`,
+    },
+    robots: hasFilters ? { index: false, follow: true } : undefined,
   };
 }
 
