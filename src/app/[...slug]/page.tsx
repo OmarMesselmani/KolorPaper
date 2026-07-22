@@ -41,7 +41,7 @@ export async function generateMetadata({
     const url = `${siteUrl}/${slug.join('/')}`;
     const title = `${coloringPage.title}`;
     const description = coloringPage.description || `Download and print this free ${coloringPage.title} coloring page for kids.`;
-    const imageUrl = coloringPage.thumbnailUrl || coloringPage.imageUrl;
+    const imageUrl = coloringPage.imageUrl;
     return {
       title,
       description,
@@ -75,8 +75,6 @@ export async function generateMetadata({
     const url = `${siteUrl}/${slug.join('/')}`;
     const title = `${category.title} Coloring Pages`;
     const description = category.description || `Explore our collection of free printable ${category.title} coloring pages for kids and adults. Download high-quality coloring sheets.`;
-    const optimizedImageUrl = category.imageUrl ? category.imageUrl.replace(/\.(jpe?g|png)$/i, '.webp') : undefined;
-
     return {
       title,
       description,
@@ -89,9 +87,9 @@ export async function generateMetadata({
         description,
         url,
         siteName: 'KolorPaper',
-        images: optimizedImageUrl ? [
+        images: category.imageUrl ? [
           {
-            url: optimizedImageUrl,
+            url: category.imageUrl,
             alt: `${category.title} coloring pages`,
           },
         ] : undefined,
@@ -101,7 +99,7 @@ export async function generateMetadata({
         card: 'summary_large_image',
         title,
         description,
-        images: optimizedImageUrl ? [optimizedImageUrl] : undefined,
+        images: category.imageUrl ? [category.imageUrl] : undefined,
       },
     };
   }
@@ -169,7 +167,7 @@ export default async function DynamicPage({
               "@type": "ImageObject",
               "name": `${coloringPage.title} Free Printable Coloring Page`,
               "description": coloringPage.description || `Free printable ${coloringPage.title} coloring page for kids.`,
-              "contentUrl": coloringPage.thumbnailUrl || coloringPage.imageUrl,
+              "contentUrl": coloringPage.imageUrl,
               "thumbnailUrl": coloringPage.thumbnailUrl || coloringPage.imageUrl,
               "license": `${siteUrl}/terms-of-use`,
               "acquireLicensePage": `${siteUrl}/${slug.join('/')}`,
@@ -197,6 +195,7 @@ export default async function DynamicPage({
                 width={450}
                 height={600}
                 className="w-full h-auto block print:hidden"
+                priority
               />
 
             </div>
