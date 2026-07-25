@@ -31,11 +31,13 @@ export const metadata: Metadata = {
   description: "Free printable coloring pages with colored examples for kids and adults. Download coloring sheets and use the included color reference to inspire your creativity.",
   icons: {
     icon: [
-      { url: "/favicon.png", type: "image/png", sizes: "48x48 96x96 144x144 192x192 256x256 512x512" },
-      { url: "/favicon.svg", type: "image/svg+xml", sizes: "any" },
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon.png", type: "image/png", sizes: "96x96" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
     ],
     apple: "/favicon.png",
   },
+  manifest: "/site.webmanifest",
   alternates: {
     canonical: siteUrl,
   },
