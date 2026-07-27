@@ -236,8 +236,8 @@ export default function AdminTags({ token }: { token: string }) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Custom Tags</h1>
-          <p className="text-gray-400 text-sm mt-1">Manage SEO and display information for specific tags.</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Custom Tags</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Manage SEO and display information for specific tags.</p>
         </div>
         <button
           onClick={() => handleOpenModal()}
@@ -273,7 +273,7 @@ export default function AdminTags({ token }: { token: string }) {
       ) : (
         <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
           <table className="w-full text-left text-sm">
-            <thead className="bg-white/5 border-b border-white/10 text-gray-400">
+            <thead className="bg-gray-50 dark:bg-white/5 border-b border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400">
               <tr>
                 <th className="px-6 py-4 font-bold w-16">Image</th>
                 <th className="px-6 py-4 font-bold">Tag Name</th>
@@ -282,23 +282,23 @@ export default function AdminTags({ token }: { token: string }) {
                 <th className="px-6 py-4 font-bold text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-gray-200 dark:divide-white/5">
               {tags.map((tag) => (
-                <tr key={tag.id} className="hover:bg-white/5 transition-colors group">
+                <tr key={tag.id} className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group">
                   <td className="px-6 py-4">
                     {tag.imageUrl ? (
-                      <div className="w-10 h-10 rounded-lg overflow-hidden relative bg-white/5">
+                      <div className="w-10 h-10 rounded-lg overflow-hidden relative bg-gray-100 dark:bg-white/5">
                         <img src={tag.imageUrl} alt={tag.name} className="object-cover w-full h-full" />
                       </div>
                     ) : (
-                      <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-lg">
+                      <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-white/5 flex items-center justify-center text-lg">
                         🎨
                       </div>
                     )}
                   </td>
-                  <td className="px-6 py-4 font-bold text-white capitalize">{tag.name}</td>
-                  <td className="px-6 py-4 text-gray-300 truncate max-w-xs">{tag.title || <span className="text-gray-600 italic">Default</span>}</td>
-                  <td className="px-6 py-4 text-gray-300 truncate max-w-xs">{tag.h2 || <span className="text-gray-600 italic">Default</span>}</td>
+                  <td className="px-6 py-4 font-bold text-gray-900 dark:text-white capitalize">{tag.name}</td>
+                  <td className="px-6 py-4 text-gray-600 dark:text-gray-300 truncate max-w-xs">{tag.title || <span className="text-gray-400 dark:text-gray-600 italic">Default</span>}</td>
+                  <td className="px-6 py-4 text-gray-600 dark:text-gray-300 truncate max-w-xs">{tag.h2 || <span className="text-gray-400 dark:text-gray-600 italic">Default</span>}</td>
                   <td className="px-6 py-4 text-right align-middle">
                     <div className="flex items-center justify-end gap-1.5">
                       <button
@@ -353,15 +353,15 @@ export default function AdminTags({ token }: { token: string }) {
 
       {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#0F0728] border border-white/10 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl">
-            <div className="p-6 border-b border-white/10 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-white">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-[#0F0728] border border-gray-200 dark:border-white/10 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl">
+            <div className="p-6 border-b border-gray-200 dark:border-white/10 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                 {editingTag ? `Edit Tag: ${editingTag.name}` : "Create Custom Tag"}
               </h2>
               <button
                 onClick={handleCloseModal}
-                className="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-white/5 transition-colors"
+                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-white rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
@@ -371,13 +371,13 @@ export default function AdminTags({ token }: { token: string }) {
             
             <form onSubmit={handleSubmit} className="p-6 space-y-5">
               <div>
-                <label className="block text-sm font-bold text-gray-300 mb-1.5">Tag Name (e.g. rabbit) *</label>
+                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5">Tag Name (e.g. rabbit) *</label>
                 <input
                   type="text"
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full bg-[#070216] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-600/50 focus:border-purple-600 transition-all"
+                  className="w-full bg-gray-50 dark:bg-[#070216] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-600/50 focus:border-purple-600 transition-all"
                   placeholder="rabbit"
                 />
               </div>
@@ -414,34 +414,34 @@ export default function AdminTags({ token }: { token: string }) {
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-gray-300 mb-1.5">Custom Title (SEO)</label>
+                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5">Custom Title (SEO)</label>
                 <input
                   type="text"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full bg-[#070216] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-600/50 focus:border-purple-600 transition-all"
+                  className="w-full bg-gray-50 dark:bg-[#070216] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-600/50 focus:border-purple-600 transition-all"
                   placeholder="Rabbit Coloring Pages"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-gray-300 mb-1.5">Custom H2 Heading</label>
+                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5">Custom H2 Heading</label>
                 <input
                   type="text"
                   value={formData.h2}
                   onChange={(e) => setFormData({ ...formData, h2: e.target.value })}
-                  className="w-full bg-[#070216] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-600/50 focus:border-purple-600 transition-all"
+                  className="w-full bg-gray-50 dark:bg-[#070216] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-600/50 focus:border-purple-600 transition-all"
                   placeholder="Rabbit Coloring Pages"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-gray-300 mb-1.5">Custom Description (SEO & UI)</label>
+                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1.5">Custom Description (SEO & UI)</label>
                 <textarea
                   rows={4}
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full bg-[#070216] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-600/50 focus:border-purple-600 transition-all resize-none"
+                  className="w-full bg-gray-50 dark:bg-[#070216] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-600/50 focus:border-purple-600 transition-all resize-none"
                   placeholder="Discover free printable rabbit coloring pages for kids..."
                 ></textarea>
               </div>
@@ -450,7 +450,7 @@ export default function AdminTags({ token }: { token: string }) {
                 <button
                   type="button"
                   onClick={handleCloseModal}
-                  className="px-5 py-2.5 bg-white/5 hover:bg-white/10 text-white font-bold rounded-xl transition-colors text-sm"
+                  className="px-5 py-2.5 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-700 dark:text-white font-bold rounded-xl transition-colors text-sm"
                 >
                   Cancel
                 </button>

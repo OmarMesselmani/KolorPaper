@@ -50,20 +50,20 @@ export default function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#070216] relative overflow-hidden px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#070216] relative overflow-hidden px-4 transition-colors duration-300">
       {/* Decorative Blur Orbs */}
       <div className="absolute top-1/4 -left-32 w-96 h-96 bg-purple-600/20 rounded-full blur-[100px] animate-pulse pointer-events-none"></div>
       <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-orange-500/10 rounded-full blur-[100px] animate-pulse pointer-events-none" style={{ animationDelay: "2s" }}></div>
 
-      <div className="w-full max-w-md bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 md:p-10 shadow-2xl relative z-10">
+      <div className="w-full max-w-md bg-white dark:bg-white/5 backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-3xl p-8 md:p-10 shadow-2xl relative z-10">
         <div className="text-center mb-8 flex flex-col items-center gap-3">
           <img src="/logo.svg" alt="KolorPaper" className="h-12 object-contain mx-auto" />
-          <p className="text-gray-400 text-sm font-semibold tracking-wide uppercase">Control Panel Authentication</p>
+          <p className="text-gray-500 dark:text-gray-400 text-sm font-semibold tracking-wide uppercase">Control Panel Authentication</p>
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-950/40 border border-red-500/30 text-red-300 rounded-2xl text-sm font-semibold flex items-center gap-3 animate-headShake">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 flex-shrink-0 text-red-400">
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-500/30 text-red-600 dark:text-red-300 rounded-2xl text-sm font-semibold flex items-center gap-3 animate-headShake">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 flex-shrink-0 text-red-500 dark:text-red-400">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
             </svg>
             <span>{error}</span>
@@ -72,7 +72,7 @@ export default function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label htmlFor="email" className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-2">
+            <label htmlFor="email" className="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-2">
               Email Address
             </label>
             <input
@@ -82,12 +82,12 @@ export default function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent text-sm transition-all duration-300"
+              className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent text-sm transition-all duration-300"
             />
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-2">
+            <label htmlFor="password" className="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-2">
               Password
             </label>
             <div className="relative">
@@ -98,7 +98,7 @@ export default function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent text-sm transition-all duration-300 pr-12"
+                className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent text-sm transition-all duration-300 pr-12"
               />
               <button
                 type="button"

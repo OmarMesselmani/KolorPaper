@@ -9,6 +9,7 @@ import AdminPosts from "./AdminPosts";
 import AdminMessages from "./AdminMessages";
 import AdminTags from "./AdminTags";
 import AdminVisitors from "./AdminVisitors";
+import DarkModeToggle from "@/components/DarkModeToggle";
 
 interface AdminUser {
   id: string;
@@ -63,7 +64,7 @@ export default function AdminPage() {
 
   if (initializing) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#070216] text-white">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#070216] text-gray-900 dark:text-white transition-colors duration-300">
         <svg className="animate-spin h-10 w-10 text-purple-600" fill="none" viewBox="0 0 24 24">
           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
@@ -74,7 +75,7 @@ export default function AdminPage() {
 
   if (!token) {
     return (
-      <div className="dark">
+      <div className="relative">
         <AdminLogin onLoginSuccess={handleLoginSuccess} />
       </div>
     );
@@ -103,14 +104,17 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="dark min-h-screen h-screen overflow-hidden bg-[#070216] text-white flex flex-col md:flex-row transition-colors duration-300">
+    <div className="min-h-screen h-screen overflow-hidden bg-gray-50 dark:bg-[#070216] text-gray-900 dark:text-white flex flex-col md:flex-row transition-colors duration-300">
       
       {/* Sidebar Navigation */}
-      <aside className="w-full md:w-64 bg-[#0F0728] text-white flex-shrink-0 flex flex-col border-r border-white/5 relative z-20 h-full overflow-y-auto">
+      <aside className="w-full md:w-64 bg-white dark:bg-[#0F0728] text-gray-800 dark:text-white flex-shrink-0 flex flex-col border-r border-gray-200 dark:border-white/5 relative z-20 h-full overflow-y-auto transition-colors duration-300">
         {/* Sidebar Header Brand */}
-        <div className="p-6 border-b border-white/5 flex flex-col items-start gap-1.5">
-          <img src="/logo.svg" alt="KolorPaper" className="h-10 object-contain" />
-          <span className="text-[10px] text-gray-500 font-extrabold uppercase tracking-wider block mt-1">Management Console</span>
+        <div className="p-6 border-b border-gray-200 dark:border-white/5 flex items-center justify-between gap-2">
+          <div className="flex flex-col items-start gap-1.5 min-w-0">
+            <img src="/logo.svg" alt="KolorPaper" className="h-10 object-contain" />
+            <span className="text-[10px] text-gray-500 font-extrabold uppercase tracking-wider block mt-1">Management Console</span>
+          </div>
+          <DarkModeToggle />
         </div>
 
         {/* Sidebar Navigation Links */}
@@ -118,7 +122,7 @@ export default function AdminPage() {
           {/* Dashboard Stats */}
           <button
             onClick={() => setActiveTab("dashboard")}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-extrabold transition-all duration-300 ${activeTab === "dashboard" ? "bg-purple-600 text-white shadow-lg shadow-purple-600/20" : "text-gray-400 hover:text-white hover:bg-white/5"}`}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-extrabold transition-all duration-300 ${activeTab === "dashboard" ? "bg-purple-600 text-white shadow-lg shadow-purple-600/20" : "text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-white hover:bg-purple-50 dark:hover:bg-white/5"}`}
           >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
@@ -129,7 +133,7 @@ export default function AdminPage() {
           {/* Categories Manager */}
           <button
             onClick={() => setActiveTab("categories")}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-extrabold transition-all duration-300 ${activeTab === "categories" ? "bg-purple-600 text-white shadow-lg shadow-purple-600/20" : "text-gray-400 hover:text-white hover:bg-white/5"}`}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-extrabold transition-all duration-300 ${activeTab === "categories" ? "bg-purple-600 text-white shadow-lg shadow-purple-600/20" : "text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-white hover:bg-purple-50 dark:hover:bg-white/5"}`}
           >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581a2.25 2.25 0 0 0 3.182 0l4.318-4.318a2.25 2.25 0 0 0 0-3.182L11.16 3.659A2.25 2.25 0 0 0 9.568 3Z" />
@@ -141,7 +145,7 @@ export default function AdminPage() {
           {/* Coloring Pages Manager */}
           <button
             onClick={() => setActiveTab("pages")}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-extrabold transition-all duration-300 ${activeTab === "pages" ? "bg-purple-600 text-white shadow-lg shadow-purple-600/20" : "text-gray-400 hover:text-white hover:bg-white/5"}`}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-extrabold transition-all duration-300 ${activeTab === "pages" ? "bg-purple-600 text-white shadow-lg shadow-purple-600/20" : "text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-white hover:bg-purple-50 dark:hover:bg-white/5"}`}
           >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
               <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
@@ -152,7 +156,7 @@ export default function AdminPage() {
           {/* Blog Posts Manager */}
           <button
             onClick={() => setActiveTab("posts")}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-extrabold transition-all duration-300 ${activeTab === "posts" ? "bg-purple-600 text-white shadow-lg shadow-purple-600/20" : "text-gray-400 hover:text-white hover:bg-white/5"}`}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-extrabold transition-all duration-300 ${activeTab === "posts" ? "bg-purple-600 text-white shadow-lg shadow-purple-600/20" : "text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-white hover:bg-purple-50 dark:hover:bg-white/5"}`}
           >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 0 1-2.25 2.25M16.5 7.5V18a2.25 2.25 0 0 0 2.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 0 0 2.25 2.25h13.5M6 7.5h3v3H6v-3Z" />
@@ -163,7 +167,7 @@ export default function AdminPage() {
           {/* Tags Manager */}
           <button
             onClick={() => setActiveTab("tags")}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-extrabold transition-all duration-300 ${activeTab === "tags" ? "bg-purple-600 text-white shadow-lg shadow-purple-600/20" : "text-gray-400 hover:text-white hover:bg-white/5"}`}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-extrabold transition-all duration-300 ${activeTab === "tags" ? "bg-purple-600 text-white shadow-lg shadow-purple-600/20" : "text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-white hover:bg-purple-50 dark:hover:bg-white/5"}`}
           >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5l-3.9 19.5m-2.1-19.5l-3.9 19.5" />
@@ -174,7 +178,7 @@ export default function AdminPage() {
           {/* Messaging Panel */}
           <button
             onClick={() => setActiveTab("messages")}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-extrabold transition-all duration-300 ${activeTab === "messages" ? "bg-purple-600 text-white shadow-lg shadow-purple-600/20" : "text-gray-400 hover:text-white hover:bg-white/5"}`}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-extrabold transition-all duration-300 ${activeTab === "messages" ? "bg-purple-600 text-white shadow-lg shadow-purple-600/20" : "text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-white hover:bg-purple-50 dark:hover:bg-white/5"}`}
           >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
@@ -185,7 +189,7 @@ export default function AdminPage() {
           {/* Visitors Analytics */}
           <button
             onClick={() => setActiveTab("visitors")}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-extrabold transition-all duration-300 ${activeTab === "visitors" ? "bg-purple-600 text-white shadow-lg shadow-purple-600/20" : "text-gray-400 hover:text-white hover:bg-white/5"}`}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-extrabold transition-all duration-300 ${activeTab === "visitors" ? "bg-purple-600 text-white shadow-lg shadow-purple-600/20" : "text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-white hover:bg-purple-50 dark:hover:bg-white/5"}`}
           >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
@@ -195,17 +199,17 @@ export default function AdminPage() {
         </nav>
 
         {/* Sidebar Footer User Profile */}
-        <div className="p-4 border-t border-white/5 space-y-3">
+        <div className="p-4 border-t border-gray-200 dark:border-white/5 space-y-3">
           <div className="flex items-center gap-3 px-2 py-1">
             <img src="/favicon.svg" alt="Admin" className="w-8 h-8 object-contain" />
             <div className="min-w-0">
-              <span className="block text-xs font-extrabold truncate">{admin?.name || "Administrator"}</span>
+              <span className="block text-xs font-extrabold truncate text-gray-800 dark:text-white">{admin?.name || "Administrator"}</span>
               <span className="block text-[9px] text-gray-500 truncate">{admin?.email}</span>
             </div>
           </div>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-2 justify-center px-4 py-2.5 bg-white/5 hover:bg-red-950/20 hover:text-red-400 border border-white/10 rounded-xl text-xs font-bold text-gray-400 transition-colors"
+            className="w-full flex items-center gap-2 justify-center px-4 py-2.5 bg-gray-100 dark:bg-white/5 hover:bg-red-50 dark:hover:bg-red-950/20 hover:text-red-600 dark:hover:text-red-400 border border-gray-200 dark:border-white/10 rounded-xl text-xs font-bold text-gray-600 dark:text-gray-400 transition-colors"
           >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
@@ -216,7 +220,7 @@ export default function AdminPage() {
       </aside>
 
       {/* Main Panel Content Area */}
-      <main className="flex-1 overflow-y-auto px-4 md:px-8 py-8 h-full bg-[#070216] text-white">
+      <main className="flex-1 overflow-y-auto px-4 md:px-8 py-8 h-full bg-gray-50 dark:bg-[#070216] text-gray-900 dark:text-white transition-colors duration-300">
         {renderActivePanel()}
       </main>
     </div>

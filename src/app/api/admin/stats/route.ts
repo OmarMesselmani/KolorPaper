@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
     const unreadMessages = await prisma.contactMessage.count({ where: { read: false } });
 
     const popularPages = await prisma.coloringPage.findMany({
-      take: 5,
+      take: 8,
       orderBy: { views: "desc" },
       select: { id: true, title: true, slug: true, views: true, downloads: true, likes: true, categorySlug: true }
     });
@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
         createdAt: { gte: startDate },
         action: { in: ['view', 'download', 'like'] }
       },
-      select: { createdAt: true, action: true, ip: true }
+      select: { createdAt: true, action: true, ip: true, userAgent: true }
     });
 
     const yesterdayDate = new Date();
@@ -62,6 +62,10 @@ export async function GET(req: NextRequest) {
       }
     }
 
+    let phoneCount = 0;
+    let computerCount = 0;
+    let otherCount = 0;
+
     for (const record of recentViews) {
       const fullDateStr = record.createdAt.toISOString().split("T")[0];
       
@@ -82,7 +86,80 @@ export async function GET(req: NextRequest) {
         else if (record.action === "like") timelineData[bucketKey].likes++;
         if (record.ip) timelineData[bucketKey].ips.add(record.ip);
       }
+
+      // Device Classification
+      const ua = (record.userAgent || "").toLowerCase();
+      if (!ua) {
+        otherCount++;
+      } else if (
+        ua.includes("googlebot") || ua.includes("bingbot") || ua.includes("yandexbot") ||
+        ua.includes("baiduspider") || ua.includes("bot") || ua.includes("python") ||
+        ua.includes("curl") || ua.includes("wget")
+      ) {
+        otherCount++;
+      } else if (ua.includes("mobi") || ua.includes("iphone") || ua.includes("ipod") || ua.includes("windows phone") || ua.includes("blackberry")) {
+        phoneCount++;
+      } else if (ua.includes("windows") || ua.includes("macintosh") || ua.includes("linux") || ua.includes("cros")) {
+        if ((ua.includes("android") && !ua.includes("mobi")) || ua.includes("ipad")) {
+          otherCount++;
+        } else {
+          computerCount++;
+        }
+      } else {
+        otherCount++;
+      }
     }
+
+    const totalDeviceCount = phoneCount + computerCount + otherCount;
+    const deviceStats = {
+      phone: phoneCount,
+      computer: computerCount,
+      other: otherCount,
+      total: totalDeviceCount,
+      phonePercent: totalDeviceCount > 0 ? Math.round((phoneCount / totalDeviceCount) * 100) : 0,
+      computerPercent: totalDeviceCount > 0 ? Math.round((computerCount / totalDeviceCount) * 100) : 0,
+      otherPercent: totalDeviceCount > 0 ? Math.round((otherCount / totalDeviceCount) * 100) : 0,
+    };
+
+    const countryRangeParam = url.searchParams.get("countryRange") || rangeParam;
+    const countryRange = parseInt(countryRangeParam, 10);
+    const countryStartDate = new Date();
+    countryStartDate.setDate(countryStartDate.getDate() - Math.max(countryRange, 1));
+
+    const countryViews = await prisma.pageView.findMany({
+      where: {
+        createdAt: { gte: countryStartDate },
+      },
+      select: { country: true, ip: true }
+    });
+
+    const countryIPs: Record<string, Set<string>> = {};
+
+    for (const record of countryViews) {
+      const country = record.country || "Unknown";
+      if (!countryIPs[country]) {
+        countryIPs[country] = new Set();
+      }
+      if (record.ip) {
+        countryIPs[country].add(record.ip);
+      }
+    }
+
+    let totalUniqueVisitors = 0;
+    const countryStatsList = Object.entries(countryIPs).map(([code, ipSet]) => {
+      const count = ipSet.size;
+      totalUniqueVisitors += count;
+      return { code, count };
+    });
+
+    const topCountries = countryStatsList
+      .map(item => ({
+        code: item.code,
+        count: item.count,
+        percent: totalUniqueVisitors > 0 ? Math.round((item.count / totalUniqueVisitors) * 100) : 0
+      }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
 
     const activityTimeline = Object.entries(timelineData).map(([date, stats]) => ({
       date, 
@@ -103,7 +180,7 @@ export async function GET(req: NextRequest) {
         yesterdayLikes,
         totalMessages, unreadMessages
       },
-      popularPages, recentMessages, activityTimeline
+      popularPages, recentMessages, activityTimeline, deviceStats, topCountries
     });
   } catch (error) {
     console.error("Error fetching admin stats:", error);

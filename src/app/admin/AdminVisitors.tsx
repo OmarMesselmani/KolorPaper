@@ -99,6 +99,76 @@ export default function AdminVisitors({ token }: AdminVisitorsProps) {
     return "Unknown Device";
   };
 
+  const getDeviceType = (ua: string): 'phone' | 'computer' | 'other' => {
+    const lower = ua.toLowerCase();
+    
+    if (
+      lower.includes("googlebot") || 
+      lower.includes("bingbot") || 
+      lower.includes("yandexbot") || 
+      lower.includes("baiduspider") ||
+      lower.includes("bot") ||
+      lower.includes("python") || 
+      lower.includes("curl") || 
+      lower.includes("wget")
+    ) {
+      return 'other';
+    }
+
+    if (lower.includes("mobi") || lower.includes("iphone") || lower.includes("ipod") || lower.includes("windows phone") || lower.includes("blackberry")) {
+      return 'phone';
+    }
+
+    if (lower.includes("windows") || lower.includes("macintosh") || lower.includes("linux") || lower.includes("cros")) {
+      if (lower.includes("android") && !lower.includes("mobi")) {
+        return 'other';
+      }
+      if (lower.includes("ipad")) {
+        return 'other';
+      }
+      return 'computer';
+    }
+
+    return 'other';
+  };
+
+  const getDeviceIcon = (ua: string) => {
+    const deviceType = getDeviceType(ua);
+    
+    if (deviceType === 'phone') {
+      return (
+        <span className="inline-flex items-center justify-center p-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg flex-shrink-0" title="Phone">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <rect width="14" height="20" x="5" y="2" rx="2" ry="2" />
+            <path d="M12 18h.01" />
+          </svg>
+        </span>
+      );
+    }
+    
+    if (deviceType === 'computer') {
+      return (
+        <span className="inline-flex items-center justify-center p-1.5 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 rounded-lg flex-shrink-0" title="Computer">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <rect width="20" height="14" x="2" y="3" rx="2" />
+            <line x1="8" x2="16" y1="21" y2="21" />
+            <line x1="12" x2="12" y1="17" y2="21" />
+          </svg>
+        </span>
+      );
+    }
+    
+    return (
+      <span className="inline-flex items-center justify-center p-1.5 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 rounded-lg flex-shrink-0" title="Other Device / Bot">
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M12 16v-4" />
+          <path d="M12 8h.01" />
+        </svg>
+      </span>
+    );
+  };
+
   const getCountryDisplay = (countryCode: string) => {
     if (!countryCode || countryCode === 'Unknown') return <span className="flex items-center gap-2">🌍 <span>Unknown</span></span>;
     
@@ -112,7 +182,7 @@ export default function AdminVisitors({ token }: AdminVisitorsProps) {
               srcSet={`https://flagcdn.com/w40/${countryCode.toLowerCase()}.png 2x`}
               width="20" 
               alt={countryCode} 
-              className="rounded-sm shadow-[0_0_2px_rgba(0,0,0,0.2)]"
+              className="shadow-[0_0_2px_rgba(0,0,0,0.2)]"
             />
             <span>{countryName || countryCode}</span>
           </span>
@@ -162,9 +232,16 @@ export default function AdminVisitors({ token }: AdminVisitorsProps) {
                     <div className="text-xs font-bold text-gray-600 dark:text-gray-400">{getCountryDisplay(visitor.country)}</div>
                   </td>
                   <td className="px-6 py-4">
-                    <div className="flex flex-col">
-                      <span className="text-sm font-bold text-[#0F0728] dark:text-white">{parseUserAgent(visitor.userAgent)}</span>
-                      <span className="text-[10px] text-gray-400 truncate max-w-[200px]" title={visitor.userAgent}>{visitor.userAgent}</span>
+                    <div className="flex items-center gap-3">
+                      {getDeviceIcon(visitor.userAgent)}
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-sm font-bold text-[#0F0728] dark:text-white truncate" title={parseUserAgent(visitor.userAgent)}>
+                          {parseUserAgent(visitor.userAgent)}
+                        </span>
+                        <span className="text-[10px] text-gray-400 truncate max-w-[150px] md:max-w-[200px]" title={visitor.userAgent}>
+                          {visitor.userAgent}
+                        </span>
+                      </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 text-center">

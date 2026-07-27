@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { getErrorMessage } from "@/lib/error";
 
 interface AdminDashboardProps {
@@ -47,6 +47,16 @@ interface ActivityDay {
   visitors: number;
 }
 
+interface DeviceStats {
+  phone: number;
+  computer: number;
+  other: number;
+  total: number;
+  phonePercent: number;
+  computerPercent: number;
+  otherPercent: number;
+}
+
 export default function AdminDashboard({ token, onTabChange }: AdminDashboardProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -54,8 +64,108 @@ export default function AdminDashboard({ token, onTabChange }: AdminDashboardPro
   const [popularPages, setPopularPages] = useState<PopularPage[]>([]);
   const [recentMessages, setRecentMessages] = useState<RecentMessage[]>([]);
   const [timeline, setTimeline] = useState<ActivityDay[]>([]);
+  const [deviceStats, setDeviceStats] = useState<DeviceStats | null>(null);
+  const [hoveredSliceKey, setHoveredSliceKey] = useState<string | null>(null);
+  const [mousePos, setMousePos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [countryRange, setCountryRange] = useState("7");
+  const [topCountries, setTopCountries] = useState<Array<{ code: string; count: number; percent: number }>>([]);
   const [timeRange, setTimeRange] = useState("7");
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+
+  const getCountryDisplay = (countryCode: string) => {
+    if (!countryCode || countryCode === 'Unknown') {
+      return (
+        <span className="flex items-center gap-2">
+          <span className="text-sm">🌍</span>
+          <span className="font-extrabold text-xs text-gray-600 dark:text-gray-400">Unknown Location</span>
+        </span>
+      );
+    }
+
+    if (countryCode.length === 2) {
+      try {
+        const countryName = new Intl.DisplayNames(['en'], { type: 'region' }).of(countryCode.toUpperCase());
+        return (
+          <span className="flex items-center gap-2 font-bold text-xs text-[#0F0728] dark:text-white">
+            <img 
+              src={`https://flagcdn.com/w20/${countryCode.toLowerCase()}.png`} 
+              srcSet={`https://flagcdn.com/w40/${countryCode.toLowerCase()}.png 2x`}
+              width="20" 
+              alt={countryCode} 
+              className="shadow-sm flex-shrink-0"
+            />
+            <span className="truncate max-w-[130px] md:max-w-[170px]">
+              {countryName || countryCode}
+            </span>
+          </span>
+        );
+      } catch {
+        return (
+          <span className="flex items-center gap-2 text-xs font-bold text-gray-700 dark:text-gray-300">
+            <span>📍</span>
+            <span>{countryCode}</span>
+          </span>
+        );
+      }
+    }
+
+    return (
+      <span className="flex items-center gap-2 text-xs font-bold text-gray-700 dark:text-gray-300">
+        <span>📍</span>
+        <span>{countryCode}</span>
+      </span>
+    );
+  };
+
+  const radius = 42;
+  const circumference = 2 * Math.PI * radius; // ~263.89
+
+  const slices = useMemo(() => {
+    if (!deviceStats || deviceStats.total === 0) return [];
+
+    const items = [
+      {
+        key: 'phone',
+        label: 'Phone / Mobile',
+        count: deviceStats.phone,
+        percent: deviceStats.phonePercent,
+        color: '#3B82F6', // Blue
+        bgColor: 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
+      },
+      {
+        key: 'computer',
+        label: 'Computer',
+        count: deviceStats.computer,
+        percent: deviceStats.computerPercent,
+        color: '#A855F7', // Purple
+        bgColor: 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400'
+      },
+      {
+        key: 'other',
+        label: 'Other Devices',
+        count: deviceStats.other,
+        percent: deviceStats.otherPercent,
+        color: '#9CA3AF', // Gray
+        bgColor: 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400'
+      }
+    ];
+
+    let accumulatedPercent = 0;
+    return items.map((item) => {
+      const dash = (item.percent / 100) * circumference;
+      const offset = -(accumulatedPercent / 100) * circumference;
+      accumulatedPercent += item.percent;
+      return {
+        ...item,
+        dash,
+        offset
+      };
+    });
+  }, [deviceStats, circumference]);
+
+  const activeSlice = useMemo(() => {
+    return slices.find(s => s.key === hoveredSliceKey) || null;
+  }, [slices, hoveredSliceKey]);
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
 
@@ -64,7 +174,7 @@ export default function AdminDashboard({ token, onTabChange }: AdminDashboardPro
       setLoading(true);
       setError("");
 
-      const res = await fetch(`${API_URL}/admin/stats?range=${timeRange}`, {
+      const res = await fetch(`${API_URL}/admin/stats?range=${timeRange}&countryRange=${countryRange}`, {
         headers: {
           "Authorization": `Bearer ${token}`
         }
@@ -79,6 +189,8 @@ export default function AdminDashboard({ token, onTabChange }: AdminDashboardPro
       setPopularPages(data.popularPages);
       setRecentMessages(data.recentMessages);
       setTimeline(data.activityTimeline);
+      setDeviceStats(data.deviceStats || null);
+      setTopCountries(data.topCountries || []);
     } catch (err) {
       console.error("Dashboard stats error:", err);
       setError(getErrorMessage(err, "Failed to load dashboard data."));
@@ -89,7 +201,7 @@ export default function AdminDashboard({ token, onTabChange }: AdminDashboardPro
 
   useEffect(() => {
     fetchStats();
-  }, [token, timeRange]);
+  }, [token, timeRange, countryRange]);
 
   if (loading) {
     return (
@@ -441,8 +553,8 @@ export default function AdminDashboard({ token, onTabChange }: AdminDashboardPro
           </div>
         </div>
 
-        {/* 3. Messages Snippet Panel */}
-        <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-white/5 rounded-3xl p-6 md:p-8 shadow-sm flex flex-col justify-between">
+        {/* 3. Messages & Top 10 Countries Grid */}
+        <div className="lg:col-span-1 bg-white dark:bg-gray-900 border border-gray-100 dark:border-white/5 rounded-3xl p-6 md:p-8 shadow-sm flex flex-col justify-between">
           <div>
             <div className="flex justify-between items-center mb-6">
               <div>
@@ -480,42 +592,281 @@ export default function AdminDashboard({ token, onTabChange }: AdminDashboardPro
         </div>
       </div>
 
-      {/* 4. Popular Pages Table */}
+      {/* 4. Top 10 Countries Panel */}
       <div className="bg-white dark:bg-gray-900 border border-gray-100 dark:border-white/5 rounded-3xl p-6 md:p-8 shadow-sm">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div>
-            <h3 className="text-lg font-black text-[#0F0728] dark:text-white">Popular Printable Coloring Pages</h3>
-            <p className="text-xs text-gray-400 dark:text-gray-500 font-semibold">Sorted by view count in database</p>
+            <h3 className="text-lg font-black text-[#0F0728] dark:text-white">Top 10 Countries</h3>
+            <p className="text-xs text-gray-400 dark:text-gray-500 font-semibold">Geographic traffic origins by period</p>
           </div>
-          <button onClick={() => onTabChange("pages")} className="text-xs text-purple-600 dark:text-purple-400 font-black hover:underline">
-            Manage Pages
-          </button>
+          <select 
+            value={countryRange} 
+            onChange={(e) => setCountryRange(e.target.value)}
+            className="px-3 py-1.5 bg-gray-50 dark:bg-gray-950/40 border border-gray-100 dark:border-white/5 rounded-xl text-gray-600 dark:text-gray-300 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all cursor-pointer appearance-none"
+          >
+            <option value="7">Last 7 Days</option>
+            <option value="30">Last 30 Days</option>
+            <option value="365">Last 12 Months</option>
+          </select>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-gray-100 dark:border-white/5 text-gray-400 dark:text-gray-500 text-xs font-bold uppercase tracking-wider">
-                <th className="pb-3 pl-2">Title</th>
-                <th className="pb-3">Category</th>
-                <th className="pb-3 text-center">Views</th>
-                <th className="pb-3 text-center">Downloads</th>
-                <th className="pb-3 text-center">Likes</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-white/5 text-sm font-semibold text-gray-600 dark:text-gray-300">
-              {popularPages.map((page) => (
-                <tr key={page.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-950/20 transition-colors">
-                  <td className="py-4 pl-2 font-extrabold text-[#0F0728] dark:text-white">{page.title}</td>
-                  <td className="py-4 text-xs font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">{page.categorySlug}</td>
-                  <td className="py-4 text-center font-bold">{page.views.toLocaleString()}</td>
-                  <td className="py-4 text-center font-bold">{page.downloads.toLocaleString()}</td>
-                  <td className="py-4 text-center font-bold text-red-500">{page.likes.toLocaleString()}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+          {topCountries.length === 0 ? (
+            <div className="col-span-2 text-center py-10 text-gray-400 dark:text-gray-500 text-sm font-semibold">
+              No country traffic recorded for this period.
+            </div>
+          ) : (
+            topCountries.map((c, index) => (
+              <div key={c.code || index} className="p-3 bg-gray-50 dark:bg-gray-950/40 border border-gray-100 dark:border-white/5 rounded-2xl hover:-translate-y-0.5 transition-transform">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <span className="w-5 text-[11px] font-black text-purple-600 dark:text-purple-400">#{index + 1}</span>
+                    {getCountryDisplay(c.code)}
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <span className="text-[10px] text-gray-400 font-semibold">({c.count.toLocaleString()} visitors)</span>
+                    <span className="px-2 py-0.5 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 rounded-lg text-xs font-black">
+                      {c.percent}%
+                    </span>
+                  </div>
+                </div>
+                <div className="w-full bg-gray-200 dark:bg-gray-800 h-1.5 rounded-full overflow-hidden">
+                  <div className="bg-purple-600 h-full rounded-full transition-all duration-500" style={{ width: `${Math.max(c.percent, 3)}%` }}></div>
+                </div>
+              </div>
+            ))
+          )}
         </div>
+      </div>
+
+      {/* 4. Devices & Popular Pages Grid (1/3 + 2/3) */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* Device Breakdown (1/3 Width) */}
+        <div className="lg:col-span-1 bg-white dark:bg-gray-900 border border-gray-100 dark:border-white/5 rounded-3xl p-6 md:p-8 shadow-sm flex flex-col justify-between">
+          <div>
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h3 className="text-lg font-black text-[#0F0728] dark:text-white">Device Breakdown</h3>
+                <p className="text-xs text-gray-400 dark:text-gray-500 font-semibold">Visitors by connection device</p>
+              </div>
+              <span className="px-2.5 py-1 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 rounded-xl text-[11px] font-black">
+                {deviceStats?.total.toLocaleString() || 0} Total
+              </span>
+            </div>
+
+            {/* Interactive SVG Donut Chart with Clean Center */}
+            <div className="flex flex-col items-center justify-center my-3 relative">
+              <div className="relative w-44 h-44 flex items-center justify-center">
+                <svg viewBox="0 0 120 120" className="w-full h-full -rotate-90 transform overflow-visible">
+                  {/* Background Ring */}
+                  <circle
+                    cx="60"
+                    cy="60"
+                    r={radius}
+                    fill="transparent"
+                    stroke="#E5E7EB"
+                    className="dark:stroke-gray-800"
+                    strokeWidth="16"
+                  />
+
+                  {/* Dynamic Interactive Slice Segments */}
+                  {slices.map((slice) => (
+                    slice.percent > 0 && (
+                      <circle
+                        key={slice.key}
+                        cx="60"
+                        cy="60"
+                        r={radius}
+                        fill="transparent"
+                        stroke={slice.color}
+                        strokeWidth={hoveredSliceKey === slice.key ? "20" : "16"}
+                        strokeDasharray={`${slice.dash} ${circumference - slice.dash}`}
+                        strokeDashoffset={slice.offset}
+                        strokeLinecap="butt"
+                        onMouseEnter={(e) => {
+                          setHoveredSliceKey(slice.key);
+                          setMousePos({ x: e.clientX, y: e.clientY });
+                        }}
+                        onMouseMove={(e) => {
+                          setMousePos({ x: e.clientX, y: e.clientY });
+                        }}
+                        onMouseLeave={() => setHoveredSliceKey(null)}
+                        className="transition-all duration-300 cursor-pointer origin-center"
+                        style={{
+                          transformOrigin: '60px 60px',
+                          opacity: hoveredSliceKey && hoveredSliceKey !== slice.key ? 0.35 : 1,
+                          filter: hoveredSliceKey === slice.key ? 'drop-shadow(0px 4px 12px rgba(0,0,0,0.3))' : 'none'
+                        }}
+                      />
+                    )
+                  ))}
+                </svg>
+
+                {/* Empty Center Hole (No text inside) */}
+                <div className="absolute w-24 h-24 bg-white dark:bg-gray-900 rounded-full shadow-inner pointer-events-none"></div>
+              </div>
+
+              {/* Cursor Floating Info Tooltip */}
+              {activeSlice && (
+                <div
+                  className="fixed z-[9999] px-3.5 py-1.5 bg-gray-900/95 dark:bg-black/95 text-white border border-gray-700/60 dark:border-gray-800 rounded-xl shadow-2xl backdrop-blur-md flex items-center gap-2 text-xs font-bold pointer-events-none whitespace-nowrap transition-all duration-75"
+                  style={{
+                    left: `${mousePos.x}px`,
+                    top: `${mousePos.y - 12}px`,
+                    transform: 'translate(-50%, -100%)'
+                  }}
+                >
+                  <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: activeSlice.color }}></span>
+                  <span className="text-gray-200">{activeSlice.label}:</span>
+                  <span className="font-black text-sm text-purple-300">{activeSlice.percent}%</span>
+                  <span className="text-[10px] text-gray-400 font-normal">({activeSlice.count.toLocaleString()} visits)</span>
+                </div>
+              )}
+            </div>
+
+            {/* Device Item List */}
+            <div className="space-y-3 mt-4">
+              {/* Phone / Mobile */}
+              <div 
+                onMouseEnter={(e) => {
+                  setHoveredSliceKey('phone');
+                  setMousePos({ x: e.clientX, y: e.clientY });
+                }}
+                onMouseMove={(e) => {
+                  setMousePos({ x: e.clientX, y: e.clientY });
+                }}
+                onMouseLeave={() => setHoveredSliceKey(null)}
+                className={`p-3 bg-gray-50 dark:bg-gray-950/40 border rounded-2xl transition-all cursor-pointer ${hoveredSliceKey === 'phone' ? 'border-blue-500 shadow-md ring-2 ring-blue-500/20' : 'border-gray-100 dark:border-white/5'}`}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2.5">
+                    <span className="p-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-lg">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <rect width="14" height="20" x="5" y="2" rx="2" ry="2" />
+                        <path d="M12 18h.01" />
+                      </svg>
+                    </span>
+                    <span className="text-xs font-extrabold text-[#0F0728] dark:text-white">Phone / Mobile</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-xs font-black text-blue-600 dark:text-blue-400">{deviceStats?.phonePercent || 0}%</span>
+                    <span className="text-[10px] text-gray-400 block font-semibold">({deviceStats?.phone.toLocaleString() || 0})</span>
+                  </div>
+                </div>
+                <div className="w-full bg-gray-200 dark:bg-gray-800 h-1.5 rounded-full overflow-hidden">
+                  <div className="bg-blue-500 h-full rounded-full transition-all duration-500" style={{ width: `${deviceStats?.phonePercent || 0}%` }}></div>
+                </div>
+              </div>
+
+              {/* Computer / Desktop */}
+              <div 
+                onMouseEnter={(e) => {
+                  setHoveredSliceKey('computer');
+                  setMousePos({ x: e.clientX, y: e.clientY });
+                }}
+                onMouseMove={(e) => {
+                  setMousePos({ x: e.clientX, y: e.clientY });
+                }}
+                onMouseLeave={() => setHoveredSliceKey(null)}
+                className={`p-3 bg-gray-50 dark:bg-gray-950/40 border rounded-2xl transition-all cursor-pointer ${hoveredSliceKey === 'computer' ? 'border-purple-500 shadow-md ring-2 ring-purple-500/20' : 'border-gray-100 dark:border-white/5'}`}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2.5">
+                    <span className="p-1.5 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 rounded-lg">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <rect width="20" height="14" x="2" y="3" rx="2" />
+                        <line x1="8" x2="16" y1="21" y2="21" />
+                        <line x1="12" x2="12" y1="17" y2="21" />
+                      </svg>
+                    </span>
+                    <span className="text-xs font-extrabold text-[#0F0728] dark:text-white">Computer</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-xs font-black text-purple-600 dark:text-purple-400">{deviceStats?.computerPercent || 0}%</span>
+                    <span className="text-[10px] text-gray-400 block font-semibold">({deviceStats?.computer.toLocaleString() || 0})</span>
+                  </div>
+                </div>
+                <div className="w-full bg-gray-200 dark:bg-gray-800 h-1.5 rounded-full overflow-hidden">
+                  <div className="bg-purple-600 h-full rounded-full transition-all duration-500" style={{ width: `${deviceStats?.computerPercent || 0}%` }}></div>
+                </div>
+              </div>
+
+              {/* Other Devices */}
+              <div 
+                onMouseEnter={(e) => {
+                  setHoveredSliceKey('other');
+                  setMousePos({ x: e.clientX, y: e.clientY });
+                }}
+                onMouseMove={(e) => {
+                  setMousePos({ x: e.clientX, y: e.clientY });
+                }}
+                onMouseLeave={() => setHoveredSliceKey(null)}
+                className={`p-3 bg-gray-50 dark:bg-gray-950/40 border rounded-2xl transition-all cursor-pointer ${hoveredSliceKey === 'other' ? 'border-gray-400 shadow-md ring-2 ring-gray-400/20' : 'border-gray-100 dark:border-white/5'}`}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2.5">
+                    <span className="p-1.5 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 rounded-lg">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 16v-4" />
+                        <path d="M12 8h.01" />
+                      </svg>
+                    </span>
+                    <span className="text-xs font-extrabold text-[#0F0728] dark:text-white">Other Devices</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-xs font-black text-gray-500 dark:text-gray-400">{deviceStats?.otherPercent || 0}%</span>
+                    <span className="text-[10px] text-gray-400 block font-semibold">({deviceStats?.other.toLocaleString() || 0})</span>
+                  </div>
+                </div>
+                <div className="w-full bg-gray-200 dark:bg-gray-800 h-1.5 rounded-full overflow-hidden">
+                  <div className="bg-gray-400 dark:bg-gray-500 h-full rounded-full transition-all duration-500" style={{ width: `${deviceStats?.otherPercent || 0}%` }}></div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        {/* Popular Pages Table (2/3 Width) */}
+        <div className="lg:col-span-2 bg-white dark:bg-gray-900 border border-gray-100 dark:border-white/5 rounded-3xl p-6 md:p-8 shadow-sm">
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h3 className="text-lg font-black text-[#0F0728] dark:text-white">Popular Printable Coloring Pages</h3>
+              <p className="text-xs text-gray-400 dark:text-gray-500 font-semibold">Sorted by view count in database</p>
+            </div>
+            <button onClick={() => onTabChange("pages")} className="text-xs text-purple-600 dark:text-purple-400 font-black hover:underline">
+              Manage Pages
+            </button>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-gray-100 dark:border-white/5 text-gray-400 dark:text-gray-500 text-xs font-bold uppercase tracking-wider">
+                  <th className="pb-3 pl-2">Title</th>
+                  <th className="pb-3">Category</th>
+                  <th className="pb-3 text-center">Views</th>
+                  <th className="pb-3 text-center">Downloads</th>
+                  <th className="pb-3 text-center">Likes</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 dark:divide-white/5 text-sm font-semibold text-gray-600 dark:text-gray-300">
+                {popularPages.map((page) => (
+                  <tr key={page.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-950/20 transition-colors">
+                    <td className="py-4 pl-2 font-extrabold text-[#0F0728] dark:text-white">{page.title}</td>
+                    <td className="py-4 text-xs font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">{page.categorySlug}</td>
+                    <td className="py-4 text-center font-bold">{page.views.toLocaleString()}</td>
+                    <td className="py-4 text-center font-bold">{page.downloads.toLocaleString()}</td>
+                    <td className="py-4 text-center font-bold text-red-500">{page.likes.toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
       </div>
     </div>
   );

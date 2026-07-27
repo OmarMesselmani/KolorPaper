@@ -288,10 +288,10 @@ export default function AdminPosts({ token }: AdminPostsProps) {
   return (
     <div className="space-y-6 max-w-6xl mx-auto pb-12">
       {/* Header Section */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/5 pb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-200 dark:border-white/5 pb-6">
         <div>
-          <h1 className="text-2xl font-black tracking-tight text-white sm:text-3xl">Blog Posts</h1>
-          <p className="text-gray-400 text-xs mt-1">Manage articles, writing tips, and cover images on the site.</p>
+          <h1 className="text-2xl font-black tracking-tight text-gray-900 dark:text-white sm:text-3xl">Blog Posts</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-xs mt-1">Manage articles, writing tips, and cover images on the site.</p>
         </div>
         {!showForm && (
           <button
@@ -326,8 +326,8 @@ export default function AdminPosts({ token }: AdminPostsProps) {
 
       {/* Post Editor Form */}
       {showForm && (
-        <form onSubmit={handleSubmit} className="bg-[#0F0728] border border-white/5 rounded-3xl p-6 space-y-6">
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
+        <form onSubmit={handleSubmit} className="bg-white dark:bg-[#0F0728] border border-gray-200 dark:border-white/5 rounded-3xl p-6 space-y-6 shadow-sm">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-purple-400">
               <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
             </svg>
@@ -344,7 +344,7 @@ export default function AdminPosts({ token }: AdminPostsProps) {
                 value={title}
                 onChange={(e) => handleTitleChange(e.target.value)}
                 placeholder="How to choose colors..."
-                className="w-full px-4 py-3 bg-[#070216] border border-white/10 rounded-2xl text-xs text-white focus:outline-none focus:border-purple-500 transition-colors"
+                className="w-full px-4 py-3 bg-gray-50 dark:bg-[#070216] border border-gray-200 dark:border-white/10 rounded-2xl text-xs text-gray-900 dark:text-white focus:outline-none focus:border-purple-500 transition-colors"
               />
             </div>
 
@@ -357,42 +357,46 @@ export default function AdminPosts({ token }: AdminPostsProps) {
                 value={slug}
                 onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/\s+/g, '-'))}
                 placeholder="how-to-choose-colors"
-                className="w-full px-4 py-3 bg-[#070216] border border-white/10 rounded-2xl text-xs text-white focus:outline-none focus:border-purple-500 transition-colors"
+                className="w-full px-4 py-3 bg-gray-50 dark:bg-[#070216] border border-gray-200 dark:border-white/10 rounded-2xl text-xs text-gray-900 dark:text-white focus:outline-none focus:border-purple-500 transition-colors"
               />
             </div>
 
             {/* Date */}
             <div className="space-y-2">
-              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider">Date</label>
+              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider">Date *</label>
               <input
-                type="date"
+                type="text"
+                required
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="w-full px-4 py-3 bg-[#070216] border border-white/10 rounded-2xl text-xs text-white focus:outline-none focus:border-purple-500 transition-colors"
+                placeholder="e.g. October 15, 2025"
+                className="w-full px-4 py-3 bg-gray-50 dark:bg-[#070216] border border-gray-200 dark:border-white/10 rounded-2xl text-xs text-gray-900 dark:text-white focus:outline-none focus:border-purple-500 transition-colors"
               />
             </div>
 
             {/* Author */}
             <div className="space-y-2">
-              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider">Author</label>
+              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider">Author *</label>
               <input
                 type="text"
+                required
                 value={author}
                 onChange={(e) => setAuthor(e.target.value)}
-                placeholder="KolorPaper Team"
-                className="w-full px-4 py-3 bg-[#070216] border border-white/10 rounded-2xl text-xs text-white focus:outline-none focus:border-purple-500 transition-colors"
+                placeholder="Author Name"
+                className="w-full px-4 py-3 bg-gray-50 dark:bg-[#070216] border border-gray-200 dark:border-white/10 rounded-2xl text-xs text-gray-900 dark:text-white focus:outline-none focus:border-purple-500 transition-colors"
               />
             </div>
 
             {/* Category */}
             <div className="space-y-2">
-              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider">Category</label>
+              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider">Category *</label>
               <input
                 type="text"
+                required
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                placeholder="Art / Tips / Guide"
-                className="w-full px-4 py-3 bg-[#070216] border border-white/10 rounded-2xl text-xs text-white focus:outline-none focus:border-purple-500 transition-colors"
+                placeholder="e.g. Guides, Coloring Tips"
+                className="w-full px-4 py-3 bg-gray-50 dark:bg-[#070216] border border-gray-200 dark:border-white/10 rounded-2xl text-xs text-gray-900 dark:text-white focus:outline-none focus:border-purple-500 transition-colors"
               />
             </div>
 
@@ -520,16 +524,16 @@ export default function AdminPosts({ token }: AdminPostsProps) {
           </svg>
         </div>
       ) : posts.length === 0 ? (
-        <div className="text-center py-20 bg-[#0F0728] border border-white/5 rounded-3xl">
-          <p className="text-gray-400 text-sm">No blog posts found. Click &quot;Add New Post&quot; to write your first article!</p>
+        <div className="text-center py-20 bg-white dark:bg-[#0F0728] border border-gray-200 dark:border-white/5 rounded-3xl shadow-sm">
+          <p className="text-gray-500 dark:text-gray-400 text-sm">No blog posts found. Click &quot;Add New Post&quot; to write your first article!</p>
         </div>
       ) : (
         /* Blog Posts Table / Card List */
-        <div className="bg-[#0F0728] border border-white/5 rounded-3xl overflow-hidden shadow-xl">
+        <div className="bg-white dark:bg-[#0F0728] border border-gray-200 dark:border-white/5 rounded-3xl overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-left rtl:text-right border-collapse">
               <thead>
-                <tr className="border-b border-white/5 text-[10px] text-gray-400 uppercase tracking-wider font-extrabold bg-black/10">
+                <tr className="border-b border-gray-200 dark:border-white/5 text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wider font-extrabold bg-gray-50/50 dark:bg-black/10">
                   <th className="py-4 px-6">Post Details</th>
                   <th className="py-4 px-6">Slug / Category</th>
                   <th className="py-4 px-6">Author & Date</th>
@@ -537,21 +541,21 @@ export default function AdminPosts({ token }: AdminPostsProps) {
                   <th className="py-4 px-6 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5 text-xs">
+              <tbody className="divide-y divide-gray-200 dark:divide-white/5 text-xs">
                 {posts.map((post) => (
-                  <tr key={post.id} className="hover:bg-white/[0.01] transition-colors">
+                  <tr key={post.id} className="hover:bg-gray-50/50 dark:hover:bg-white/[0.01] transition-colors">
                     {/* Title + Excerpt + Cover thumbnail */}
                     <td className="py-4 px-6 max-w-sm">
                       <div className="flex items-center gap-4">
-                        <div className="w-16 h-10 rounded-lg overflow-hidden bg-gray-900 border border-white/5 flex-shrink-0">
+                        <div className="w-16 h-10 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-white/5 flex-shrink-0">
                           {post.coverImage ? (
                             <img src={post.coverImage} alt={post.title} loading="lazy" className="w-full h-full object-cover" />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center text-[10px] text-gray-600 bg-gray-950">No Cover</div>
+                            <div className="w-full h-full flex items-center justify-center text-[10px] text-gray-400 dark:text-gray-600 bg-gray-100 dark:bg-gray-950">No Cover</div>
                           )}
                         </div>
                         <div className="min-w-0">
-                          <span className="block font-bold text-white truncate hover:text-purple-400 transition-colors" title={post.title}>
+                          <span className="block font-bold text-gray-900 dark:text-white truncate hover:text-purple-600 dark:hover:text-purple-400 transition-colors" title={post.title}>
                             {post.title}
                           </span>
                           <span className="block text-[10px] text-gray-400 truncate mt-0.5" title={post.excerpt}>
