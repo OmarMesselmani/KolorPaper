@@ -25,10 +25,12 @@ export default function HomeCategoriesCarousel({ categories }: HomeCategoriesCar
         Explore Coloring Themes
       </h2>
 
-      {/* 20 Category Cards in 5 columns per row */}
-      <div className="grid grid-cols-5 gap-2.5 sm:gap-4 md:gap-6">
+      {/* Category Cards: 2 per row (8 total) on mobile, 5 per row (20 total) on desktop */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 sm:gap-6">
         {displayCategories.map((category, idx) => (
-          <CategoryCard key={`${category.id}-${idx}`} category={category} index={idx} />
+          <div key={`${category.id}-${idx}`} className={idx >= 8 ? 'hidden md:block' : ''}>
+            <CategoryCard category={category} index={idx} />
+          </div>
         ))}
       </div>
 
