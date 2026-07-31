@@ -72,10 +72,10 @@ export default function CollapsibleCategorySection({ mainCategory, subCategories
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6 pt-2">
             {subCategories.length > 0 ? (
               subCategories.map(sub => (
-                <CategoryCard key={sub.id} category={sub} deferImage={!hasOpened} />
+                <CategoryCard key={sub.id} category={sub} />
               ))
             ) : (
-              <CategoryCard category={mainCategory} deferImage={!hasOpened} />
+              <CategoryCard category={mainCategory} />
             )}
           </div>
         </div>

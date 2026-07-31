@@ -21,12 +21,12 @@ export default async function Home() {
   return (
     <>
       <Hero />
+      <HomeCategoriesCarousel categories={subCategories} />
       <HomePagesGrid
         newest={homeData.newest}
         mostDownloaded={homeData.mostDownloaded}
         mostLiked={homeData.mostLiked}
       />
-      <HomeCategoriesCarousel categories={subCategories} />
       <StatsBar />
       <WhyUs />
       <LatestPosts posts={randomizedPosts} />

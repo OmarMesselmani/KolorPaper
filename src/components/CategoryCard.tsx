@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
 import { Category } from "@/types";
 
 function formatCount(n: number): string {
@@ -18,13 +17,7 @@ function formatCount(n: number): string {
 }
 
 
-export default function CategoryCard({ category, index = 0, deferImage = false }: { category: Category; index?: number; deferImage?: boolean }) {
-  const [imgError, setImgError] = useState(false);
-  const [retryCount, setRetryCount] = useState(0);
-  const [imgKey, setImgKey] = useState(0);
-  const MAX_RETRIES = 3;
-
-
+export default function CategoryCard({ category, index = 0 }: { category: Category; index?: number }) {
   // Determine badge: first 3 are "New", top downloads get "Popular"
   const badge: "Popular" | null =
     (category.downloads ?? 0) >= 800 ? "Popular" : null;
@@ -35,9 +28,6 @@ export default function CategoryCard({ category, index = 0, deferImage = false }
 
   const hasStats = category.downloads !== undefined || category.likes !== undefined;
 
-  // Use imageUrl directly — images are already uploaded as .webp by the admin panel.
-  // The previous .replace() conversion was causing failures for URLs that didn't match
-  // the regex (e.g. already .webp, or URLs with query params).
   const imageUrl = category.imageUrl || null;
 
   return (
@@ -54,30 +44,15 @@ export default function CategoryCard({ category, index = 0, deferImage = false }
         </span>
       )}
 
-      {/* Image area — single Image component for both mobile and desktop,
-          matching how ColoringCard handles images to avoid duplicate requests
-          and lazy-loading race conditions. */}
-      <div className="relative w-full aspect-square bg-white dark:bg-gray-900 flex items-center justify-center transition-transform duration-500 group-hover:scale-105 overflow-hidden">
-        {imageUrl && !imgError && !deferImage ? (
+      {/* Image area — rendered cleanly and directly matching ColoringCard */}
+      <div className="relative w-full aspect-square bg-white dark:bg-gray-900 flex items-center justify-center overflow-hidden">
+        {imageUrl ? (
           <Image
-            key={imgKey}
             src={imageUrl}
             alt={`${category.title} free printable coloring pages`}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 16vw, 16vw"
-            className="object-contain p-4"
-            onError={() => {
-              if (retryCount < MAX_RETRIES) {
-                // Retry with exponential backoff to handle CDN rate limiting (429)
-                const delay = Math.pow(2, retryCount) * 1000;
-                setTimeout(() => {
-                  setRetryCount(prev => prev + 1);
-                  setImgKey(prev => prev + 1);
-                }, delay);
-              } else {
-                setImgError(true);
-              }
-            }}
+            className="object-contain p-4 transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
           <div className="placeholder-img w-full h-full flex items-center justify-center text-8xl">🎨</div>

@@ -9,7 +9,7 @@ export default function BlogCard({ post }: { post: BlogPost }) {
       className="group bg-white dark:bg-gray-900 rounded-2xl overflow-hidden border border-black/5 dark:border-white/5 transition-all duration-400 hover:shadow-lg hover:-translate-y-1 hover:border-purple-600/30 dark:hover:border-purple-500/30 flex flex-col h-full"
     >
       <div className="relative aspect-[16/9] w-full overflow-hidden bg-gray-100 dark:bg-gray-800">
-        <div className="absolute inset-0 bg-gradient-to-tr from-purple-500/10 to-orange-500/10 dark:from-purple-500/20 dark:to-orange-500/20 z-10" />
+        <div className="absolute inset-0 bg-gradient-to-tr from-purple-500/10 to-orange-500/10 dark:from-purple-500/20 dark:to-orange-500/20 pointer-events-none z-10" />
         {post.coverImage ? (
           <Image
             src={post.coverImage}
