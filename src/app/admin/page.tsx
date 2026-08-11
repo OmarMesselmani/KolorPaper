@@ -9,7 +9,7 @@ import AdminPosts from "./AdminPosts";
 import AdminMessages from "./AdminMessages";
 import AdminTags from "./AdminTags";
 import AdminVisitors from "./AdminVisitors";
-import DarkModeToggle from "@/components/DarkModeToggle";
+import AdminSettings from "./AdminSettings";
 
 interface AdminUser {
   id: string;
@@ -20,8 +20,44 @@ interface AdminUser {
 export default function AdminPage() {
   const [token, setToken] = useState<string | null>(null);
   const [admin, setAdmin] = useState<AdminUser | null>(null);
-  const [activeTab, setActiveTab] = useState("dashboard"); // dashboard, categories, pages, posts, messages, tags
+  const [activeTab, setActiveTab] = useState("dashboard"); // dashboard, categories, pages, posts, messages, tags, settings
   const [initializing, setInitializing] = useState(true);
+  const [adminTheme, setAdminTheme] = useState<'light' | 'dark'>('dark');
+
+  useEffect(() => {
+    const saved = localStorage.getItem('admin_theme');
+    if (saved === 'light' || saved === 'dark') {
+      setAdminTheme(saved);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (adminTheme === 'light') {
+      document.documentElement.classList.remove('dark');
+      document.documentElement.style.colorScheme = 'light';
+    } else {
+      document.documentElement.classList.add('dark');
+      document.documentElement.style.colorScheme = 'dark';
+    }
+
+    return () => {
+      // Restore site theme on unmount
+      const siteTheme = localStorage.getItem('theme');
+      if (siteTheme === 'light') {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.style.colorScheme = 'light';
+      } else if (siteTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+        document.documentElement.style.colorScheme = 'dark';
+      }
+    };
+  }, [adminTheme]);
+
+  const toggleAdminTheme = () => {
+    const newTheme = adminTheme === 'dark' ? 'light' : 'dark';
+    setAdminTheme(newTheme);
+    localStorage.setItem('admin_theme', newTheme);
+  };
 
   useEffect(() => {
     const restoreSession = async () => {
@@ -64,7 +100,7 @@ export default function AdminPage() {
 
   if (initializing) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#070216] text-gray-900 dark:text-white transition-colors duration-300">
+      <div className={`min-h-screen flex items-center justify-center transition-colors duration-300 ${adminTheme === 'dark' ? 'dark bg-[#070216] text-white' : 'bg-gray-50 text-gray-900'}`}>
         <svg className="animate-spin h-10 w-10 text-purple-600" fill="none" viewBox="0 0 24 24">
           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
@@ -75,7 +111,7 @@ export default function AdminPage() {
 
   if (!token) {
     return (
-      <div className="relative">
+      <div className={`relative ${adminTheme === 'dark' ? 'dark' : ''}`}>
         <AdminLogin onLoginSuccess={handleLoginSuccess} />
       </div>
     );
@@ -98,13 +134,15 @@ export default function AdminPage() {
         return <AdminMessages token={token} />;
       case "visitors":
         return <AdminVisitors token={token} />;
+      case "settings":
+        return <AdminSettings token={token} />;
       default:
         return <AdminDashboard token={token} onTabChange={setActiveTab} />;
     }
   };
 
   return (
-    <div className="min-h-screen h-screen overflow-hidden bg-gray-50 dark:bg-[#070216] text-gray-900 dark:text-white flex flex-col md:flex-row transition-colors duration-300">
+    <div className={`min-h-screen h-screen overflow-hidden text-gray-900 dark:text-white flex flex-col md:flex-row transition-colors duration-300 ${adminTheme === 'dark' ? 'dark bg-[#070216]' : 'bg-gray-50'}`}>
       
       {/* Sidebar Navigation */}
       <aside className="w-full md:w-64 bg-white dark:bg-[#0F0728] text-gray-800 dark:text-white flex-shrink-0 flex flex-col border-r border-gray-200 dark:border-white/5 relative z-20 h-full overflow-y-auto transition-colors duration-300">
@@ -114,7 +152,30 @@ export default function AdminPage() {
             <img src="/logo.svg" alt="KolorPaper" className="h-10 object-contain" />
             <span className="text-[10px] text-gray-500 font-extrabold uppercase tracking-wider block mt-1">Management Console</span>
           </div>
-          <DarkModeToggle />
+          
+          <button
+            onClick={toggleAdminTheme}
+            className="w-10 h-10 rounded-full border border-black/5 dark:border-white/10 bg-gray-50 dark:bg-gray-800 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors cursor-pointer flex-shrink-0"
+            aria-label="Toggle Admin Dark Mode"
+          >
+            {adminTheme === 'dark' ? (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+              </svg>
+            ) : (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+              </svg>
+            )}
+          </button>
         </div>
 
         {/* Sidebar Navigation Links */}
@@ -195,6 +256,17 @@ export default function AdminPage() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
             </svg>
             <span>Visitors</span>
+          </button>
+          {/* Settings */}
+          <button
+            onClick={() => setActiveTab("settings")}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-extrabold transition-all duration-300 ${activeTab === "settings" ? "bg-purple-600 text-white shadow-lg shadow-purple-600/20" : "text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-white hover:bg-purple-50 dark:hover:bg-white/5"}`}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 0 1 1.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.56.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.893.149c-.425.07-.765.383-.93.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 0 1-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.398.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 0 1-.12-1.45l.527-.737c.25-.35.273-.806.108-1.204-.165-.397-.505-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.107-1.204l-.527-.738a1.125 1.125 0 0 1 .12-1.45l.773-.773a1.125 1.125 0 0 1 1.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894Z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+            </svg>
+            <span>Settings</span>
           </button>
         </nav>
 

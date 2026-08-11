@@ -74,9 +74,14 @@ export async function POST(req: NextRequest) {
     }
 
     const secret = new TextEncoder().encode(JWT_SECRET);
-    const token = await new SignJWT({ id: admin.id, email: admin.email, name: admin.name })
+    const token = await new SignJWT({ 
+      id: admin.id, 
+      email: admin.email, 
+      name: admin.name,
+      hash: admin.passwordHash.substring(0, 12)
+    })
       .setProtectedHeader({ alg: 'HS256' })
-      .setExpirationTime('24h')
+      .setExpirationTime('7d')
       .sign(secret);
 
     const cookieStore = await cookies();
@@ -85,7 +90,7 @@ export async function POST(req: NextRequest) {
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       path: "/",
-      maxAge: 60 * 60 * 24 // 24 hours
+      maxAge: 60 * 60 * 24 * 7 // 7 days
     });
 
     return NextResponse.json({
