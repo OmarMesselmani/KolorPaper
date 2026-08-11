@@ -1,26 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import bcrypt from "bcryptjs";
-import { SignJWT, jwtVerify } from "jose";
+import { SignJWT } from "jose";
 import { cookies } from "next/headers";
+import { verifyAdminSession } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await verifyAdminSession(req);
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const JWT_SECRET = process.env.JWT_SECRET;
     if (!JWT_SECRET) {
       return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
-    }
-
-    const token = (await cookies()).get("admin_token")?.value;
-    if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const secret = new TextEncoder().encode(JWT_SECRET);
-    const { payload } = await jwtVerify(token, secret);
-    
-    if (!payload.email) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { currentPassword, newPassword } = await req.json();
@@ -33,13 +27,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "New password must be at least 6 characters" }, { status: 400 });
     }
 
-    const admin = await prisma.adminUser.findUnique({
-      where: { email: payload.email as string }
-    });
-
-    if (!admin) {
-      return NextResponse.json({ error: "Admin not found" }, { status: 404 });
-    }
+    const admin = session.admin;
 
     const isMatch = await bcrypt.compare(currentPassword, admin.passwordHash);
     if (!isMatch) {
@@ -64,7 +52,7 @@ export async function POST(req: NextRequest) {
     })
       .setProtectedHeader({ alg: 'HS256' })
       .setExpirationTime('7d')
-      .sign(secret);
+      .sign(new TextEncoder().encode(JWT_SECRET));
 
     const cookieStore = await cookies();
     cookieStore.set("admin_token", newToken, {

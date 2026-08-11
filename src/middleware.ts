@@ -26,20 +26,6 @@ export async function middleware(request: NextRequest) {
       }
       const secret = new TextEncoder().encode(JWT_SECRET);
       await jwtVerify(token, secret);
-      
-      // Verify token hash against the database to ensure password hasn't changed
-      const verifyUrl = new URL('/api/admin/verify-token', request.url);
-      const verifyRes = await fetch(verifyUrl, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        cache: 'no-store'
-      });
-      
-      if (!verifyRes.ok) {
-        return NextResponse.json({ error: 'Unauthorized: Session invalidated' }, { status: 401 });
-      }
-
       return NextResponse.next();
     } catch {
       return NextResponse.json({ error: 'Unauthorized: Invalid token' }, { status: 401 });

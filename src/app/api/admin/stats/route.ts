@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { verifyAdminSession } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
   try {
+    const session = await verifyAdminSession(req);
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const url = new URL(req.url);
     const rangeParam = url.searchParams.get("range") || "7";
     const range = parseInt(rangeParam, 10);
