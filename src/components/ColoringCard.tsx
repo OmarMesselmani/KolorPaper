@@ -138,7 +138,15 @@ export default function ColoringCard({ page }: { page: ColoringPage }) {
         }
         @media screen {
           #print-container {
-            display: none !important;
+            position: absolute !important;
+            width: 1px !important;
+            height: 1px !important;
+            overflow: hidden !important;
+            clip: rect(0, 0, 0, 0) !important;
+            white-space: nowrap !important;
+            border: 0 !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
           }
         }
       `;
@@ -150,11 +158,16 @@ export default function ColoringCard({ page }: { page: ColoringPage }) {
     const img = printContainer.querySelector('img');
     if (img) {
       let printed = false;
+      const triggerPrint = () => {
+        setIsPrinting(false);
+        // Small delay allows React to render the disabled state off and paint the image
+        setTimeout(() => window.print(), 50);
+      };
+
       img.onload = () => {
         if (printed) return;
         printed = true;
-        setIsPrinting(false);
-        window.print();
+        triggerPrint();
       };
       img.onerror = () => {
         if (printed) return;
@@ -166,13 +179,12 @@ export default function ColoringCard({ page }: { page: ColoringPage }) {
       if (img.complete) {
         if (!printed) {
           printed = true;
-          setIsPrinting(false);
-          window.print();
+          triggerPrint();
         }
       }
     } else {
       setIsPrinting(false);
-      window.print();
+      setTimeout(() => window.print(), 50);
     }
 
     // Track print event as download on backend
