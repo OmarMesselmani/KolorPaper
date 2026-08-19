@@ -20,6 +20,7 @@ function formatCount(n: number): string {
 export default function ColoringCard({ page }: { page: ColoringPage }) {
   const [liked, setLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(page.likes || 0);
+  const [isPrinting, setIsPrinting] = useState(false);
 
   useEffect(() => {
     try {
@@ -99,6 +100,10 @@ export default function ColoringCard({ page }: { page: ColoringPage }) {
     e.preventDefault();
     e.stopPropagation();
 
+    if (isPrinting) return;
+
+    setIsPrinting(true);
+
     // Check if we already have a print container
     let printContainer = document.getElementById('print-container');
     if (!printContainer) {
@@ -144,14 +149,29 @@ export default function ColoringCard({ page }: { page: ColoringPage }) {
 
     const img = printContainer.querySelector('img');
     if (img) {
+      let printed = false;
       img.onload = () => {
+        if (printed) return;
+        printed = true;
+        setIsPrinting(false);
         window.print();
       };
-      // Fallback
-      setTimeout(() => {
-        if (!img.complete) window.print();
-      }, 500);
+      img.onerror = () => {
+        if (printed) return;
+        printed = true;
+        setIsPrinting(false);
+        console.error("Failed to load image for printing");
+      };
+      
+      if (img.complete) {
+        if (!printed) {
+          printed = true;
+          setIsPrinting(false);
+          window.print();
+        }
+      }
     } else {
+      setIsPrinting(false);
       window.print();
     }
 
@@ -213,23 +233,31 @@ export default function ColoringCard({ page }: { page: ColoringPage }) {
           {/* Print Button */}
           <button
             onClick={handlePrint}
-            className="w-9 h-9 rounded-full bg-white dark:bg-gray-950 border border-black/5 dark:border-white/10 flex items-center justify-center shadow-md cursor-pointer transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 hover:bg-gradient-to-tr hover:from-violet-600 hover:to-indigo-600 hover:text-white hover:border-transparent text-gray-500 dark:text-gray-400"
+            disabled={isPrinting}
+            className="w-9 h-9 rounded-full bg-white dark:bg-gray-950 border border-black/5 dark:border-white/10 flex items-center justify-center shadow-md cursor-pointer transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 hover:bg-gradient-to-tr hover:from-violet-600 hover:to-indigo-600 hover:text-white hover:border-transparent text-gray-500 dark:text-gray-400 disabled:opacity-70 disabled:cursor-wait disabled:hover:translate-y-0 disabled:hover:scale-100 disabled:hover:bg-white disabled:dark:hover:bg-gray-950 disabled:hover:text-gray-500 disabled:dark:hover:text-gray-400 disabled:hover:border-black/5 disabled:dark:hover:border-white/10"
             aria-label="Print coloring page"
           >
-            <svg
-              viewBox="0 0 24 24"
-              width="16"
-              height="16"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              fill="none"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <polyline points="6 9 6 2 18 2 18 9"></polyline>
-              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-              <rect x="6" y="14" width="12" height="8"></rect>
-            </svg>
+            {isPrinting ? (
+              <svg className="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            ) : (
+              <svg
+                viewBox="0 0 24 24"
+                width="16"
+                height="16"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                <rect x="6" y="14" width="12" height="8"></rect>
+              </svg>
+            )}
           </button>
         </div>
       </div>
