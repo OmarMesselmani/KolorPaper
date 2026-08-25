@@ -56,8 +56,6 @@ export default function PrintButton({ slug, imageUrl, title }: PrintButtonProps)
       document.head.appendChild(style);
     }
 
-    printContainer.innerHTML = `<img src="${imageUrl}" />`;
-
     const trackPrint = async () => {
       try {
         const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
@@ -70,29 +68,29 @@ export default function PrintButton({ slug, imageUrl, title }: PrintButtonProps)
       }
     };
 
-    const img = printContainer.querySelector('img');
-    if (img) {
+    const loadImageWithRetry = (attempt: number) => {
+      const img = new Image();
+      const src = attempt > 0 ? `${imageUrl}${imageUrl.includes('?') ? '&' : '?'}retry=${attempt}` : imageUrl;
+      
       img.onload = async () => {
+        if (printContainer) {
+          printContainer.innerHTML = '';
+          printContainer.appendChild(img);
+        }
         window.print();
         await trackPrint();
         setLoading(false);
       };
+      
       img.onerror = () => {
-        setLoading(false);
-        alert("Failed to load image for printing. Please try again.");
+        // Retry loading in the background
+        setTimeout(() => loadImageWithRetry(attempt + 1), 1500);
       };
-      // Fallback
-      setTimeout(() => {
-        if (!img.complete) {
-          window.print();
-          trackPrint().finally(() => setLoading(false));
-        }
-      }, 1500);
-    } else {
-      window.print();
-      await trackPrint();
-      setLoading(false);
-    }
+      
+      img.src = src;
+    };
+
+    loadImageWithRetry(0);
   };
 
   return (
