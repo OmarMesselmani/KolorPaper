@@ -1,5 +1,6 @@
-import { useState } from 'react';
+'use client';
 
+import { useState } from 'react';
 interface PrintButtonProps {
   slug: string;
   imageUrl: string;
