@@ -12,6 +12,9 @@ export async function GET(req: NextRequest) {
     const url = new URL(req.url);
     const rangeParam = url.searchParams.get("range") || "7";
     const range = parseInt(rangeParam, 10);
+    const sortByParam = url.searchParams.get("sortBy") || "views";
+    const validSortFields = ["views", "downloads", "likes"];
+    const sortBy = validSortFields.includes(sortByParam) ? sortByParam : "views";
     const totalPages = await prisma.coloringPage.count();
     const totalCategories = await prisma.category.count();
 
@@ -24,7 +27,7 @@ export async function GET(req: NextRequest) {
 
     const popularPages = await prisma.coloringPage.findMany({
       take: 8,
-      orderBy: { views: "desc" },
+      orderBy: { [sortBy]: "desc" },
       select: { id: true, title: true, slug: true, views: true, downloads: true, likes: true, categorySlug: true }
     });
 

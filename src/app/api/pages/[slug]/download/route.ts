@@ -25,6 +25,19 @@ export async function POST(
     const userAgent = req.headers.get("user-agent") || undefined;
     const country = req.headers.get("cf-ipcountry") || req.headers.get("x-vercel-ip-country") || "Unknown";
 
+    const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
+    const downloadCount = await prisma.pageView.count({
+      where: {
+        ip,
+        action: "download",
+        createdAt: { gte: twelveHoursAgo }
+      }
+    });
+
+    if (downloadCount >= 50) {
+      return NextResponse.json({ error: "Rate limit exceeded. You can only download 50 images per 12 hours. Please try again later." }, { status: 429 });
+    }
+
     const page = await prisma.coloringPage.findUnique({ where: { slug } });
     if (!page) {
       return NextResponse.json({ error: "Page not found" }, { status: 404 });

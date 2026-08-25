@@ -71,6 +71,7 @@ export default function AdminDashboard({ token, onTabChange }: AdminDashboardPro
   const [topCountries, setTopCountries] = useState<Array<{ code: string; count: number; percent: number }>>([]);
   const [timeRange, setTimeRange] = useState("7");
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+  const [popularSortBy, setPopularSortBy] = useState<"views" | "downloads" | "likes">("views");
 
   const getCountryDisplay = (countryCode: string) => {
     if (!countryCode || countryCode === 'Unknown') {
@@ -174,7 +175,7 @@ export default function AdminDashboard({ token, onTabChange }: AdminDashboardPro
       setLoading(true);
       setError("");
 
-      const res = await fetch(`${API_URL}/admin/stats?range=${timeRange}&countryRange=${countryRange}`, {
+      const res = await fetch(`${API_URL}/admin/stats?range=${timeRange}&countryRange=${countryRange}&sortBy=${popularSortBy}`, {
         headers: {
           "Authorization": `Bearer ${token}`
         }
@@ -201,7 +202,7 @@ export default function AdminDashboard({ token, onTabChange }: AdminDashboardPro
 
   useEffect(() => {
     fetchStats();
-  }, [token, timeRange, countryRange]);
+  }, [token, timeRange, countryRange, popularSortBy]);
 
   if (loading) {
     return (
@@ -847,9 +848,24 @@ export default function AdminDashboard({ token, onTabChange }: AdminDashboardPro
                 <tr className="border-b border-gray-100 dark:border-white/5 text-gray-400 dark:text-gray-500 text-xs font-bold uppercase tracking-wider">
                   <th className="pb-3 pl-2">Title</th>
                   <th className="pb-3">Category</th>
-                  <th className="pb-3 text-center">Views</th>
-                  <th className="pb-3 text-center">Downloads</th>
-                  <th className="pb-3 text-center">Likes</th>
+                  <th 
+                    className={`pb-3 text-center cursor-pointer hover:text-purple-500 transition-colors ${popularSortBy === 'views' ? 'text-purple-600 dark:text-purple-400' : ''}`}
+                    onClick={() => setPopularSortBy('views')}
+                  >
+                    Views {popularSortBy === 'views' && '↓'}
+                  </th>
+                  <th 
+                    className={`pb-3 text-center cursor-pointer hover:text-purple-500 transition-colors ${popularSortBy === 'downloads' ? 'text-purple-600 dark:text-purple-400' : ''}`}
+                    onClick={() => setPopularSortBy('downloads')}
+                  >
+                    Downloads {popularSortBy === 'downloads' && '↓'}
+                  </th>
+                  <th 
+                    className={`pb-3 text-center cursor-pointer hover:text-purple-500 transition-colors ${popularSortBy === 'likes' ? 'text-purple-600 dark:text-purple-400' : ''}`}
+                    onClick={() => setPopularSortBy('likes')}
+                  >
+                    Likes {popularSortBy === 'likes' && '↓'}
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 dark:divide-white/5 text-sm font-semibold text-gray-600 dark:text-gray-300">

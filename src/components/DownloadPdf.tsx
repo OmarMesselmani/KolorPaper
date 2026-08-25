@@ -5,9 +5,16 @@ import { useState } from 'react';
 export default function DownloadPdf({ imageUrl, title, pdfUrl, slug }: { imageUrl: string, title: string, pdfUrl?: string, slug: string }) {
   const [loading, setLoading] = useState(false);
 
-  const trackDownload = () => {
-    const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
-    fetch(`${API_URL}/pages/${slug}/download`, { method: 'POST' }).catch(err => console.error("Failed to track download", err));
+  const trackDownload = async () => {
+    try {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
+      const res = await fetch(`${API_URL}/pages/${slug}/download`, { method: 'POST' });
+      if (res.status === 429) {
+        alert("Rate limit exceeded. You can only download/print 50 images per 12 hours. Please try again later.");
+      }
+    } catch (err) {
+      console.error("Failed to track download", err);
+    }
   };
 
   const handleDownload = async () => {
@@ -20,7 +27,7 @@ export default function DownloadPdf({ imageUrl, title, pdfUrl, slug }: { imageUr
         document.body.appendChild(a);
         a.click();
         a.remove();
-        trackDownload();
+        await trackDownload();
         return;
       }
 
@@ -72,7 +79,7 @@ export default function DownloadPdf({ imageUrl, title, pdfUrl, slug }: { imageUr
 
       // 4. Trigger download directly in browser
       doc.save(`KolorPaper - ${title}.pdf`);
-      trackDownload();
+      await trackDownload();
     } catch (error) {
       console.error('Download failed:', error);
     } finally {
