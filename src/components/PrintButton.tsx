@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 interface PrintButtonProps {
   slug: string;
   imageUrl: string;
@@ -9,6 +9,23 @@ interface PrintButtonProps {
 
 export default function PrintButton({ slug, imageUrl, title }: PrintButtonProps) {
   const [loading, setLoading] = useState(false);
+  const [isRateLimited, setIsRateLimited] = useState(false);
+
+  useEffect(() => {
+    const checkRateLimit = async () => {
+      try {
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
+        const res = await fetch(`${API_URL}/pages/${slug}/download`);
+        const data = await res.json();
+        if (data.limited) {
+          setIsRateLimited(true);
+        }
+      } catch (err) {
+        console.error("Failed to check limit", err);
+      }
+    };
+    checkRateLimit();
+  }, [slug]);
 
   const handlePrint = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -61,7 +78,7 @@ export default function PrintButton({ slug, imageUrl, title }: PrintButtonProps)
         const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
         const res = await fetch(`${API_URL}/pages/${slug}/download`, { method: 'POST' });
         if (res.status === 429) {
-          alert("Rate limit exceeded. You can only download/print 50 images per 12 hours. Please try again later.");
+          setIsRateLimited(true);
         }
       } catch (err) {
         console.error("Failed to track print download", err);
@@ -96,11 +113,19 @@ export default function PrintButton({ slug, imageUrl, title }: PrintButtonProps)
   return (
     <button 
       onClick={handlePrint}
-      disabled={loading}
-      className={`relative group w-full h-14 flex items-center justify-center bg-gradient-to-tr from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white border-none rounded-2xl transition-all duration-300 hover:-translate-y-1 active:translate-y-0 active:scale-95 select-none ${loading ? 'cursor-not-allowed opacity-75' : 'cursor-pointer'}`} 
+      disabled={loading || isRateLimited}
+      className={`relative group w-full h-14 flex items-center justify-center border-none rounded-2xl transition-all duration-300 select-none ${
+        isRateLimited 
+          ? 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed' 
+          : 'bg-gradient-to-tr from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white cursor-pointer hover:-translate-y-1 active:translate-y-0 active:scale-95'
+      } ${loading && !isRateLimited ? 'cursor-not-allowed opacity-75' : ''}`} 
       aria-label="Print Page"
     >
-      {loading ? (
+      {isRateLimited ? (
+        <div className="flex items-center gap-2">
+          <span className="font-bold text-xs sm:text-sm text-center">Please wait 6 hours<br/>to download again</span>
+        </div>
+      ) : loading ? (
         <div className="flex items-center gap-2">
           <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3"></circle>

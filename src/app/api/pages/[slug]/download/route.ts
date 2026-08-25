@@ -25,17 +25,17 @@ export async function POST(
     const userAgent = req.headers.get("user-agent") || undefined;
     const country = req.headers.get("cf-ipcountry") || req.headers.get("x-vercel-ip-country") || "Unknown";
 
-    const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
+    const sixHoursAgo = new Date(Date.now() - 6 * 60 * 60 * 1000);
     const downloadCount = await prisma.pageView.count({
       where: {
         ip,
         action: "download",
-        createdAt: { gte: twelveHoursAgo }
+        createdAt: { gte: sixHoursAgo }
       }
     });
 
     if (downloadCount >= 50) {
-      return NextResponse.json({ error: "Rate limit exceeded. You can only download 50 images per 12 hours. Please try again later." }, { status: 429 });
+      return NextResponse.json({ error: "Rate limit exceeded. You can only download 50 images per 6 hours. Please try again later." }, { status: 429 });
     }
 
     const page = await prisma.coloringPage.findUnique({ where: { slug } });
@@ -62,5 +62,27 @@ export async function POST(
   } catch (error) {
     console.error("Error recording page download:", error);
     return NextResponse.json({ error: "Failed to record download" }, { status: 500 });
+  }
+}
+
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ slug: string }> }
+) {
+  try {
+    const ip = anonymizeIp(req.headers.get("cf-connecting-ip") || req.headers.get("x-forwarded-for")?.split(",")[0].trim() || undefined);
+    const sixHoursAgo = new Date(Date.now() - 6 * 60 * 60 * 1000);
+    const downloadCount = await prisma.pageView.count({
+      where: {
+        ip,
+        action: "download",
+        createdAt: { gte: sixHoursAgo }
+      }
+    });
+
+    return NextResponse.json({ limited: downloadCount >= 50 });
+  } catch (error) {
+    console.error("Error checking rate limit:", error);
+    return NextResponse.json({ error: "Failed to check limit" }, { status: 500 });
   }
 }
