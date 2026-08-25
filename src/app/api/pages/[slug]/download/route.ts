@@ -35,7 +35,18 @@ export async function POST(
     });
 
     if (downloadCount >= 50) {
-      return NextResponse.json({ error: "Rate limit exceeded. You can only download 50 images per 6 hours. Please try again later." }, { status: 429 });
+      const oldestDownload = await prisma.pageView.findFirst({
+        where: {
+          ip,
+          action: "download",
+          createdAt: { gte: sixHoursAgo }
+        },
+        orderBy: { createdAt: 'asc' }
+      });
+
+      const nextAvailableTime = oldestDownload ? new Date(oldestDownload.createdAt.getTime() + 6 * 60 * 60 * 1000).toISOString() : null;
+
+      return NextResponse.json({ error: "Rate limit exceeded. You can only download 50 images per 6 hours. Please try again later.", nextAvailableTime }, { status: 429 });
     }
 
     const page = await prisma.coloringPage.findUnique({ where: { slug } });
@@ -72,6 +83,7 @@ export async function GET(
   try {
     const ip = anonymizeIp(req.headers.get("cf-connecting-ip") || req.headers.get("x-forwarded-for")?.split(",")[0].trim() || undefined);
     const sixHoursAgo = new Date(Date.now() - 6 * 60 * 60 * 1000);
+    
     const downloadCount = await prisma.pageView.count({
       where: {
         ip,
@@ -80,7 +92,22 @@ export async function GET(
       }
     });
 
-    return NextResponse.json({ limited: downloadCount >= 50 });
+    if (downloadCount >= 50) {
+      const oldestDownload = await prisma.pageView.findFirst({
+        where: {
+          ip,
+          action: "download",
+          createdAt: { gte: sixHoursAgo }
+        },
+        orderBy: { createdAt: 'asc' }
+      });
+
+      const nextAvailableTime = oldestDownload ? new Date(oldestDownload.createdAt.getTime() + 6 * 60 * 60 * 1000).toISOString() : null;
+
+      return NextResponse.json({ limited: true, nextAvailableTime });
+    }
+
+    return NextResponse.json({ limited: false });
   } catch (error) {
     console.error("Error checking rate limit:", error);
     return NextResponse.json({ error: "Failed to check limit" }, { status: 500 });

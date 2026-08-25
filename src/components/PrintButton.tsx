@@ -10,6 +10,37 @@ interface PrintButtonProps {
 export default function PrintButton({ slug, imageUrl, title }: PrintButtonProps) {
   const [loading, setLoading] = useState(false);
   const [isRateLimited, setIsRateLimited] = useState(false);
+  const [nextAvailableTime, setNextAvailableTime] = useState<string | null>(null);
+  const [remainingTime, setRemainingTime] = useState<{ hours: number, minutes: number } | null>(null);
+
+  useEffect(() => {
+    if (!nextAvailableTime) return;
+    
+    const calculateRemaining = () => {
+      const now = new Date().getTime();
+      const available = new Date(nextAvailableTime).getTime();
+      const diff = available - now;
+      
+      if (diff <= 0) {
+        setIsRateLimited(false);
+        setNextAvailableTime(null);
+        setRemainingTime(null);
+      } else {
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        // If it's something like 0h 0m but diff > 0, show 1m to avoid 0m
+        if (hours === 0 && minutes === 0) {
+          setRemainingTime({ hours: 0, minutes: 1 });
+        } else {
+          setRemainingTime({ hours, minutes });
+        }
+      }
+    };
+
+    calculateRemaining();
+    const interval = setInterval(calculateRemaining, 60000);
+    return () => clearInterval(interval);
+  }, [nextAvailableTime]);
 
   useEffect(() => {
     const checkRateLimit = async () => {
@@ -19,6 +50,9 @@ export default function PrintButton({ slug, imageUrl, title }: PrintButtonProps)
         const data = await res.json();
         if (data.limited) {
           setIsRateLimited(true);
+          if (data.nextAvailableTime) {
+            setNextAvailableTime(data.nextAvailableTime);
+          }
         }
       } catch (err) {
         console.error("Failed to check limit", err);
@@ -79,6 +113,10 @@ export default function PrintButton({ slug, imageUrl, title }: PrintButtonProps)
         const res = await fetch(`${API_URL}/pages/${slug}/download`, { method: 'POST' });
         if (res.status === 429) {
           setIsRateLimited(true);
+          const data = await res.json();
+          if (data.nextAvailableTime) {
+            setNextAvailableTime(data.nextAvailableTime);
+          }
         }
       } catch (err) {
         console.error("Failed to track print download", err);
@@ -123,7 +161,12 @@ export default function PrintButton({ slug, imageUrl, title }: PrintButtonProps)
     >
       {isRateLimited ? (
         <div className="flex items-center gap-2">
-          <span className="font-bold text-xs sm:text-sm text-center">Please wait 6 hours<br/>to download again</span>
+          <span className="font-bold text-xs sm:text-sm text-center">
+            {remainingTime 
+              ? `Please wait ${remainingTime.hours > 0 ? `${remainingTime.hours}h ` : ''}${remainingTime.minutes}m`
+              : 'Please wait 6 hours'}
+            <br/>to download again
+          </span>
         </div>
       ) : loading ? (
         <div className="flex items-center gap-2">
