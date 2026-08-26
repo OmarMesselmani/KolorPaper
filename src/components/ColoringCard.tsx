@@ -17,10 +17,67 @@ function formatCount(n: number): string {
   return String(n);
 }
 
+let rateLimitCheckPromise: Promise<any> | null = null;
+let lastRateLimitCheckTime = 0;
+
 export default function ColoringCard({ page }: { page: ColoringPage }) {
   const [liked, setLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(page.likes || 0);
   const [isPrinting, setIsPrinting] = useState(false);
+  const [isRateLimited, setIsRateLimited] = useState(false);
+  const [nextAvailableTime, setNextAvailableTime] = useState<string | null>(null);
+  const [remainingTime, setRemainingTime] = useState<{ hours: number, minutes: number } | null>(null);
+
+  useEffect(() => {
+    if (!nextAvailableTime) return;
+    
+    const calculateRemaining = () => {
+      const now = new Date().getTime();
+      const available = new Date(nextAvailableTime).getTime();
+      const diff = available - now;
+      
+      if (diff <= 0) {
+        setIsRateLimited(false);
+        setNextAvailableTime(null);
+        setRemainingTime(null);
+      } else {
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        if (hours === 0 && minutes === 0) {
+          setRemainingTime({ hours: 0, minutes: 1 });
+        } else {
+          setRemainingTime({ hours, minutes });
+        }
+      }
+    };
+
+    calculateRemaining();
+    const interval = setInterval(calculateRemaining, 60000);
+    return () => clearInterval(interval);
+  }, [nextAvailableTime]);
+
+  useEffect(() => {
+    const checkRateLimit = async () => {
+      try {
+        const now = Date.now();
+        if (!rateLimitCheckPromise || now - lastRateLimitCheckTime > 60000) {
+           const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
+           rateLimitCheckPromise = fetch(`${API_URL}/pages/${page.slug}/download`).then(res => res.json());
+           lastRateLimitCheckTime = now;
+        }
+        const data = await rateLimitCheckPromise;
+        if (data.limited) {
+          setIsRateLimited(true);
+          if (data.nextAvailableTime) {
+            setNextAvailableTime(data.nextAvailableTime);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to check limit", err);
+      }
+    };
+    checkRateLimit();
+  }, [page.slug]);
 
   useEffect(() => {
     try {
@@ -190,6 +247,16 @@ export default function ColoringCard({ page }: { page: ColoringPage }) {
     // Track print event as download on backend
     const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
     fetch(`${API_URL}/pages/${page.slug}/download`, { method: 'POST' })
+      .then(res => {
+        if (res.status === 429) {
+          setIsRateLimited(true);
+          return res.json().then(data => {
+            if (data.nextAvailableTime) {
+              setNextAvailableTime(data.nextAvailableTime);
+            }
+          });
+        }
+      })
       .catch(err => console.error("Failed to track print download", err));
   };
 
@@ -245,10 +312,18 @@ export default function ColoringCard({ page }: { page: ColoringPage }) {
           {/* Print Button */}
           <button
             onClick={handlePrint}
-            disabled={isPrinting}
-            className="w-9 h-9 rounded-full bg-white dark:bg-gray-950 border border-black/5 dark:border-white/10 flex items-center justify-center shadow-md cursor-pointer transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 hover:bg-gradient-to-tr hover:from-violet-600 hover:to-indigo-600 hover:text-white hover:border-transparent text-gray-500 dark:text-gray-400 disabled:opacity-70 disabled:cursor-wait disabled:hover:translate-y-0 disabled:hover:scale-100 disabled:hover:bg-white disabled:dark:hover:bg-gray-950 disabled:hover:text-gray-500 disabled:dark:hover:text-gray-400 disabled:hover:border-black/5 disabled:dark:hover:border-white/10"
+            disabled={isPrinting || isRateLimited}
+            className="w-9 h-9 rounded-full bg-white dark:bg-gray-950 border border-black/5 dark:border-white/10 flex items-center justify-center shadow-md cursor-pointer transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 hover:bg-gradient-to-tr hover:from-violet-600 hover:to-indigo-600 hover:text-white hover:border-transparent text-gray-500 dark:text-gray-400 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:scale-100 disabled:hover:bg-white disabled:dark:hover:bg-gray-950 disabled:hover:text-gray-500 disabled:dark:hover:text-gray-400 disabled:hover:border-black/5 disabled:dark:hover:border-white/10 group/printbtn relative"
             aria-label="Print coloring page"
           >
+            {isRateLimited && (
+              <div className="absolute bottom-full right-0 mb-2 w-max px-3 py-1.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs font-bold rounded-lg opacity-0 invisible group-hover/printbtn:opacity-100 group-hover/printbtn:visible transition-all duration-300 shadow-xl pointer-events-none z-50">
+                {remainingTime 
+                  ? `Please wait ${remainingTime.hours > 0 ? `${remainingTime.hours}h ` : ''}${remainingTime.minutes}m`
+                  : 'Please wait 6 hours'}
+                <div className="absolute top-full right-3 border-4 border-transparent border-t-gray-900 dark:border-t-white"></div>
+              </div>
+            )}
             {isPrinting ? (
               <svg className="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
