@@ -267,8 +267,8 @@ export default function ColoringCard({ page }: { page: ColoringPage }) {
     }
   }, [page.createdAt]);
   return (
-    <Link href={page.subCategorySlug ? `/${page.categorySlug}/${page.subCategorySlug}/${page.slug}` : `/${page.categorySlug}/${page.slug}`} className="block bg-white dark:bg-gray-900 rounded-2xl overflow-hidden border border-black/5 dark:border-white/5 shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_15px_-3px_rgba(124,58,237,0.1),0_4px_6px_-2px_rgba(124,58,237,0.05)] hover:border-purple-600/20 dark:hover:border-purple-500/30 group relative">
-      <div className="w-full aspect-[3/4] overflow-hidden bg-gray-50 dark:bg-gray-800 border-b border-black/5 dark:border-white/5 relative">
+    <Link href={page.subCategorySlug ? `/${page.categorySlug}/${page.subCategorySlug}/${page.slug}` : `/${page.categorySlug}/${page.slug}`} className="block bg-white dark:bg-gray-900 rounded-2xl border border-black/5 dark:border-white/5 shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_15px_-3px_rgba(124,58,237,0.1),0_4px_6px_-2px_rgba(124,58,237,0.05)] hover:border-purple-600/20 dark:hover:border-purple-500/30 group relative">
+      <div className="w-full aspect-[3/4] overflow-hidden rounded-t-2xl bg-gray-50 dark:bg-gray-800 border-b border-black/5 dark:border-white/5 relative">
         <div className="relative w-full h-full">
           <Image
             src={page.thumbnailUrl}
@@ -285,9 +285,10 @@ export default function ColoringCard({ page }: { page: ColoringPage }) {
             New
           </span>
         )}
+      </div>
 
-        {/* Buttons (Top Right) */}
-        <div className="absolute top-3 right-3 z-10 flex gap-2 print:hidden">
+      {/* Buttons (Top Right) */}
+      <div className="absolute top-3 right-3 z-10 flex gap-2 print:hidden">
           {/* Like Button */}
           <button
             onClick={handleLike}
@@ -347,8 +348,8 @@ export default function ColoringCard({ page }: { page: ColoringPage }) {
             )}
           </button>
         </div>
-      </div>
-      <div className="p-5 bg-white dark:bg-gray-900 flex flex-col gap-3">
+      {/* </div> This div was closing the image container but we moved the buttons out so it's already closed */}
+      <div className="p-5 bg-white dark:bg-gray-900 flex flex-col gap-3 rounded-b-2xl">
         <h3 className="font-bold text-xs md:text-sm text-gray-900 dark:text-white m-0 truncate">{page.title}</h3>
         
         {/* Stats Footer */}
