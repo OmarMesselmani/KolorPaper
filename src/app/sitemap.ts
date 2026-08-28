@@ -32,6 +32,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: page.updatedAt,
     changeFrequency: 'monthly',
     priority: 0.6,
+    images: [page.imageUrl],
   }));
 
   const blogEntries: MetadataRoute.Sitemap = blogPosts.map((post) => ({

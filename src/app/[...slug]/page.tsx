@@ -148,11 +148,7 @@ export default async function DynamicPage({
     const allRelated = (await cachedGetColoringPages(targetSlug))
       .filter(p => p.id !== coloringPage.id);
 
-    // Shuffle array randomly
-    for (let i = allRelated.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [allRelated[i], allRelated[j]] = [allRelated[j], allRelated[i]];
-    }
+    // Deterministically take the first 4 related pages to ensure Googlebot always sees the same content
 
     const relatedPages = allRelated.slice(0, 4);
 

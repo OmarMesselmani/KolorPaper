@@ -301,7 +301,7 @@ export const cachedGetAllCustomTagNames = cache(getAllCustomTagNames);
 // ── Sitemap-optimised queries (minimal columns, no caching needed) ──
 
 type SitemapCategory = { slug: string; parentSlug: string | null; updatedAt: Date };
-type SitemapPage = { slug: string; categorySlug: string; subCategorySlug: string | null; updatedAt: Date };
+type SitemapPage = { slug: string; categorySlug: string; subCategorySlug: string | null; updatedAt: Date; imageUrl: string };
 type SitemapPost = { slug: string; updatedAt: Date };
 type SitemapTag = { name: string; updatedAt: Date };
 
@@ -326,6 +326,7 @@ export async function getSitemapColoringPages(): Promise<SitemapPage[]> {
         categorySlug: true,
         subCategorySlug: true,
         updatedAt: true,
+        imageUrl: true,
       },
     });
   } catch (error) {
