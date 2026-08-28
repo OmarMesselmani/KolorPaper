@@ -13,12 +13,13 @@ export default async function SeeMore({ currentPage }: { currentPage: ColoringPa
     return p.id !== currentPage.id;
   });
 
-  const shuffledCandidates = shuffleArray(candidatePages);
+  // Deterministically take candidates to prevent SEO index confusion
+  const candidates = candidatePages;
 
   const result: ColoringPage[] = [];
   const seenIds = new Set<string>([currentPage.id]);
 
-  for (const p of shuffledCandidates) {
+  for (const p of candidates) {
     if (result.length >= 10) break;
     if (!seenIds.has(p.id)) {
       seenIds.add(p.id);
@@ -46,8 +47,8 @@ export default async function SeeMore({ currentPage }: { currentPage: ColoringPa
         },
       });
       const parsed: ColoringPage[] = JSON.parse(JSON.stringify(extraPages));
-      const shuffledExtra = shuffleArray(parsed);
-      for (const p of shuffledExtra) {
+      const extraCandidates = parsed;
+      for (const p of extraCandidates) {
         if (result.length >= 10) break;
         if (!seenIds.has(p.id)) {
           seenIds.add(p.id);
