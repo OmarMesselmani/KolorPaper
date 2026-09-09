@@ -275,7 +275,8 @@ export default function ColoringCard({ page }: { page: ColoringPage }) {
             alt={page.imageAlt || `Free printable ${page.title} coloring page`}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            draggable={false}
+            className="object-cover transition-transform duration-500 group-hover:scale-105 pointer-events-none select-none"
           />
         </div>
 

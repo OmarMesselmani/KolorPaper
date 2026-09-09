@@ -39,7 +39,8 @@ export default function RelatedCard({ page }: RelatedCardProps) {
           fill
           sizes="64px"
           onError={() => setImgSrc('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="150" height="200" viewBox="0 0 150 200"><rect width="100%" height="100%" fill="%23f3f4f6"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="14" fill="%239ca3af">Coloring</text></svg>')}
-          className="object-contain transition-transform duration-300 group-hover:scale-105"
+          draggable={false}
+          className="object-contain transition-transform duration-300 group-hover:scale-105 pointer-events-none select-none"
         />
       </div>
       <div className="flex flex-col justify-center gap-1.5 min-w-0">

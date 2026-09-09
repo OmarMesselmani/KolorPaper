@@ -14,6 +14,7 @@ import PageStats from "@/components/PageStats";
 import FilterDrawer from "@/components/FilterDrawer";
 import CustomTagSidebarCard from "@/components/CustomTagSidebarCard";
 import CopyLinkButton from "@/components/CopyLinkButton";
+import ImageProtector from "@/components/ImageProtector";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 
@@ -205,16 +206,19 @@ export default async function DynamicPage({
         <div className="max-w-[1240px] mx-auto px-6 pb-16">
           <div className="flex gap-8 items-start flex-wrap lg:flex-nowrap mt-8">
             {/* Image Column */}
-            <figure className="flex-[0.9] max-w-[450px] min-w-[300px] w-full bg-white dark:bg-gray-900 p-0 rounded-3xl overflow-hidden shadow-[0_10px_15px_-3px_rgba(124,58,237,0.1),0_4px_6px_-2px_rgba(124,58,237,0.05)] dark:shadow-[0_10px_15px_-3px_rgba(168,85,247,0.1)] border border-black/5 dark:border-white/5 m-0">
-              {/* Primary coloring sheet: uses full imageUrl matching sitemap and og:image exactly */}
-              <Image
-                src={coloringPage.imageUrl}
-                alt={coloringPage.imageAlt || `Free printable ${coloringPage.title} coloring page for kids`}
-                width={450}
-                height={600}
-                className="w-full h-auto block print:hidden"
-                priority
-              />
+            <figure className="flex-[0.9] max-w-[450px] min-w-[300px] w-full bg-white dark:bg-gray-900 p-0 rounded-3xl overflow-hidden shadow-[0_10px_15px_-3px_rgba(124,58,237,0.1),0_4px_6px_-2px_rgba(124,58,237,0.05)] dark:shadow-[0_10px_15px_-3px_rgba(168,85,247,0.1)] border border-black/5 dark:border-white/5 m-0 select-none">
+              <ImageProtector>
+                {/* Primary coloring sheet: uses full imageUrl matching sitemap and og:image exactly */}
+                <Image
+                  src={coloringPage.imageUrl}
+                  alt={coloringPage.imageAlt || `Free printable ${coloringPage.title} coloring page for kids`}
+                  width={450}
+                  height={600}
+                  className="w-full h-auto block print:hidden pointer-events-none select-none"
+                  priority
+                  draggable={false}
+                />
+              </ImageProtector>
             </figure>
 
             {/* Info Column */}
