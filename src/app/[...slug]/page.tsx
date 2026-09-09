@@ -57,7 +57,7 @@ export async function generateMetadata({
         images: [
           {
             url: imageUrl,
-            alt: `Free printable ${coloringPage.title} coloring page`,
+            alt: coloringPage.imageAlt || `Free printable ${coloringPage.title} coloring page`,
           },
         ],
         type: 'website',
@@ -162,7 +162,7 @@ export default async function DynamicPage({
               "@context": "https://schema.org/",
               "@type": "ImageObject",
               "name": `${coloringPage.title} Free Printable Coloring Page`,
-              "description": coloringPage.description || `Free printable ${coloringPage.title} coloring page for kids.`,
+              "description": coloringPage.description || coloringPage.imageAlt || `Free printable ${coloringPage.title} coloring page for kids.`,
               "contentUrl": coloringPage.imageUrl,
               "thumbnailUrl": coloringPage.thumbnailUrl || coloringPage.imageUrl,
               "license": `${siteUrl}/terms-of-use`,
@@ -187,7 +187,7 @@ export default async function DynamicPage({
               {/* Screen preview: uses optimized/thumbnail image */}
               <Image
                 src={coloringPage.thumbnailUrl || coloringPage.imageUrl}
-                alt={`Free printable ${coloringPage.title} coloring page for kids`}
+                alt={coloringPage.imageAlt || `Free printable ${coloringPage.title} coloring page for kids`}
                 width={450}
                 height={600}
                 className="w-full h-auto block print:hidden"

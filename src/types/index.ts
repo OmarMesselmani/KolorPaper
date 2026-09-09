@@ -3,6 +3,7 @@ export interface ColoringPage {
   title: string;
   slug: string;
   imageUrl: string;
+  imageAlt?: string;
   thumbnailUrl: string;
   categorySlug: string;
   subCategorySlug?: string;

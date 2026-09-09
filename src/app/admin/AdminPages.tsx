@@ -235,6 +235,9 @@ export default function AdminPages({ token }: AdminPagesProps) {
         .replace(/-+/g, "-")
         .trim();
       setSlug(generatedSlug);
+      if (!imageAlt || imageAlt.startsWith("Free printable ")) {
+        setImageAlt(val ? `Free printable ${val} coloring page` : "");
+      }
     }
   };
 
@@ -280,7 +283,7 @@ export default function AdminPages({ token }: AdminPagesProps) {
       title,
       slug,
       imageUrl,
-      imageAlt: imageAlt || null,
+      imageAlt: imageAlt || (title ? `Free printable ${title} coloring page` : null),
       thumbnailUrl: thumbnailUrl || imageUrl, // default thumbnail to main image if empty
       pdfUrl: null,
       categorySlug,
