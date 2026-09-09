@@ -160,19 +160,41 @@ export default async function DynamicPage({
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org/",
-              "@type": "ImageObject",
+              "@type": "ItemPage",
+              "@id": `${siteUrl}/${slug.join('/')}#webpage`,
+              "url": `${siteUrl}/${slug.join('/')}`,
               "name": `${coloringPage.title} Free Printable Coloring Page`,
               "description": coloringPage.description || coloringPage.imageAlt || `Free printable ${coloringPage.title} coloring page for kids.`,
-              "contentUrl": coloringPage.imageUrl,
-              "thumbnailUrl": coloringPage.thumbnailUrl || coloringPage.imageUrl,
-              "license": `${siteUrl}/terms-of-use`,
-              "acquireLicensePage": `${siteUrl}/${slug.join('/')}`,
-              "creator": {
-                "@type": "Organization",
-                "name": "KolorPaper"
+              "isPartOf": {
+                "@type": "WebSite",
+                "@id": `${siteUrl}#website`,
+                "name": "KolorPaper",
+                "url": siteUrl
               },
-              "creditText": "KolorPaper",
-              "copyrightNotice": `© ${new Date().getFullYear()} KolorPaper`
+              "primaryImageOfPage": {
+                "@type": "ImageObject",
+                "@id": `${siteUrl}/${slug.join('/')}#primaryimage`,
+                "name": `${coloringPage.title} Free Printable Coloring Page`,
+                "description": coloringPage.description || coloringPage.imageAlt || `Free printable ${coloringPage.title} coloring page for kids.`,
+                "contentUrl": coloringPage.imageUrl,
+                "url": coloringPage.imageUrl,
+                "thumbnailUrl": coloringPage.thumbnailUrl || coloringPage.imageUrl,
+                "license": `${siteUrl}/terms-of-use`,
+                "acquireLicensePage": `${siteUrl}/${slug.join('/')}`,
+                "creator": {
+                  "@type": "Organization",
+                  "name": "KolorPaper"
+                },
+                "creditText": "KolorPaper",
+                "copyrightNotice": `© ${new Date().getFullYear()} KolorPaper`
+              },
+              "mainEntity": {
+                "@type": "ImageObject",
+                "@id": `${siteUrl}/${slug.join('/')}#primaryimage`,
+                "name": `${coloringPage.title} Free Printable Coloring Page`,
+                "contentUrl": coloringPage.imageUrl,
+                "thumbnailUrl": coloringPage.thumbnailUrl || coloringPage.imageUrl
+              }
             })
           }}
         />
@@ -183,18 +205,17 @@ export default async function DynamicPage({
         <div className="max-w-[1240px] mx-auto px-6 pb-16">
           <div className="flex gap-8 items-start flex-wrap lg:flex-nowrap mt-8">
             {/* Image Column */}
-            <div className="flex-[0.9] max-w-[450px] min-w-[300px] w-full bg-white dark:bg-gray-900 p-0 rounded-3xl overflow-hidden shadow-[0_10px_15px_-3px_rgba(124,58,237,0.1),0_4px_6px_-2px_rgba(124,58,237,0.05)] dark:shadow-[0_10px_15px_-3px_rgba(168,85,247,0.1)] border border-black/5 dark:border-white/5">
-              {/* Screen preview: uses optimized/thumbnail image */}
+            <figure className="flex-[0.9] max-w-[450px] min-w-[300px] w-full bg-white dark:bg-gray-900 p-0 rounded-3xl overflow-hidden shadow-[0_10px_15px_-3px_rgba(124,58,237,0.1),0_4px_6px_-2px_rgba(124,58,237,0.05)] dark:shadow-[0_10px_15px_-3px_rgba(168,85,247,0.1)] border border-black/5 dark:border-white/5 m-0">
+              {/* Primary coloring sheet: uses full imageUrl matching sitemap and og:image exactly */}
               <Image
-                src={coloringPage.thumbnailUrl || coloringPage.imageUrl}
+                src={coloringPage.imageUrl}
                 alt={coloringPage.imageAlt || `Free printable ${coloringPage.title} coloring page for kids`}
                 width={450}
                 height={600}
                 className="w-full h-auto block print:hidden"
                 priority
               />
-
-            </div>
+            </figure>
 
             {/* Info Column */}
             <div className="flex-1 min-w-[320px] pt-4 print:hidden">
@@ -325,7 +346,7 @@ export default async function DynamicPage({
               let parsedTags: string[] = [];
               try { parsedTags = coloringPage.tags ? JSON.parse(String(coloringPage.tags)) : []; } catch(e) {}
               return (relatedPages.length > 0 || parsedTags.length > 0) && (
-              <div className="w-full lg:w-80 min-w-[280px] print:hidden flex flex-col gap-6 flex-shrink-0">
+              <aside aria-label="Related coloring sheets and tags" className="w-full lg:w-80 min-w-[280px] print:hidden flex flex-col gap-6 flex-shrink-0">
                 {relatedPages.length > 0 && (
                   <div className="bg-white dark:bg-gray-900 p-6 rounded-3xl border border-black/5 dark:border-white/5 shadow-[0_10px_15px_-3px_rgba(124,58,237,0.05)] flex flex-col gap-6">
                     <h3 className="text-xl font-bold text-[#0F0728] dark:text-gray-100 flex items-center gap-3 before:content-[''] before:block before:w-1 before:h-5 before:bg-purple-600 before:rounded-sm m-0">
@@ -351,7 +372,7 @@ export default async function DynamicPage({
                     </div>
                   </div>
                 )}
-              </div>
+              </aside>
             )})()}
           </div>
         </div>
