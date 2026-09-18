@@ -238,40 +238,54 @@ export default async function DynamicPage({
 
               {(coloringPage.difficulty || coloringPage.ageGroup || coloringPage.style) && (
                 <div className="mt-8 pt-6 border-t border-black/5 dark:border-white/5 flex flex-row items-center gap-6 sm:gap-12 flex-nowrap print:hidden overflow-x-auto no-scrollbar w-full">
-                  {coloringPage.difficulty && (
-                    <div className="flex items-center gap-3 flex-shrink-0">
-                      <div className="flex flex-col">
-                        <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
-                          Difficulty: <span className={`capitalize font-black ${coloringPage.difficulty === 'very easy' ? 'text-[#34c759]' :
-                              coloringPage.difficulty === 'easy' ? 'text-[#8bc34a]' :
-                              coloringPage.difficulty === 'hard' ? 'text-[#ff9500]' :
-                              coloringPage.difficulty === 'very hard' ? 'text-[#ff3b30]' :
-                                'text-[#ffcc00]'
-                            }`}>{coloringPage.difficulty}</span>
-                        </span>
+                  {coloringPage.difficulty && (() => {
+                    const diff = coloringPage.difficulty.toLowerCase();
+                    const level = 
+                      diff === 'very easy' ? 1 :
+                      diff === 'easy' ? 2 :
+                      diff === 'hard' ? 4 :
+                      diff === 'very hard' ? 5 :
+                      3; // default medium
 
-                        {/* Custom Difficulty Slider */}
-                        <div className="relative w-28 h-7 flex items-center">
-                          {/* Track */}
-                          <div className="w-full h-3.5 rounded-full bg-gradient-to-r from-[#34c759] via-[#ffcc00] via-[#ff9500] to-[#ff3b30] border-2 border-white dark:border-gray-800 shadow-[inset_0_2px_4px_rgba(0,0,0,0.15)]" />
+                    const diffColor = 
+                      level === 1 ? 'text-[#34c759]' :
+                      level === 2 ? 'text-[#8bc34a]' :
+                      level === 4 ? 'text-[#ff9500]' :
+                      level === 5 ? 'text-[#ff3b30]' :
+                      'text-[#ffcc00]';
 
-                          {/* Thumb */}
-                          <div
-                            className="absolute w-5 h-5 rounded-full bg-white flex items-center justify-center shadow-[0_2px_6px_rgba(0,0,0,0.25)] border border-gray-200/50 transition-all duration-700 ease-out"
-                            style={{
-                              left: coloringPage.difficulty === 'very easy' ? '10%' : coloringPage.difficulty === 'easy' ? '30%' : coloringPage.difficulty === 'hard' ? '70%' : coloringPage.difficulty === 'very hard' ? '90%' : '50%',
-                              transform: 'translateX(-50%)'
-                            }}
-                          >
-                            <div
-                              className={`w-3 h-3 rounded-full transition-colors duration-500 ${coloringPage.difficulty === 'very easy' ? 'bg-[#34c759]' : coloringPage.difficulty === 'easy' ? 'bg-[#8bc34a]' : coloringPage.difficulty === 'hard' ? 'bg-[#ff9500]' : coloringPage.difficulty === 'very hard' ? 'bg-[#ff3b30]' : 'bg-[#ffcc00]'
-                                }`}
-                            />
+                    const barColor = 
+                      level === 1 ? 'bg-[#34c759]' :
+                      level === 2 ? 'bg-[#8bc34a]' :
+                      level === 4 ? 'bg-[#ff9500]' :
+                      level === 5 ? 'bg-[#ff3b30]' :
+                      'bg-[#ffcc00]';
+
+                    return (
+                      <div className="flex items-center gap-3 flex-shrink-0">
+                        <div className="flex flex-col">
+                          <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+                            Difficulty: <span className={`capitalize font-black ${diffColor}`}>{coloringPage.difficulty}</span>
+                          </span>
+
+                          {/* Segmented Level Gauge (clearly an indicator, not an interactive slider) */}
+                          <div className="flex items-center gap-1.5 w-28 h-2.5 my-1 cursor-default select-none" aria-label={`Difficulty level: ${coloringPage.difficulty}`}>
+                            {[1, 2, 3, 4, 5].map((step) => {
+                              const isFilled = step <= level;
+                              return (
+                                <div
+                                  key={step}
+                                  className={`h-2.5 flex-1 rounded-full transition-all duration-300 ${
+                                    isFilled ? `${barColor} shadow-sm` : 'bg-gray-200 dark:bg-gray-800'
+                                  }`}
+                                />
+                              );
+                            })}
                           </div>
                         </div>
                       </div>
-                    </div>
-                  )}
+                    );
+                  })()}
 
                   {coloringPage.ageGroup && (
                     <div className="flex items-center gap-3 flex-shrink-0">
