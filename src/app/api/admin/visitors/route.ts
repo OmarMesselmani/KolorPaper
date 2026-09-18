@@ -90,7 +90,7 @@ export async function GET(req: NextRequest) {
     const clusters = Array.from(clustersMap.values()).map(cluster => ({
       ...cluster,
       uniqueIpsCount: cluster.uniqueIps.size,
-      uniqueIps: Array.from(cluster.uniqueIps).slice(0, 5) // Send up to 5 IPs for display
+      uniqueIps: Array.from(cluster.uniqueIps) // Send all unique IPs for inspection
     }));
 
     // Sort by last active desc
