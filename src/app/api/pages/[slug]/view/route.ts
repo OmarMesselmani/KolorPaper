@@ -1,19 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { detectBot } from "@/lib/botDetection";
 
-// Anonymize IP by removing the last octet for GDPR compliance
-const anonymizeIp = (ip: string | undefined): string => {
+// No longer anonymizing IP to allow full IP tracking in dashboard
+const getRealIp = (ip: string | undefined): string => {
   if (!ip) return "unknown";
-  const cleanIp = ip.replace(/^::ffff:/, "");
-  if (cleanIp.includes(":")) {
-    const parts = cleanIp.split(":");
-    return parts.slice(0, Math.max(parts.length - 2, 2)).join(":") + ":0:0";
-  }
-  const parts = cleanIp.split(".");
-  if (parts.length === 4) {
-    return parts.slice(0, 3).join(".") + ".0";
-  }
-  return "unknown";
+  return ip.replace(/^::ffff:/, ""); // Just clean IPv4-mapped IPv6
 };
 
 export async function POST(
@@ -22,7 +14,7 @@ export async function POST(
 ) {
   try {
     const { slug } = await params;
-    const ip = anonymizeIp(
+    const ip = getRealIp(
       req.headers.get("cf-connecting-ip") ||
       req.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
       undefined
@@ -52,10 +44,22 @@ export async function POST(
       return NextResponse.json({ views: page.views });
     }
 
-    const updatedPage = await prisma.coloringPage.update({
-      where: { slug },
-      data: { views: { increment: 1 } }
+    // Bot detection logic
+    const sixHoursAgo = new Date(Date.now() - 6 * 60 * 60 * 1000);
+    const recentViews = await prisma.pageView.count({
+      where: { ip, createdAt: { gte: sixHoursAgo } }
     });
+    const botStatus = detectBot(req, recentViews);
+
+    // Only increment view count for likely humans
+    let updatedViews = page.views;
+    if (botStatus.classification === "LIKELY HUMAN") {
+      const updatedPage = await prisma.coloringPage.update({
+        where: { slug },
+        data: { views: { increment: 1 } }
+      });
+      updatedViews = updatedPage.views;
+    }
 
     await prisma.pageView.create({
       data: {
@@ -63,11 +67,15 @@ export async function POST(
         action: "view",
         ip,
         userAgent,
-        country
+        country,
+        asn: botStatus.asn,
+        isHosting: botStatus.isHosting,
+        cfBotScore: botStatus.cfBotScore,
+        classification: botStatus.classification
       }
     });
 
-    return NextResponse.json({ views: updatedPage.views });
+    return NextResponse.json({ views: updatedViews });
   } catch (error) {
     console.error("Error recording page view:", error);
     return NextResponse.json({ error: "Failed to record view" }, { status: 500 });

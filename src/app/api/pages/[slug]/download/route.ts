@@ -1,18 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { detectBot } from "@/lib/botDetection";
 
-const anonymizeIp = (ip: string | undefined): string => {
+const getRealIp = (ip: string | undefined): string => {
   if (!ip) return "unknown";
-  const cleanIp = ip.replace(/^::ffff:/, "");
-  if (cleanIp.includes(":")) {
-    const parts = cleanIp.split(":");
-    return parts.slice(0, Math.max(parts.length - 2, 2)).join(":") + ":0:0";
-  }
-  const parts = cleanIp.split(".");
-  if (parts.length === 4) {
-    return parts.slice(0, 3).join(".") + ".0";
-  }
-  return "unknown";
+  return ip.replace(/^::ffff:/, "");
 };
 
 export async function POST(
@@ -21,7 +13,7 @@ export async function POST(
 ) {
   try {
     const { slug } = await params;
-    const ip = anonymizeIp(req.headers.get("cf-connecting-ip") || req.headers.get("x-forwarded-for")?.split(",")[0].trim() || undefined);
+    const ip = getRealIp(req.headers.get("cf-connecting-ip") || req.headers.get("x-forwarded-for")?.split(",")[0].trim() || undefined);
     const userAgent = req.headers.get("user-agent") || undefined;
     const country = req.headers.get("cf-ipcountry") || req.headers.get("x-vercel-ip-country") || "Unknown";
 
@@ -54,10 +46,21 @@ export async function POST(
       return NextResponse.json({ error: "Page not found" }, { status: 404 });
     }
 
-    const updatedPage = await prisma.coloringPage.update({
-      where: { slug },
-      data: { downloads: { increment: 1 } }
+    // Bot detection logic
+    const recentViews = await prisma.pageView.count({
+      where: { ip, createdAt: { gte: sixHoursAgo } }
     });
+    const botStatus = detectBot(req, recentViews);
+
+    // Only increment download count for likely humans
+    let updatedDownloads = page.downloads;
+    if (botStatus.classification === "LIKELY HUMAN") {
+      const updatedPage = await prisma.coloringPage.update({
+        where: { slug },
+        data: { downloads: { increment: 1 } }
+      });
+      updatedDownloads = updatedPage.downloads;
+    }
 
     await prisma.pageView.create({
       data: {
@@ -65,11 +68,15 @@ export async function POST(
         action: "download",
         ip,
         userAgent,
-        country
+        country,
+        asn: botStatus.asn,
+        isHosting: botStatus.isHosting,
+        cfBotScore: botStatus.cfBotScore,
+        classification: botStatus.classification
       }
     });
 
-    return NextResponse.json({ downloads: updatedPage.downloads });
+    return NextResponse.json({ downloads: updatedDownloads });
   } catch (error) {
     console.error("Error recording page download:", error);
     return NextResponse.json({ error: "Failed to record download" }, { status: 500 });
@@ -81,7 +88,7 @@ export async function GET(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const ip = anonymizeIp(req.headers.get("cf-connecting-ip") || req.headers.get("x-forwarded-for")?.split(",")[0].trim() || undefined);
+    const ip = getRealIp(req.headers.get("cf-connecting-ip") || req.headers.get("x-forwarded-for")?.split(",")[0].trim() || undefined);
     const sixHoursAgo = new Date(Date.now() - 6 * 60 * 60 * 1000);
     
     const downloadCount = await prisma.pageView.count({

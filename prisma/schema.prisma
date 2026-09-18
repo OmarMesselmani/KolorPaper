@@ -80,18 +80,23 @@ model AdminUser {
 }
 
 model PageView {
-  id        String       @id @default(cuid())
-  pageSlug  String
-  action    String // "view" | "download"
-  ip        String?
-  userAgent String?
-  country   String?
-  createdAt DateTime     @default(now())
+  id             String       @id @default(cuid())
+  pageSlug       String
+  action         String // "view" | "download"
+  ip             String?
+  userAgent      String?
+  country        String?
+  asn            String?
+  isHosting      Boolean      @default(false)
+  cfBotScore     Int?
+  classification String       @default("UNKNOWN")
+  createdAt      DateTime     @default(now())
 
   page ColoringPage @relation(fields: [pageSlug], references: [slug])
 
   @@index([pageSlug])
   @@index([createdAt])
+  @@index([ip])
 }
 
 model BlogPost {

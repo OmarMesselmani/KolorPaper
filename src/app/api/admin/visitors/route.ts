@@ -6,10 +6,6 @@ export async function GET(req: NextRequest) {
     const url = new URL(req.url);
     const limit = parseInt(url.searchParams.get("limit") || "100", 10);
     
-    // We want to fetch recent page views and group them by IP
-    // Since Prisma doesn't easily support fetching the latest User-Agent per grouped IP natively without complex aggregations,
-    // we'll fetch the raw records for the last N days and aggregate in memory for better bot heuristics.
-    
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - 30); // Last 30 days
     
@@ -25,69 +21,83 @@ export async function GET(req: NextRequest) {
         action: true,
         userAgent: true,
         country: true,
+        asn: true,
+        isHosting: true,
+        cfBotScore: true,
+        classification: true,
         createdAt: true
       }
     });
 
-    const visitorsMap = new Map<string, {
-      ip: string;
-      userAgent: string;
+    // We will group visitors into "Traffic Clusters" based on Country, ASN, and User-Agent
+    const clustersMap = new Map<string, {
+      id: string; // cluster ID
       country: string;
+      asn: string;
+      userAgent: string;
+      uniqueIps: Set<string>;
       views: number;
       downloads: number;
       likes: number;
       lastActive: Date;
-      status: 'Real User' | 'Suspicious' | 'Bot';
+      isHosting: boolean;
+      cfBotScore: number | null;
+      classification: string;
     }>();
+
+    let clusterCounter = 1;
 
     for (const pv of pageViews) {
       if (!pv.ip) continue;
       
-      const ip = pv.ip;
-      if (!visitorsMap.has(ip)) {
-        visitorsMap.set(ip, {
-          ip,
-          userAgent: pv.userAgent || 'Unknown',
-          country: pv.country || 'Unknown',
+      const country = pv.country || 'Unknown';
+      const asn = pv.asn || 'Unknown';
+      const userAgent = pv.userAgent || 'Unknown';
+      const classification = pv.classification || 'UNKNOWN';
+      
+      const clusterKey = `${country}-${asn}-${classification}`; // Grouping mostly by Country, ASN, and their Classification
+      
+      if (!clustersMap.has(clusterKey)) {
+        clustersMap.set(clusterKey, {
+          id: `Cluster #${clusterCounter++}`,
+          country,
+          asn,
+          userAgent: userAgent,
+          uniqueIps: new Set(),
           views: 0,
           downloads: 0,
           likes: 0,
           lastActive: pv.createdAt,
-          status: 'Real User'
+          isHosting: pv.isHosting || false,
+          cfBotScore: pv.cfBotScore || null,
+          classification
         });
       }
       
-      const visitor = visitorsMap.get(ip)!;
-      if (pv.action === 'view') visitor.views++;
-      else if (pv.action === 'download') visitor.downloads++;
-      else if (pv.action === 'like') visitor.likes++;
+      const cluster = clustersMap.get(clusterKey)!;
+      cluster.uniqueIps.add(pv.ip);
+      
+      if (pv.action === 'view') cluster.views++;
+      else if (pv.action === 'download') cluster.downloads++;
+      else if (pv.action === 'like') cluster.likes++;
+      
+      // Keep track of the most recent activity
+      if (pv.createdAt > cluster.lastActive) {
+        cluster.lastActive = pv.createdAt;
+      }
     }
 
-    // Bot detection heuristics
-    const botUserAgents = ['bot', 'crawler', 'spider', 'curl', 'wget', 'python', 'postman', 'httpclient', 'headless', 'puppeteer'];
-    
-    const visitors = Array.from(visitorsMap.values()).map(visitor => {
-      const uaLower = visitor.userAgent.toLowerCase();
-      let isBotUa = botUserAgents.some(botWord => uaLower.includes(botWord));
-      
-      let status: 'Real User' | 'Suspicious' | 'Bot' = 'Real User';
-      
-      if (isBotUa) {
-        status = 'Bot';
-      } else if (visitor.downloads > 50 && visitor.views < 5) {
-        status = 'Suspicious'; // High download to view ratio
-      } else if ((visitor.views + visitor.downloads) > 500) {
-        status = 'Suspicious'; // Exceptionally high volume
-      }
-      
-      return { ...visitor, status };
-    });
+    const clusters = Array.from(clustersMap.values()).map(cluster => ({
+      ...cluster,
+      uniqueIpsCount: cluster.uniqueIps.size,
+      uniqueIps: Array.from(cluster.uniqueIps).slice(0, 5) // Send up to 5 IPs for display
+    }));
 
     // Sort by last active desc
-    visitors.sort((a, b) => b.lastActive.getTime() - a.lastActive.getTime());
+    clusters.sort((a, b) => b.lastActive.getTime() - a.lastActive.getTime());
 
     return NextResponse.json({
-      visitors: visitors.slice(0, limit)
+      visitors: clusters.slice(0, limit)
     });
   } catch (error) {
     console.error("Error fetching visitors:", error);
