@@ -58,7 +58,7 @@ export async function generateMetadata({
         images: [
           {
             url: imageUrl,
-            alt: coloringPage.imageAlt || `Free printable ${coloringPage.title} coloring page`,
+            alt: coloringPage.imageAlt || coloringPage.title,
           },
         ],
         type: 'website',
@@ -210,7 +210,7 @@ export default async function DynamicPage({
               <ColoringImagePreview
                 imageUrl={coloringPage.imageUrl}
                 thumbnailUrl={coloringPage.thumbnailUrl || coloringPage.imageUrl}
-                alt={coloringPage.imageAlt || `Free printable ${coloringPage.title} coloring page for kids`}
+                alt={coloringPage.imageAlt || coloringPage.title}
                 title={coloringPage.title}
               />
             </figure>
