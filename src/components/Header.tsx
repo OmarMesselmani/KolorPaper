@@ -17,7 +17,7 @@ export default function Header({ categories }: { categories: Category[] }) {
           </div>
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <Link href="/" className="no-underline flex items-center pointer-events-auto">
-              <Image src="/logo.svg" alt="KolorPaper - Free Printable Coloring Pages" width={220} height={44} className="h-11 w-auto object-contain" />
+              <Image src="/logo.svg" alt="KolorPaper - Free Printable Coloring Pages" width={198} height={40} className="h-[39.6px] w-auto object-contain" />
             </Link>
           </div>
           {/* Spacer to balance the layout */}
@@ -30,7 +30,7 @@ export default function Header({ categories }: { categories: Category[] }) {
             <div className="flex items-center gap-6 md:gap-8">
               <NavMenu categories={categories} />
               <Link href="/" className="no-underline flex items-center">
-                <Image src="/logo.svg" alt="KolorPaper - Free Printable Coloring Pages" width={240} height={48} className="h-12 w-auto object-contain" />
+                <Image src="/logo.svg" alt="KolorPaper - Free Printable Coloring Pages" width={216} height={43} className="h-[43.2px] w-auto object-contain" />
               </Link>
             </div>
           </div>
