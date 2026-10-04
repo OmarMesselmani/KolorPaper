@@ -155,7 +155,31 @@ export default async function DynamicPage({
 
     return (
       <>
-        {/* Schema.org JSON-LD */}
+        {/* Schema.org JSON-LD
+            The ImageObject MUST stay a top-level node: Google's "Image metadata" (licensable badge)
+            feature stopped detecting it when it was nested inside ItemPage. ItemPage only references it by @id. */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org/",
+              "@type": "ImageObject",
+              "@id": `${siteUrl}/${slug.join('/')}#primaryimage`,
+              "name": `${coloringPage.title} Free Printable Coloring Page`,
+              "description": coloringPage.description || coloringPage.imageAlt || `Free printable ${coloringPage.title} coloring page for kids.`,
+              "contentUrl": coloringPage.imageUrl,
+              "thumbnailUrl": coloringPage.thumbnailUrl || coloringPage.imageUrl,
+              "license": `${siteUrl}/terms-of-use`,
+              "acquireLicensePage": `${siteUrl}/${slug.join('/')}`,
+              "creator": {
+                "@type": "Organization",
+                "name": "KolorPaper"
+              },
+              "creditText": "KolorPaper",
+              "copyrightNotice": `© ${new Date().getFullYear()} KolorPaper`
+            })
+          }}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -172,30 +196,7 @@ export default async function DynamicPage({
                 "name": "KolorPaper",
                 "url": siteUrl
               },
-              "primaryImageOfPage": {
-                "@type": "ImageObject",
-                "@id": `${siteUrl}/${slug.join('/')}#primaryimage`,
-                "name": `${coloringPage.title} Free Printable Coloring Page`,
-                "description": coloringPage.description || coloringPage.imageAlt || `Free printable ${coloringPage.title} coloring page for kids.`,
-                "contentUrl": coloringPage.imageUrl,
-                "url": coloringPage.imageUrl,
-                "thumbnailUrl": coloringPage.thumbnailUrl || coloringPage.imageUrl,
-                "license": `${siteUrl}/terms-of-use`,
-                "acquireLicensePage": `${siteUrl}/${slug.join('/')}`,
-                "creator": {
-                  "@type": "Organization",
-                  "name": "KolorPaper"
-                },
-                "creditText": "KolorPaper",
-                "copyrightNotice": `© ${new Date().getFullYear()} KolorPaper`
-              },
-              "mainEntity": {
-                "@type": "ImageObject",
-                "@id": `${siteUrl}/${slug.join('/')}#primaryimage`,
-                "name": `${coloringPage.title} Free Printable Coloring Page`,
-                "contentUrl": coloringPage.imageUrl,
-                "thumbnailUrl": coloringPage.thumbnailUrl || coloringPage.imageUrl
-              }
+              "primaryImageOfPage": { "@id": `${siteUrl}/${slug.join('/')}#primaryimage` }
             })
           }}
         />

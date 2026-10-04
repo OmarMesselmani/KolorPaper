@@ -4,6 +4,10 @@
   "compatibility_date": "2024-09-23",
   "compatibility_flags": ["nodejs_compat"],
   "keep_names": false,
+  // Run the Worker near the D1 database (not near the visitor). Each page render makes several
+  // sequential D1 queries; Googlebot crawls from the US, so cross-region round-trips were pushing
+  // Google's average response time to ~1.4s and throttling crawl budget.
+  "placement": { "mode": "smart" },
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"

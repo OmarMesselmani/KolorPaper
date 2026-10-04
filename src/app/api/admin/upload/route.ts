@@ -150,6 +150,8 @@ export async function POST(req: NextRequest) {
       headers: {
         "Content-Type": contentType,
         "Content-Length": buffer.length.toString(),
+        // Filenames are unique & never overwritten -> safe to cache long at the Cloudflare edge
+        "Cache-Control": "public, max-age=31536000, immutable",
       },
       body: buffer,
     });
@@ -192,6 +194,7 @@ export async function POST(req: NextRequest) {
             headers: {
               "Content-Type": tDetectedMimeType || contentType,
               "Content-Length": tBuffer.length.toString(),
+              "Cache-Control": "public, max-age=31536000, immutable",
             },
             body: tBuffer,
           });
