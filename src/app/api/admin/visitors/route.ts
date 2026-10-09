@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
       country: string;
       asn: string;
       userAgent: string;
-      uniqueIps: Set<string>;
+      ipStats: Map<string, { views: number; downloads: number; likes: number }>;
       views: number;
       downloads: number;
       likes: number;
@@ -54,8 +54,9 @@ export async function GET(req: NextRequest) {
       const asn = pv.asn || 'Unknown';
       const userAgent = pv.userAgent || 'Unknown';
       const classification = pv.classification || 'UNKNOWN';
+      const dateStr = pv.createdAt.toISOString().split('T')[0];
       
-      const clusterKey = `${country}-${asn}-${classification}`; // Grouping mostly by Country, ASN, and their Classification
+      const clusterKey = `${dateStr}-${country}-${asn}-${classification}`; // Grouping by Date, Country, ASN, and Classification
       
       if (!clustersMap.has(clusterKey)) {
         clustersMap.set(clusterKey, {
@@ -63,7 +64,7 @@ export async function GET(req: NextRequest) {
           country,
           asn,
           userAgent: userAgent,
-          uniqueIps: new Set(),
+          ipStats: new Map(),
           views: 0,
           downloads: 0,
           likes: 0,
@@ -75,11 +76,24 @@ export async function GET(req: NextRequest) {
       }
       
       const cluster = clustersMap.get(clusterKey)!;
-      cluster.uniqueIps.add(pv.ip);
       
-      if (pv.action === 'view') cluster.views++;
-      else if (pv.action === 'download') cluster.downloads++;
-      else if (pv.action === 'like') cluster.likes++;
+      if (!cluster.ipStats.has(pv.ip)) {
+        cluster.ipStats.set(pv.ip, { views: 0, downloads: 0, likes: 0 });
+      }
+      const ipStat = cluster.ipStats.get(pv.ip)!;
+      
+      if (pv.action === 'view') {
+        cluster.views++;
+        ipStat.views++;
+      }
+      else if (pv.action === 'download') {
+        cluster.downloads++;
+        ipStat.downloads++;
+      }
+      else if (pv.action === 'like') {
+        cluster.likes++;
+        ipStat.likes++;
+      }
       
       // Keep track of the most recent activity
       if (pv.createdAt > cluster.lastActive) {
@@ -89,8 +103,11 @@ export async function GET(req: NextRequest) {
 
     const clusters = Array.from(clustersMap.values()).map(cluster => ({
       ...cluster,
-      uniqueIpsCount: cluster.uniqueIps.size,
-      uniqueIps: Array.from(cluster.uniqueIps) // Send all unique IPs for inspection
+      uniqueIpsCount: cluster.ipStats.size,
+      ipStats: Array.from(cluster.ipStats.entries()).map(([ip, stats]) => ({
+        ip,
+        ...stats
+      }))
     }));
 
     // Sort by last active desc

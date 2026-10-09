@@ -13,7 +13,7 @@ interface VisitorCluster {
   asn: string;
   userAgent: string;
   uniqueIpsCount: number;
-  uniqueIps: string[];
+  ipStats: { ip: string; views: number; downloads: number; likes: number; }[];
   views: number;
   downloads: number;
   likes: number;
@@ -278,7 +278,7 @@ export default function AdminVisitors({ token }: AdminVisitorsProps) {
                 <th className="px-6 py-4 cursor-pointer hover:text-purple-600" onClick={() => handleSort('country')}>Location / ASN</th>
                 <th className="px-6 py-4 cursor-pointer hover:text-purple-600" onClick={() => handleSort('uniqueIpsCount')}>IPs</th>
                 <th className="px-6 py-4">Browser/Device</th>
-                <th className="px-6 py-4 text-center cursor-pointer hover:text-purple-600" onClick={() => handleSort('views')}>Requests</th>
+                <th className="px-6 py-4 text-center cursor-pointer hover:text-purple-600" onClick={() => handleSort('views')}>Interactions</th>
                 <th className="px-6 py-4 cursor-pointer hover:text-purple-600" onClick={() => handleSort('classification')}>Classification</th>
                 <th className="px-6 py-4 cursor-pointer hover:text-purple-600" onClick={() => handleSort('lastActive')}>Last Active</th>
               </tr>
@@ -312,8 +312,8 @@ export default function AdminVisitors({ token }: AdminVisitorsProps) {
                         {visitor.uniqueIpsCount <= 1 ? (
                           <div className="flex items-center gap-1.5">
                             <span className="font-bold text-sm text-gray-700 dark:text-gray-300">1 IP</span>
-                            <span className="text-[10px] font-mono text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded select-all" title={visitor.uniqueIps[0]}>
-                              {visitor.uniqueIps[0] || 'Unknown'}
+                            <span className="text-[10px] font-mono text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded select-all" title={visitor.ipStats[0]?.ip}>
+                              {visitor.ipStats[0]?.ip || 'Unknown'}
                             </span>
                           </div>
                         ) : (
@@ -337,7 +337,7 @@ export default function AdminVisitors({ token }: AdminVisitorsProps) {
                               className="text-[10px] text-gray-400 dark:text-gray-500 font-mono truncate max-w-[140px] cursor-pointer hover:text-indigo-400 transition-colors"
                               title={`Click to view all ${visitor.uniqueIpsCount} IPs`}
                             >
-                              {visitor.uniqueIps.slice(0, 2).join(', ')}{visitor.uniqueIps.length > 2 ? ` +${visitor.uniqueIps.length - 2} more` : ''}
+                              {visitor.ipStats.slice(0, 2).map(s => s.ip).join(', ')}{visitor.ipStats.length > 2 ? ` +${visitor.ipStats.length - 2} more` : ''}
                             </div>
                           </div>
                         )}
@@ -369,7 +369,7 @@ export default function AdminVisitors({ token }: AdminVisitorsProps) {
                           <span>{visitor.views}</span>
                         </span>
 
-                        {visitor.downloads > 0 ? (
+                        {visitor.downloads > 0 && (
                           <span 
                             className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-500/10 dark:bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/20 font-bold text-xs shadow-xs"
                             title={`${visitor.downloads} Downloads`}
@@ -379,15 +379,17 @@ export default function AdminVisitors({ token }: AdminVisitorsProps) {
                             </svg>
                             <span>{visitor.downloads}</span>
                           </span>
-                        ) : (
+                        )}
+                        
+                        {visitor.likes > 0 && (
                           <span 
-                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-100/70 dark:bg-gray-800/40 text-gray-400 dark:text-gray-500 border border-gray-200/50 dark:border-gray-800/50 font-medium text-xs opacity-60"
-                            title="0 Downloads"
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-red-500/10 dark:bg-red-500/15 text-red-600 dark:text-red-400 border border-red-500/20 font-bold text-xs shadow-xs"
+                            title={`${visitor.likes} Likes`}
                           >
-                            <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            <svg className="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                              <path fillRule="evenodd" d="M11.993 5.135A5.622 5.622 0 008.197 3.5c-3.105 0-5.62 2.513-5.62 5.618 0 4.544 5.253 9.771 9.416 11.23a1.5 1.5 0 00.994 0c4.163-1.46 9.416-6.687 9.416-11.23 0-3.105-2.515-5.618-5.62-5.618a5.622 5.622 0 00-3.796 1.635l-.994.994-.993-.994z" clipRule="evenodd" />
                             </svg>
-                            <span>0</span>
+                            <span>{visitor.likes}</span>
                           </span>
                         )}
                       </div>
@@ -509,7 +511,7 @@ export default function AdminVisitors({ token }: AdminVisitorsProps) {
                 </svg>
               </div>
               <button
-                onClick={() => handleCopyAllIps(selectedClusterForIps.uniqueIps)}
+                onClick={() => handleCopyAllIps(selectedClusterForIps.ipStats.map(s => s.ip))}
                 className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 shadow-xs shrink-0 cursor-pointer"
               >
                 {copiedAll ? (
@@ -533,27 +535,52 @@ export default function AdminVisitors({ token }: AdminVisitorsProps) {
 
             {/* IP List */}
             <div className="p-4 overflow-y-auto max-h-96 space-y-1.5">
-              {selectedClusterForIps.uniqueIps
-                .filter(ip => ip.toLowerCase().includes(ipSearchQuery.toLowerCase()))
-                .map((ip, index) => (
+              {selectedClusterForIps.ipStats
+                .filter(stat => stat.ip.toLowerCase().includes(ipSearchQuery.toLowerCase()))
+                .map((stat, index) => (
                   <div
                     key={index}
                     className="flex items-center justify-between px-3.5 py-2 rounded-xl bg-gray-50 dark:bg-gray-900/50 hover:bg-indigo-50/40 dark:hover:bg-indigo-950/30 border border-gray-100 dark:border-white/5 transition-colors group"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="text-[10px] font-bold text-gray-400 dark:text-gray-600 font-mono w-6 text-right">
+                      <span className="text-[10px] font-bold text-gray-400 dark:text-gray-600 font-mono w-6 text-right shrink-0">
                         #{index + 1}
                       </span>
-                      <span className="font-mono text-xs font-semibold text-gray-800 dark:text-gray-200 select-all">
-                        {ip}
+                      <span className="font-mono text-xs font-semibold text-gray-800 dark:text-gray-200 select-all shrink-0">
+                        {stat.ip}
                       </span>
                     </div>
+                    
+                    <div className="flex items-center gap-3 text-[10px] font-bold text-gray-500 mr-4 flex-1 justify-end shrink-0">
+                      <span className="flex items-center gap-1" title="Views">
+                        <svg className="w-3 h-3 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        {stat.views}
+                      </span>
+                      <span className="flex items-center gap-1" title="Downloads">
+                        <svg className="w-3 h-3 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        {stat.downloads}
+                      </span>
+                      {stat.likes > 0 && (
+                        <span className="flex items-center gap-1" title="Likes">
+                          <svg className="w-3 h-3 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                            <path fillRule="evenodd" d="M11.993 5.135A5.622 5.622 0 008.197 3.5c-3.105 0-5.62 2.513-5.62 5.618 0 4.544 5.253 9.771 9.416 11.23a1.5 1.5 0 00.994 0c4.163-1.46 9.416-6.687 9.416-11.23 0-3.105-2.515-5.618-5.62-5.618a5.622 5.622 0 00-3.796 1.635l-.994.994-.993-.994z" clipRule="evenodd" />
+                          </svg>
+                          {stat.likes}
+                        </span>
+                      )}
+                    </div>
+                    
                     <button
-                      onClick={() => handleCopyIp(ip)}
-                      className="opacity-60 group-hover:opacity-100 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 p-1 rounded-lg transition-all cursor-pointer"
+                      onClick={() => handleCopyIp(stat.ip)}
+                      className="opacity-60 group-hover:opacity-100 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 p-1 rounded-lg transition-all cursor-pointer shrink-0"
                       title="Copy IP"
                     >
-                      {copiedIp === ip ? (
+                      {copiedIp === stat.ip ? (
                         <span className="text-[10px] font-bold text-emerald-500 flex items-center gap-1">
                           <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
@@ -569,7 +596,7 @@ export default function AdminVisitors({ token }: AdminVisitorsProps) {
                     </button>
                   </div>
                 ))}
-              {selectedClusterForIps.uniqueIps.filter(ip => ip.toLowerCase().includes(ipSearchQuery.toLowerCase())).length === 0 && (
+              {selectedClusterForIps.ipStats.filter(stat => stat.ip.toLowerCase().includes(ipSearchQuery.toLowerCase())).length === 0 && (
                 <div className="text-center py-8 text-xs text-gray-400 font-semibold">
                   No matching IP addresses found for "{ipSearchQuery}"
                 </div>
@@ -579,7 +606,7 @@ export default function AdminVisitors({ token }: AdminVisitorsProps) {
             {/* Modal Footer */}
             <div className="p-4 bg-gray-50/50 dark:bg-gray-950/20 border-t border-gray-100 dark:border-white/5 flex items-center justify-between">
               <span className="text-[11px] text-gray-400 font-medium">
-                Showing {selectedClusterForIps.uniqueIps.filter(ip => ip.toLowerCase().includes(ipSearchQuery.toLowerCase())).length} of {selectedClusterForIps.uniqueIpsCount} IPs
+                Showing {selectedClusterForIps.ipStats.filter(stat => stat.ip.toLowerCase().includes(ipSearchQuery.toLowerCase())).length} of {selectedClusterForIps.uniqueIpsCount} IPs
               </span>
               <button
                 onClick={() => setSelectedClusterForIps(null)}
