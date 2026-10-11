@@ -51,9 +51,9 @@ export async function POST(
     });
     const botStatus = detectBot(req, recentViews);
 
-    // Only increment view count for likely humans
+    // Increment view count for human visitors (only exclude confirmed bots)
     let updatedViews = page.views;
-    if (botStatus.classification === "LIKELY HUMAN") {
+    if (botStatus.classification !== "LIKELY BOT" && botStatus.classification !== "VERIFIED BOT") {
       const updatedPage = await prisma.coloringPage.update({
         where: { slug },
         data: { views: { increment: 1 } }

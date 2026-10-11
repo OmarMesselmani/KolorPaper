@@ -52,9 +52,9 @@ export async function POST(
     });
     const botStatus = detectBot(req, recentViews);
 
-    // Only increment download count for likely humans
+    // Increment download count for human visitors (only exclude confirmed bots)
     let updatedDownloads = page.downloads;
-    if (botStatus.classification === "LIKELY HUMAN") {
+    if (botStatus.classification !== "LIKELY BOT" && botStatus.classification !== "VERIFIED BOT") {
       const updatedPage = await prisma.coloringPage.update({
         where: { slug },
         data: { downloads: { increment: 1 } }
