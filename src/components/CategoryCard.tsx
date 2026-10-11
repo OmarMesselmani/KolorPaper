@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Category } from "@/types";
 
 function formatCount(n: number): string {
@@ -16,7 +17,6 @@ function formatCount(n: number): string {
   return String(n);
 }
 
-
 export default function CategoryCard({ category, index = 0 }: { category: Category; index?: number }) {
   // Determine badge: first 3 are "New", top downloads get "Popular"
   const badge: "Popular" | null =
@@ -28,7 +28,130 @@ export default function CategoryCard({ category, index = 0 }: { category: Catego
 
   const hasStats = category.downloads !== undefined || category.likes !== undefined;
 
-  const imageUrl = category.imageUrl || null;
+  const originalImageUrl = category.imageUrl || null;
+  const [currentSrc, setCurrentSrc] = useState<string | null>(originalImageUrl);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+
+  const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const testImgRef = useRef<HTMLImageElement | null>(null);
+
+  // Safe URI sanitizer
+  const sanitizeUrl = (url: string) => {
+    try {
+      return encodeURI(decodeURI(url));
+    } catch {
+      return url;
+    }
+  };
+
+  // Function to verify and retry loading the image automatically
+  const verifyAndRetryImage = useCallback((attempt: number) => {
+    if (!originalImageUrl) return;
+
+    if (retryTimeoutRef.current) {
+      clearTimeout(retryTimeoutRef.current);
+      retryTimeoutRef.current = null;
+    }
+
+    // Incremental backoff delay: 1s, 2s, 3s... up to max 5s
+    const delay = Math.min(1000 + (attempt - 1) * 1000, 5000);
+
+    retryTimeoutRef.current = setTimeout(() => {
+      const baseClean = sanitizeUrl(originalImageUrl);
+      const separator = baseClean.includes('?') ? '&' : '?';
+      // Append cache-buster retry parameter
+      const retryUrl = `${baseClean}${separator}_retry=${attempt}&_t=${Date.now()}`;
+
+      if (typeof window !== 'undefined') {
+        if (testImgRef.current) {
+          testImgRef.current.onload = null;
+          testImgRef.current.onerror = null;
+        }
+
+        const testImg = new window.Image();
+        testImgRef.current = testImg;
+
+        testImg.onload = () => {
+          // Image verified and cached successfully!
+          setCurrentSrc(retryUrl);
+          setIsLoaded(true);
+          setHasError(false);
+        };
+
+        testImg.onerror = () => {
+          // Failed again, continue retrying automatically until it loads
+          setRetryCount(attempt);
+          verifyAndRetryImage(attempt + 1);
+        };
+
+        testImg.src = retryUrl;
+      } else {
+        setCurrentSrc(retryUrl);
+      }
+    }, delay);
+  }, [originalImageUrl]);
+
+  const handleImageError = () => {
+    setHasError(true);
+    setIsLoaded(false);
+    const nextAttempt = retryCount + 1;
+    setRetryCount(nextAttempt);
+    verifyAndRetryImage(nextAttempt);
+  };
+
+  const handleImageLoad = () => {
+    setIsLoaded(true);
+    setHasError(false);
+    if (retryTimeoutRef.current) {
+      clearTimeout(retryTimeoutRef.current);
+      retryTimeoutRef.current = null;
+    }
+  };
+
+  // Reset state whenever category.imageUrl changes
+  useEffect(() => {
+    setCurrentSrc(originalImageUrl);
+    setIsLoaded(false);
+    setHasError(false);
+    setRetryCount(0);
+
+    if (retryTimeoutRef.current) {
+      clearTimeout(retryTimeoutRef.current);
+      retryTimeoutRef.current = null;
+    }
+    if (testImgRef.current) {
+      testImgRef.current.onload = null;
+      testImgRef.current.onerror = null;
+      testImgRef.current = null;
+    }
+  }, [originalImageUrl]);
+
+  // Retry immediately if device comes back online after an error
+  useEffect(() => {
+    const handleOnline = () => {
+      if (hasError && originalImageUrl) {
+        verifyAndRetryImage(retryCount + 1);
+      }
+    };
+    window.addEventListener('online', handleOnline);
+    return () => window.removeEventListener('online', handleOnline);
+  }, [hasError, originalImageUrl, retryCount, verifyAndRetryImage]);
+
+  // Clean up timers and image listeners on unmount
+  useEffect(() => {
+    return () => {
+      if (retryTimeoutRef.current) {
+        clearTimeout(retryTimeoutRef.current);
+      }
+      if (testImgRef.current) {
+        testImgRef.current.onload = null;
+        testImgRef.current.onerror = null;
+        testImgRef.current = null;
+      }
+    };
+  }, []);
 
   return (
     <Link
@@ -44,16 +167,41 @@ export default function CategoryCard({ category, index = 0 }: { category: Catego
         </span>
       )}
 
-      {/* Image area — rendered cleanly and directly matching ColoringCard */}
+      {/* Image area — rendered cleanly with auto-retry and skeleton placeholder */}
       <div className="relative w-full aspect-square bg-white dark:bg-gray-900 flex items-center justify-center overflow-hidden">
-        {imageUrl ? (
-          <Image
-            src={imageUrl}
-            alt={`${category.title} free printable coloring pages`}
-            fill
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 16vw, 16vw"
-            className="object-contain p-4 transition-transform duration-500 group-hover:scale-105"
-          />
+        {currentSrc ? (
+          <>
+            {/* Shimmer / Loader placeholder while image is loading or retrying */}
+            {!isLoaded && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-50/80 dark:bg-gray-800/50 backdrop-blur-[2px] transition-opacity duration-300">
+                <div className="w-10 h-10 rounded-full bg-purple-50 dark:bg-purple-950/40 border border-purple-200/50 dark:border-purple-800/40 flex items-center justify-center text-purple-600 dark:text-purple-400">
+                  <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                </div>
+                {hasError && (
+                  <span className="text-[11px] font-medium text-purple-600/70 dark:text-purple-300/70 mt-2 tracking-wide animate-pulse">
+                    Retrying...
+                  </span>
+                )}
+              </div>
+            )}
+
+            {/* Category Image */}
+            <Image
+              key={currentSrc}
+              src={currentSrc}
+              alt={`${category.title} free printable coloring pages`}
+              fill
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 16vw, 16vw"
+              className={`object-contain p-4 transition-all duration-500 group-hover:scale-105 ${
+                isLoaded ? 'opacity-100' : 'opacity-0'
+              }`}
+              onLoad={handleImageLoad}
+              onError={handleImageError}
+            />
+          </>
         ) : (
           <div className="placeholder-img w-full h-full flex items-center justify-center text-8xl">🎨</div>
         )}
