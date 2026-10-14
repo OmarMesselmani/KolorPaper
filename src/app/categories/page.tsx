@@ -3,9 +3,14 @@ import CollapsibleCategorySection from "@/components/CollapsibleCategorySection"
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { Metadata } from "next";
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kolorpaper.com';
+
 export const metadata: Metadata = {
   title: "All Categories",
   description: "Browse all coloring page categories and themes on KolorPaper.",
+  alternates: {
+    canonical: `${siteUrl}/categories`,
+  },
 };
 
 export default async function CategoriesPage() {

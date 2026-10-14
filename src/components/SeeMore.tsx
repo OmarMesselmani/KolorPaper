@@ -1,10 +1,11 @@
 import { ColoringPage } from "@/types";
-import { cachedGetColoringPages, shuffleArray } from "@/lib/data";
+import { cachedGetColoringPages, cyclicSlice } from "@/lib/data";
 import { prisma } from "@/lib/db";
 import ColoringCard from "./ColoringCard";
 
 export default async function SeeMore({ currentPage }: { currentPage: ColoringPage }) {
-  const sameCategoryPages = await cachedGetColoringPages(currentPage.categorySlug);
+  const sameCategoryPages = await cachedGetColoringPages(currentPage.categorySlug, undefined, 500);
+  const currentIndex = sameCategoryPages.findIndex(p => p.id === currentPage.id);
 
   const candidatePages = sameCategoryPages.filter(p => {
     if (currentPage.subCategorySlug) {
@@ -13,8 +14,13 @@ export default async function SeeMore({ currentPage }: { currentPage: ColoringPa
     return p.id !== currentPage.id;
   });
 
-  // Deterministically take candidates to prevent SEO index confusion
-  const candidates = candidatePages;
+  // Deterministic but distributed: the window start depends on this page's position,
+  // so the output is stable across crawls while links cover the whole category.
+  const candidates = cyclicSlice(
+    candidatePages,
+    Math.max(currentIndex, 0) * 10,
+    candidatePages.length
+  );
 
   const result: ColoringPage[] = [];
   const seenIds = new Set<string>([currentPage.id]);

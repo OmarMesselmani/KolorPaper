@@ -38,9 +38,6 @@ export const metadata: Metadata = {
     apple: "/favicon.png",
   },
   manifest: "/site.webmanifest",
-  alternates: {
-    canonical: siteUrl,
-  },
   openGraph: {
     type: 'website',
     locale: 'en_US',

@@ -7,6 +7,16 @@ import HomeCategoriesCarousel from "@/components/HomeCategoriesCarousel";
 import WhyUs from "@/components/WhyUs";
 import LatestPosts from "@/components/LatestPosts";
 
+import type { Metadata } from "next";
+
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kolorpaper.com';
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: siteUrl,
+  },
+};
+
 export const dynamic = "force-dynamic";
 
 export default async function Home() {

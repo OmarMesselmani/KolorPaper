@@ -34,7 +34,10 @@ export async function generateMetadata({
     alternates: {
       canonical: `${siteUrl}/tags/${encodedTag}`,
     },
-    robots: hasFilters ? { index: false, follow: true } : undefined,
+    // Only custom tags (with a Tag record, also listed in the sitemap) are indexable.
+    // Auto-generated tag pages and filtered views are thin, so keep them out of the index
+    // while still letting Google follow their links.
+    robots: hasFilters || !customData ? { index: false, follow: true } : undefined,
   };
 }
 

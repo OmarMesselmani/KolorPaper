@@ -83,9 +83,21 @@ export async function getCategoryBySlug(slug: string): Promise<Category | null> 
   }
 }
 
+/**
+ * Deterministic cyclic window: returns `count` items starting at `start`, wrapping around.
+ * Used for internal linking so every page gets stable links AND the whole list gets covered.
+ */
+export function cyclicSlice<T>(list: T[], start: number, count: number): T[] {
+  if (list.length === 0) return [];
+  const n = Math.min(count, list.length);
+  const s = ((start % list.length) + list.length) % list.length;
+  return Array.from({ length: n }, (_, i) => list[(s + i) % list.length]);
+}
+
 export async function getColoringPages(
   categorySlug: string,
-  filters?: { difficulty?: string; ageGroup?: string }
+  filters?: { difficulty?: string; ageGroup?: string },
+  limit: number = 100
 ): Promise<ColoringPage[]> {
   try {
     const where: any = { published: true };
@@ -101,7 +113,7 @@ export async function getColoringPages(
     const pages = await prisma.coloringPage.findMany({
       where,
       orderBy: { createdAt: "desc" },
-      take: 100,
+      take: limit,
       include: {
         category: { select: { title: true, slug: true } },
         subCategory: { select: { title: true, slug: true } }

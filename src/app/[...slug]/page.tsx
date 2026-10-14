@@ -1,4 +1,4 @@
-import { cachedGetCategoryBySlug, cachedGetColoringPageBySlug, getCategories, cachedGetColoringPages, cachedGetAllCategories, cachedGetAllCustomTagNames } from "@/lib/data";
+import { cachedGetCategoryBySlug, cachedGetColoringPageBySlug, getCategories, cachedGetColoringPages, cachedGetAllCategories, cachedGetAllCustomTagNames, cyclicSlice } from "@/lib/data";
 import Image from "next/image";
 import Tag from "@/components/Tag";
 import CategoryCard from "@/components/CategoryCard";
@@ -146,12 +146,15 @@ export default async function DynamicPage({
 
   if (coloringPage) {
     const targetSlug = coloringPage.subCategorySlug || coloringPage.categorySlug;
-    const allRelated = (await cachedGetColoringPages(targetSlug))
-      .filter(p => p.id !== coloringPage.id);
+    const targetPages = await cachedGetColoringPages(targetSlug, undefined, 500);
+    const currentIndex = targetPages.findIndex(p => p.id === coloringPage.id);
 
-    // Deterministically take the first 4 related pages to ensure Googlebot always sees the same content
-
-    const relatedPages = allRelated.slice(0, 4);
+    // Deterministic neighbours: link to the next 4 pages in the list (wrapping around).
+    // Output is identical on every crawl, and every page gets exactly 4 inbound links,
+    // so older pages are no longer orphaned by always pointing at the newest ones.
+    const relatedPages = currentIndex >= 0
+      ? cyclicSlice(targetPages, currentIndex + 1, 5).filter(p => p.id !== coloringPage.id).slice(0, 4)
+      : targetPages.filter(p => p.id !== coloringPage.id).slice(0, 4);
 
     return (
       <>
