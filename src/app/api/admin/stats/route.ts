@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { verifyAdminSession } from "@/lib/auth";
+import { isNonHuman, isKnownScraperCloudIp } from "@/lib/botDetection";
+
+// A record is treated as bot traffic if it was classified as such, or (for older records saved
+// before ASN detection worked) if its IP belongs to a known scraper cloud range.
+const isBotRecord = (record: { classification?: string | null; ip?: string | null }) =>
+  isNonHuman(record.classification) || isKnownScraperCloudIp(record.ip);
 
 export async function GET(req: NextRequest) {
   try {
@@ -15,6 +21,7 @@ export async function GET(req: NextRequest) {
     const sortByParam = url.searchParams.get("sortBy") || "views";
     const validSortFields = ["views", "downloads", "likes"];
     const sortBy = validSortFields.includes(sortByParam) ? sortByParam : "views";
+    const includeBots = url.searchParams.get("includeBots") === "true";
     const totalPages = await prisma.coloringPage.count();
     const totalCategories = await prisma.category.count();
 
@@ -39,13 +46,15 @@ export async function GET(req: NextRequest) {
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - Math.max(range, 7)); // At least 7 days to ensure yesterday is covered
 
-    const recentViews = await prisma.pageView.findMany({
+    const allRecentViews = await prisma.pageView.findMany({
       where: {
         createdAt: { gte: startDate },
         action: { in: ['view', 'download', 'like'] }
       },
-      select: { createdAt: true, action: true, ip: true, userAgent: true }
+      select: { createdAt: true, action: true, ip: true, userAgent: true, classification: true }
     });
+    const recentViews = includeBots ? allRecentViews : allRecentViews.filter((r: { classification?: string | null; ip?: string | null }) => !isBotRecord(r));
+    const filteredBotEvents = allRecentViews.length - recentViews.length;
 
     const yesterdayDate = new Date();
     yesterdayDate.setDate(yesterdayDate.getDate() - 1);
@@ -139,12 +148,13 @@ export async function GET(req: NextRequest) {
       where: {
         createdAt: { gte: countryStartDate },
       },
-      select: { country: true, ip: true }
+      select: { country: true, ip: true, classification: true }
     });
 
     const countryIPs: Record<string, Set<string>> = {};
 
     for (const record of countryViews) {
+      if (!includeBots && isBotRecord(record)) continue;
       const country = record.country || "Unknown";
       if (!countryIPs[country]) {
         countryIPs[country] = new Set();
@@ -187,7 +197,8 @@ export async function GET(req: NextRequest) {
         yesterdayViews,
         yesterdayDownloads,
         yesterdayLikes,
-        totalMessages, unreadMessages
+        totalMessages, unreadMessages,
+        filteredBotEvents, includeBots
       },
       popularPages, recentMessages, activityTimeline, deviceStats, topCountries
     });

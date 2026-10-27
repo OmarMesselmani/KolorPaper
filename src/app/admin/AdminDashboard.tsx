@@ -19,6 +19,8 @@ interface StatsSummary {
   yesterdayLikes?: number;
   totalMessages: number;
   unreadMessages: number;
+  filteredBotEvents?: number;
+  includeBots?: boolean;
 }
 
 interface PopularPage {
@@ -72,6 +74,7 @@ export default function AdminDashboard({ token, onTabChange }: AdminDashboardPro
   const [timeRange, setTimeRange] = useState("7");
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
   const [popularSortBy, setPopularSortBy] = useState<"views" | "downloads" | "likes">("views");
+  const [includeBots, setIncludeBots] = useState(false);
 
   const getCountryDisplay = (countryCode: string) => {
     if (!countryCode || countryCode === 'Unknown') {
@@ -175,7 +178,7 @@ export default function AdminDashboard({ token, onTabChange }: AdminDashboardPro
       setLoading(true);
       setError("");
 
-      const res = await fetch(`${API_URL}/admin/stats?range=${timeRange}&countryRange=${countryRange}&sortBy=${popularSortBy}`, {
+      const res = await fetch(`${API_URL}/admin/stats?range=${timeRange}&countryRange=${countryRange}&sortBy=${popularSortBy}&includeBots=${includeBots}`, {
         headers: {
           "Authorization": `Bearer ${token}`
         }
@@ -202,7 +205,7 @@ export default function AdminDashboard({ token, onTabChange }: AdminDashboardPro
 
   useEffect(() => {
     fetchStats();
-  }, [token, timeRange, countryRange, popularSortBy]);
+  }, [token, timeRange, countryRange, popularSortBy, includeBots]);
 
   if (loading) {
     return (
@@ -520,10 +523,27 @@ export default function AdminDashboard({ token, onTabChange }: AdminDashboardPro
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
               <h3 className="text-lg font-black text-[#0F0728] dark:text-white">Traffic Timeline</h3>
-              <p className="text-xs text-gray-400 dark:text-gray-500 font-semibold">Comparative views vs. downloads count</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 font-semibold">
+                Comparative views vs. downloads count
+                {!includeBots && (stats?.filteredBotEvents ?? 0) > 0 && (
+                  <span className="ml-1 text-red-400">· {stats?.filteredBotEvents} bot events hidden</span>
+                )}
+              </p>
             </div>
             
             <div className="flex items-center gap-4">
+              <button
+                id="toggle-include-bots"
+                type="button"
+                onClick={() => setIncludeBots(v => !v)}
+                title="Toggle bot / datacenter traffic in charts"
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${includeBots
+                  ? "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400"
+                  : "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-500/20 text-green-600 dark:text-green-400"}`}
+              >
+                {includeBots ? "All traffic" : "Humans only"}
+              </button>
+
               <select 
                 value={timeRange} 
                 onChange={(e) => setTimeRange(e.target.value)}

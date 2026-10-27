@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { verifyAdminSession } from "@/lib/auth";
+import { isKnownScraperCloudIp } from "@/lib/botDetection";
 
 export async function GET(req: NextRequest) {
   try {
+    const session = await verifyAdminSession(req);
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const url = new URL(req.url);
     const limit = parseInt(url.searchParams.get("limit") || "100", 10);
     
@@ -53,7 +60,11 @@ export async function GET(req: NextRequest) {
       const country = pv.country || 'Unknown';
       const asn = pv.asn || 'Unknown';
       const userAgent = pv.userAgent || 'Unknown';
-      const classification = pv.classification || 'UNKNOWN';
+      // Older records were saved before ASN detection worked; re-flag known scraper cloud IPs
+      const scraperCloud = isKnownScraperCloudIp(pv.ip);
+      const classification = scraperCloud && (!pv.classification || pv.classification === 'LIKELY HUMAN' || pv.classification === 'UNKNOWN')
+        ? 'LIKELY BOT'
+        : (pv.classification || 'UNKNOWN');
       const dateStr = pv.createdAt.toISOString().split('T')[0];
       
       const clusterKey = `${dateStr}-${country}-${asn}-${classification}`; // Grouping by Date, Country, ASN, and Classification
@@ -69,7 +80,7 @@ export async function GET(req: NextRequest) {
           downloads: 0,
           likes: 0,
           lastActive: pv.createdAt,
-          isHosting: pv.isHosting || false,
+          isHosting: pv.isHosting || scraperCloud,
           cfBotScore: pv.cfBotScore || null,
           classification
         });

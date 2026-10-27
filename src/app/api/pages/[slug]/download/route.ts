@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { detectBot } from "@/lib/botDetection";
+import { detectBot, isNonHuman } from "@/lib/botDetection";
 
 const getRealIp = (ip: string | undefined): string => {
   if (!ip) return "unknown";
@@ -50,11 +50,11 @@ export async function POST(
     const recentViews = await prisma.pageView.count({
       where: { ip, createdAt: { gte: sixHoursAgo } }
     });
-    const botStatus = detectBot(req, recentViews);
+    const botStatus = detectBot(req, recentViews, ip);
 
-    // Increment download count for human visitors (only exclude confirmed bots)
+    // Increment download count for human visitors only (bots and suspicious datacenter traffic are logged but not counted)
     let updatedDownloads = page.downloads;
-    if (botStatus.classification !== "LIKELY BOT" && botStatus.classification !== "VERIFIED BOT") {
+    if (!isNonHuman(botStatus.classification)) {
       const updatedPage = await prisma.coloringPage.update({
         where: { slug },
         data: { downloads: { increment: 1 } }

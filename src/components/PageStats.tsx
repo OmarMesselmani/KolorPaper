@@ -33,20 +33,51 @@ export default function PageStats({ slug, views, downloads, likes, className }: 
 
   useEffect(() => {
     if (!slug) return;
+    // Automated browsers (Puppeteer / Selenium / Playwright) expose navigator.webdriver = true
+    if (typeof navigator !== 'undefined' && navigator.webdriver) return;
 
     const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
-    fetch(`${API_URL}/pages/${slug}/view`, {
-      method: 'POST',
-    })
-      .then((res) => {
-        if (res.ok) return res.json();
+    const VISIBLE_MS_REQUIRED = 4000;
+    let recorded = false;
+    let visibleMs = 0;
+    let lastTick = Date.now();
+
+    const recordView = () => {
+      if (recorded) return;
+      recorded = true;
+      cleanup();
+      fetch(`${API_URL}/pages/${slug}/view`, {
+        method: 'POST',
       })
-      .then((data) => {
-        if (data && typeof data.views === 'number') {
-          setCurrentViews(data.views);
-        }
-      })
-      .catch((err) => console.error("Failed to record view:", err));
+        .then((res) => {
+          if (res.ok) return res.json();
+        })
+        .then((data) => {
+          if (data && typeof data.views === 'number') {
+            setCurrentViews(data.views);
+          }
+        })
+        .catch((err) => console.error("Failed to record view:", err));
+    };
+
+    // Count a view only after real engagement: a user interaction, or enough time with the tab visible.
+    // Scraper bots typically load the page and leave immediately, so they never trigger this.
+    const interactionEvents = ['scroll', 'pointerdown', 'keydown', 'touchstart', 'mousemove'] as const;
+    interactionEvents.forEach((evt) => window.addEventListener(evt, recordView, { passive: true, once: true }));
+
+    const timer = window.setInterval(() => {
+      const now = Date.now();
+      if (document.visibilityState === 'visible') visibleMs += now - lastTick;
+      lastTick = now;
+      if (visibleMs >= VISIBLE_MS_REQUIRED) recordView();
+    }, 500);
+
+    function cleanup() {
+      window.clearInterval(timer);
+      interactionEvents.forEach((evt) => window.removeEventListener(evt, recordView));
+    }
+
+    return cleanup;
   }, [slug]);
 
   return (
