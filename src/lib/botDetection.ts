@@ -91,6 +91,22 @@ export function isNonHuman(classification: string | null | undefined): boolean {
   return NON_HUMAN_CLASSIFICATIONS.includes(classification as Classification);
 }
 
+export const KNOWN_BOT_USER_AGENTS = [
+  'bot', 'crawler', 'spider', 'curl', 'wget', 'python', 'postman',
+  'httpclient', 'headless', 'puppeteer', 'selenium', 'playwright',
+  'scrapy', 'go-http-client', 'ahrefs', 'semrush', 'bytespider', 'yandex',
+  'phantomjs', 'node-fetch', 'axios', 'java/', 'okhttp', 'libwww',
+  'lightpanda', 'petalbot', 'dataforseo', 'gptbot', 'chatgpt',
+  'claudebot', 'anthropic', 'cohere', 'perplexity', 'applebot',
+  'meta-externalagent'
+];
+
+export function isKnownBotUserAgent(userAgent: string | null | undefined): boolean {
+  if (!userAgent || userAgent.trim().length < 10) return true;
+  const ua = userAgent.toLowerCase();
+  return KNOWN_BOT_USER_AGENTS.some(botWord => ua.includes(botWord));
+}
+
 const parseAsn = (value: string | number | null | undefined): number | null => {
   if (value === null || value === undefined || value === "") return null;
   const n = parseInt(String(value).replace(/^AS/i, ""), 10);
@@ -128,27 +144,19 @@ export function detectBot(req: NextRequest, existingViewsFromIP: number, ip?: st
 
   const userAgent = req.headers.get("user-agent")?.toLowerCase() || "";
 
-  // 1. Cloudflare Bot Management score (Enterprise only - used when available)
+  // 1. Clear Bot / Scraper User-Agent Check (ALWAYS RUN FIRST)
+  // If the User-Agent explicitly identifies as a bot, scraper, or automation tool (e.g. Lightpanda),
+  // immediately classify as LIKELY BOT regardless of any Cloudflare score.
+  if (isKnownBotUserAgent(userAgent)) {
+    return { classification: "LIKELY BOT", asn, isHosting: false, cfBotScore };
+  }
+
+  // 2. Cloudflare Bot Management score (when available)
+  // Only trust low scores (flagged as bot/suspicious).
+  // DO NOT immediately return "LIKELY HUMAN" for high scores (e.g. 99) if traffic is coming from a datacenter.
   if (cfBotScore !== null && !Number.isNaN(cfBotScore)) {
     if (cfBotScore <= 9) return { classification: "LIKELY BOT", asn, isHosting: false, cfBotScore };
     if (cfBotScore <= 19) return { classification: "SUSPICIOUS", asn, isHosting: false, cfBotScore };
-    return { classification: "LIKELY HUMAN", asn, isHosting: false, cfBotScore }; // 20+ is human
-  }
-
-  // 2. Clear Bot / Scraper User-Agent Check
-  const botUserAgents = [
-    'bot', 'crawler', 'spider', 'curl', 'wget', 'python', 'postman',
-    'httpclient', 'headless', 'puppeteer', 'selenium', 'playwright',
-    'scrapy', 'go-http-client', 'ahrefs', 'semrush', 'bytespider', 'yandex',
-    'phantomjs', 'node-fetch', 'axios', 'java/', 'okhttp', 'libwww'
-  ];
-  if (botUserAgents.some(botWord => userAgent.includes(botWord))) {
-    return { classification: "LIKELY BOT", asn, isHosting: false, cfBotScore: null };
-  }
-
-  // Missing or empty User-Agent is typically automated scripts
-  if (!userAgent || userAgent.length < 10) {
-    return { classification: "LIKELY BOT", asn, isHosting: false, cfBotScore: null };
   }
 
   // 3. Heuristic Scoring for real browsers

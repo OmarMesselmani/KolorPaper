@@ -33,8 +33,14 @@ export default function PageStats({ slug, views, downloads, likes, className }: 
 
   useEffect(() => {
     if (!slug) return;
-    // Automated browsers (Puppeteer / Selenium / Playwright) expose navigator.webdriver = true
-    if (typeof navigator !== 'undefined' && navigator.webdriver) return;
+    // Automated browsers and bots
+    if (typeof navigator !== 'undefined') {
+      if (navigator.webdriver) return;
+      const ua = (navigator.userAgent || '').toLowerCase();
+      if (!ua || ua.length < 10 || /bot|crawler|spider|headless|lightpanda|scraper|wget|curl|python/i.test(ua)) {
+        return;
+      }
+    }
 
     const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
     const VISIBLE_MS_REQUIRED = 4000;

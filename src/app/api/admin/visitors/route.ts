@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { verifyAdminSession } from "@/lib/auth";
-import { isKnownScraperCloudIp } from "@/lib/botDetection";
+import { isKnownScraperCloudIp, isKnownBotUserAgent } from "@/lib/botDetection";
 
 export async function GET(req: NextRequest) {
   try {
@@ -60,9 +60,10 @@ export async function GET(req: NextRequest) {
       const country = pv.country || 'Unknown';
       const asn = pv.asn || 'Unknown';
       const userAgent = pv.userAgent || 'Unknown';
-      // Older records were saved before ASN detection worked; re-flag known scraper cloud IPs
+      // Re-flag known scraper cloud IPs or known bot user agents (e.g. Lightpanda) that were recorded with false-positive "LIKELY HUMAN"
       const scraperCloud = isKnownScraperCloudIp(pv.ip);
-      const classification = scraperCloud && (!pv.classification || pv.classification === 'LIKELY HUMAN' || pv.classification === 'UNKNOWN')
+      const isKnownBot = scraperCloud || isKnownBotUserAgent(pv.userAgent);
+      const classification = isKnownBot && (!pv.classification || pv.classification === 'LIKELY HUMAN' || pv.classification === 'UNKNOWN')
         ? 'LIKELY BOT'
         : (pv.classification || 'UNKNOWN');
       const dateStr = pv.createdAt.toISOString().split('T')[0];

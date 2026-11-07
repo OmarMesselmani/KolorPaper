@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { verifyAdminSession } from "@/lib/auth";
-import { isNonHuman, isKnownScraperCloudIp } from "@/lib/botDetection";
+import { isNonHuman, isKnownScraperCloudIp, isKnownBotUserAgent } from "@/lib/botDetection";
 
-// A record is treated as bot traffic if it was classified as such, or (for older records saved
-// before ASN detection worked) if its IP belongs to a known scraper cloud range.
-const isBotRecord = (record: { classification?: string | null; ip?: string | null }) =>
-  isNonHuman(record.classification) || isKnownScraperCloudIp(record.ip);
+// A record is treated as bot traffic if it was classified as such, or if its IP belongs to a
+// known scraper cloud, or if its user agent is a known scraper tool (e.g. Lightpanda).
+const isBotRecord = (record: { classification?: string | null; ip?: string | null; userAgent?: string | null }) =>
+  isNonHuman(record.classification) || isKnownScraperCloudIp(record.ip) || isKnownBotUserAgent(record.userAgent);
 
 export async function GET(req: NextRequest) {
   try {
@@ -53,7 +53,7 @@ export async function GET(req: NextRequest) {
       },
       select: { createdAt: true, action: true, ip: true, userAgent: true, classification: true }
     });
-    const recentViews = includeBots ? allRecentViews : allRecentViews.filter((r: { classification?: string | null; ip?: string | null }) => !isBotRecord(r));
+    const recentViews = includeBots ? allRecentViews : allRecentViews.filter((r: { classification?: string | null; ip?: string | null; userAgent?: string | null }) => !isBotRecord(r));
     const filteredBotEvents = allRecentViews.length - recentViews.length;
 
     const yesterdayDate = new Date();
@@ -148,7 +148,7 @@ export async function GET(req: NextRequest) {
       where: {
         createdAt: { gte: countryStartDate },
       },
-      select: { country: true, ip: true, classification: true }
+      select: { country: true, ip: true, classification: true, userAgent: true }
     });
 
     const countryIPs: Record<string, Set<string>> = {};
