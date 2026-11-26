@@ -299,6 +299,44 @@ export const cachedGetAllCategories = cache(getAllCategories);
 export const cachedGetColoringPages = cache(getColoringPages);
 export const cachedGetAllSubcategories = cache(getAllSubcategories);
 
+export async function getTopDownloadedSubcategories(limit: number = 20): Promise<Category[]> {
+  try {
+    const [allCategories, downloadGroups] = await Promise.all([
+      cachedGetAllCategories(),
+      prisma.coloringPage.groupBy({
+        by: ["subCategorySlug"],
+        where: {
+          published: true,
+          subCategorySlug: { not: null },
+        },
+        _sum: {
+          downloads: true,
+        },
+      }),
+    ]);
+
+    const downloadsBySlug = new Map<string, number>();
+    for (const row of downloadGroups) {
+      if (row.subCategorySlug) {
+        downloadsBySlug.set(row.subCategorySlug, row._sum.downloads ?? 0);
+      }
+    }
+
+    return allCategories
+      .filter((cat) => Boolean(cat.parentSlug))
+      .sort((a, b) => {
+        const diff = (downloadsBySlug.get(b.slug) ?? 0) - (downloadsBySlug.get(a.slug) ?? 0);
+        if (diff !== 0) return diff;
+        return (b._count?.subPages ?? 0) - (a._count?.subPages ?? 0);
+      })
+      .slice(0, limit);
+  } catch (error) {
+    console.error("Failed to fetch top downloaded subcategories:", error);
+    const allCategories = await cachedGetAllCategories();
+    return allCategories.filter((cat) => Boolean(cat.parentSlug)).slice(0, limit);
+  }
+}
+
 export async function getAllCustomTagNames(): Promise<string[]> {
   try {
     const tags = await prisma.tag.findMany({ select: { name: true } });

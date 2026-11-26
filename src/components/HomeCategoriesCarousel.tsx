@@ -1,6 +1,3 @@
-'use client';
-
-import { useMemo } from "react";
 import Link from "next/link";
 import { Category } from "@/types";
 import CategoryCard from "./CategoryCard";
@@ -10,14 +7,9 @@ interface HomeCategoriesCarouselProps {
 }
 
 export default function HomeCategoriesCarousel({ categories }: HomeCategoriesCarouselProps) {
-  // Randomly select 20 categories on each page load/render
-  const displayCategories = useMemo(() => {
-    if (!categories || categories.length === 0) return [];
-    const shuffled = [...categories].sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, 20);
-  }, [categories]);
-
   if (!categories || categories.length === 0) return null;
+
+  const displayCategories = categories.slice(0, 20);
 
   return (
     <div className="w-full max-w-[1240px] mx-auto px-6 mt-12 mb-16 relative">
@@ -29,7 +21,7 @@ export default function HomeCategoriesCarousel({ categories }: HomeCategoriesCar
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
         {displayCategories.map((category, idx) => (
           <div 
-            key={`${category.id}-${idx}`} 
+            key={category.id} 
             className={idx >= 16 ? 'hidden lg:block' : idx >= 12 ? 'hidden sm:block' : ''}
           >
             <CategoryCard category={category} index={idx} />

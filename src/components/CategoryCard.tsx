@@ -36,6 +36,8 @@ export default function CategoryCard({ category, index = 0 }: { category: Catego
 
   const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const testImgRef = useRef<HTMLImageElement | null>(null);
+  const imgRef = useRef<HTMLImageElement | null>(null);
+  const prevOriginalUrlRef = useRef<string | null>(originalImageUrl);
 
   // Safe URI sanitizer
   const sanitizeUrl = (url: string) => {
@@ -110,8 +112,20 @@ export default function CategoryCard({ category, index = 0 }: { category: Catego
     }
   };
 
-  // Reset state whenever category.imageUrl changes
+  // If the browser already loaded the SSR/cached image before hydration, reveal it immediately
   useEffect(() => {
+    const img = imgRef.current;
+    if (img && img.complete && img.naturalWidth > 0) {
+      setIsLoaded(true);
+      setHasError(false);
+    }
+  }, [currentSrc]);
+
+  // Reset state only when category.imageUrl actually changes (never on initial mount)
+  useEffect(() => {
+    if (prevOriginalUrlRef.current === originalImageUrl) return;
+    prevOriginalUrlRef.current = originalImageUrl;
+
     setCurrentSrc(originalImageUrl);
     setIsLoaded(false);
     setHasError(false);
@@ -174,7 +188,7 @@ export default function CategoryCard({ category, index = 0 }: { category: Catego
             {/* Skeleton placeholder with moving shimmer shadow until image loads */}
             {!isLoaded && (
               <div className="absolute inset-0 bg-gray-100 dark:bg-gray-800/70 overflow-hidden animate-pulse pointer-events-none">
-                <div 
+                <div
                   className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/70 dark:via-white/10 to-transparent"
                   style={{ animation: 'skeletonShimmer 1.5s ease-in-out infinite' }}
                 />
@@ -189,14 +203,15 @@ export default function CategoryCard({ category, index = 0 }: { category: Catego
 
             {/* Category Image */}
             <Image
+              ref={imgRef}
               key={currentSrc}
               src={currentSrc}
               alt={`${category.title} free printable coloring pages`}
               fill
+              priority={index < 5}
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 16vw, 16vw"
-              className={`object-contain p-4 transition-all duration-500 group-hover:scale-105 ${
-                isLoaded ? 'opacity-100' : 'opacity-0'
-              }`}
+              className={`object-contain p-4 transition-all duration-300 group-hover:scale-105 ${isLoaded ? 'opacity-100' : 'opacity-0'
+                }`}
               onLoad={handleImageLoad}
               onError={handleImageError}
             />
@@ -229,7 +244,7 @@ export default function CategoryCard({ category, index = 0 }: { category: Catego
             {category.likes !== undefined && (
               <span className="flex items-center gap-1 text-rose-400">
                 <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
                 </svg>
                 {formatCount(category.likes)}
               </span>
